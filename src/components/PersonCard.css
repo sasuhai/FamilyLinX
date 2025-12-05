@@ -1,0 +1,221 @@
+.person-card {
+    position: relative;
+    background: var(--bg-secondary);
+    border-radius: var(--radius-xl);
+    overflow: hidden;
+    cursor: pointer;
+    transition: all var(--transition-base);
+    border: 2px solid var(--border-light);
+    box-shadow: var(--shadow-md);
+}
+
+.person-card:hover {
+    transform: translateY(-8px);
+    box-shadow: var(--shadow-2xl);
+    border-color: var(--primary-500);
+}
+
+.person-card-image {
+    width: 100%;
+    height: 280px;
+    position: relative;
+    overflow: hidden;
+}
+
+.deceased-badge {
+    position: absolute;
+    top: var(--spacing-md);
+    right: var(--spacing-md);
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-xs);
+    padding: var(--spacing-xs) var(--spacing-md);
+    background: rgba(0, 0, 0, 0.75);
+    backdrop-filter: blur(8px);
+    color: white;
+    border-radius: var(--radius-full);
+    font-size: 0.8125rem;
+    font-weight: 600;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+    z-index: 2;
+}
+
+.deceased-badge span:first-child {
+    font-size: 1rem;
+}
+
+
+.person-card-content {
+    padding: var(--spacing-lg);
+}
+
+.person-name {
+    font-size: 1.5rem;
+    font-weight: 700;
+    margin-bottom: var(--spacing-md);
+    color: var(--text-primary);
+    font-family: var(--font-display);
+}
+
+.person-details {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-sm);
+}
+
+.detail-item {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-sm);
+    font-size: 0.9375rem;
+    color: var(--text-secondary);
+}
+
+.detail-icon {
+    font-size: 1.125rem;
+    width: 24px;
+    text-align: center;
+}
+
+.detail-text {
+    flex: 1;
+}
+
+/* Updated: 2025-12-06 01:02 - Enhanced toggle button */
+.sub-group-toggle-badge {
+    display: flex !important;
+    align-items: center !important;
+    gap: var(--spacing-sm) !important;
+    margin-top: var(--spacing-md) !important;
+    padding: var(--spacing-md) var(--spacing-lg) !important;
+    background: linear-gradient(135deg, var(--primary-500), var(--primary-600)) !important;
+    color: white !important;
+    border: none !important;
+    border-radius: var(--radius-lg) !important;
+    font-size: 0.9375rem !important;
+    font-weight: 600 !important;
+    font-family: var(--font-display) !important;
+    box-shadow: 0 2px 8px rgba(99, 102, 241, 0.3) !important;
+    cursor: pointer !important;
+    transition: all 250ms cubic-bezier(0.4, 0, 0.2, 1) !important;
+    width: 100% !important;
+    justify-content: center !important;
+    position: relative !important;
+    overflow: hidden !important;
+}
+
+.sub-group-toggle-badge::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+    transition: left 500ms ease;
+}
+
+.sub-group-toggle-badge:hover::before {
+    left: 100%;
+}
+
+.sub-group-toggle-badge:hover {
+    background: linear-gradient(135deg, var(--primary-600), var(--primary-700));
+    box-shadow: 0 6px 16px rgba(99, 102, 241, 0.4);
+    transform: translateY(-2px) scale(1.02);
+}
+
+.sub-group-toggle-badge:active {
+    transform: translateY(0) scale(0.98);
+    box-shadow: 0 2px 8px rgba(99, 102, 241, 0.3);
+}
+
+.sub-group-toggle-badge.expanded {
+    background: linear-gradient(135deg, #ef4444, #dc2626) !important;
+    box-shadow: 0 2px 8px rgba(239, 68, 68, 0.3) !important;
+}
+
+.sub-group-toggle-badge.expanded:hover {
+    background: linear-gradient(135deg, #dc2626, #b91c1c) !important;
+    box-shadow: 0 6px 16px rgba(239, 68, 68, 0.4) !important;
+}
+
+.sub-group-toggle-badge .badge-icon {
+    font-size: 1.125rem;
+    filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.2));
+}
+
+.sub-group-toggle-badge .toggle-arrow {
+    margin-left: var(--spacing-xs);
+    font-size: 0.875rem;
+    font-weight: 700;
+    transition: transform 250ms ease;
+}
+
+.sub-group-toggle-badge.expanded .toggle-arrow {
+    transform: rotate(180deg);
+}
+
+.badge-icon {
+    font-size: 1rem;
+}
+
+.card-hover-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(135deg,
+            rgba(var(--primary-hue), var(--primary-sat), var(--primary-light), 0.95),
+            rgba(var(--accent-hue), 90%, 60%, 0.95));
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 0;
+    transition: opacity var(--transition-base);
+    pointer-events: none;
+}
+
+.person-card:hover .card-hover-overlay {
+    opacity: 1;
+}
+
+.hover-content {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: var(--spacing-md);
+    color: white;
+    transform: scale(0.9);
+    transition: transform var(--transition-spring);
+}
+
+.person-card:hover .hover-content {
+    transform: scale(1);
+}
+
+.hover-icon {
+    font-size: 3rem;
+}
+
+.hover-text {
+    font-size: 1.25rem;
+    font-weight: 700;
+    font-family: var(--font-display);
+    text-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+}
+
+@media (max-width: 768px) {
+    .person-card-image {
+        height: 220px;
+    }
+
+    .person-name {
+        font-size: 1.25rem;
+    }
+
+    .detail-item {
+        font-size: 0.875rem;
+    }
+}
