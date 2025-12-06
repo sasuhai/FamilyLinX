@@ -12,6 +12,7 @@ interface EditMemberModalProps {
 export const EditMemberModal: React.FC<EditMemberModalProps> = ({ person, onClose, onUpdate }) => {
     const [name, setName] = useState(person.name);
     const [relationship, setRelationship] = useState(person.relationship);
+    const [gender, setGender] = useState<'male' | 'female' | ''>(person.gender || '');
     const [yearOfBirth, setYearOfBirth] = useState(person.yearOfBirth.toString());
     const [isDeceased, setIsDeceased] = useState(person.isDeceased || false);
     const [yearOfDeath, setYearOfDeath] = useState(person.yearOfDeath?.toString() || '');
@@ -100,6 +101,7 @@ export const EditMemberModal: React.FC<EditMemberModalProps> = ({ person, onClos
             const updates: Partial<Person> = {
                 name,
                 relationship,
+                gender: gender || undefined,
                 yearOfBirth: parseInt(yearOfBirth),
                 isDeceased: isDeceased ? true : undefined,
                 yearOfDeath: isDeceased && yearOfDeath ? parseInt(yearOfDeath) : undefined
@@ -173,6 +175,22 @@ export const EditMemberModal: React.FC<EditMemberModalProps> = ({ person, onClos
                             placeholder="e.g., Father, Mother, Son, Friend"
                             required
                         />
+                    </div>
+
+                    <div className="form-group">
+                        <label htmlFor="gender" className="form-label">
+                            Gender
+                        </label>
+                        <select
+                            id="gender"
+                            className="form-input"
+                            value={gender}
+                            onChange={(e) => setGender(e.target.value as 'male' | 'female' | '')}
+                        >
+                            <option value="">Select gender</option>
+                            <option value="male">Male</option>
+                            <option value="female">Female</option>
+                        </select>
                     </div>
 
                     <div className="form-group">

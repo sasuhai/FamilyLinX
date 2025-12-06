@@ -22,11 +22,33 @@
     gap: var(--spacing-md);
     cursor: pointer;
     user-select: none;
+    transition: transform var(--transition-base);
+}
+
+.header-brand:hover {
+    transform: scale(1.02);
 }
 
 .brand-icon {
     font-size: 2.5rem;
-    animation: pulse 2s ease-in-out infinite;
+    filter: hue-rotate(250deg) saturate(1.5) brightness(0.9);
+    color: var(--primary-500);
+    transition: all 0.3s ease;
+}
+
+.header-brand:hover .brand-icon {
+    filter: hue-rotate(250deg) saturate(2) brightness(1.1);
+    animation: rotate 0.6s ease-in-out;
+}
+
+@keyframes rotate {
+    0% {
+        transform: rotate(0deg);
+    }
+
+    100% {
+        transform: rotate(360deg);
+    }
 }
 
 .brand-name {
@@ -34,6 +56,14 @@
     font-weight: 800;
     font-family: var(--font-display);
     margin: 0;
+}
+
+.brand-credit {
+    font-size: 0.75rem;
+    color: var(--text-tertiary);
+    margin: 0;
+    margin-top: -4px;
+    font-weight: 500;
 }
 
 .header-search {

@@ -5,7 +5,6 @@ import { PersonModal } from './PersonModal';
 import { EditMemberModal } from './EditMemberModal';
 import { AddMemberModal } from './AddMemberModal';
 import { EditGroupModal } from './EditGroupModal';
-import { Breadcrumb } from './Breadcrumb';
 import './GroupView.css';
 
 interface GroupViewProps {
@@ -42,11 +41,44 @@ export const GroupView: React.FC<GroupViewProps> = ({
     const [isAddingMember, setIsAddingMember] = useState(false);
     const [isEditingGroup, setIsEditingGroup] = useState(false);
 
+    // Find the parent person (person who has this group as their subGroupId)
+    // This works whether the sub-group is nested or viewed as main page
+    const parentPerson = group.parentGroupId ?
+        allGroups[group.parentGroupId]?.members.find(m => m.subGroupId === group.id) :
+        null;
+
+    // Helper function to check if a group has matching members (recursively)
+    const hasMatchingMembers = (groupId: string, query: string): boolean => {
+        const grp = allGroups[groupId];
+        if (!grp) return false;
+
+        // Check if any member in this group matches
+        const hasMatch = grp.members.some(m =>
+            m.name.toLowerCase().includes(query.toLowerCase()) ||
+            m.relationship.toLowerCase().includes(query.toLowerCase())
+        );
+
+        if (hasMatch) return true;
+
+        // Check sub-groups recursively
+        return grp.members.some(m =>
+            m.subGroupId && hasMatchingMembers(m.subGroupId, query)
+        );
+    };
+
     const filteredMembers = group.members
-        .filter((member) =>
-            member.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-            member.relationship.toLowerCase().includes(searchQuery.toLowerCase())
-        )
+        .filter((member) => {
+            // Include if member matches search
+            const memberMatches =
+                member.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                member.relationship.toLowerCase().includes(searchQuery.toLowerCase());
+
+            // Include if member has a sub-group with matching members
+            const subGroupHasMatches = searchQuery && member.subGroupId &&
+                hasMatchingMembers(member.subGroupId, searchQuery);
+
+            return !searchQuery || memberMatches || subGroupHasMatches;
+        })
         .sort((a, b) => a.yearOfBirth - b.yearOfBirth); // Sort by year of birth, oldest first
 
     const indentClass = depth > 0 ? `group-indent-${Math.min(depth, 3)}` : '';
@@ -80,10 +112,22 @@ export const GroupView: React.FC<GroupViewProps> = ({
 
     return (
         <div className={`group-view-container ${indentClass}`}>
-            {depth === 0 && <Breadcrumb items={breadcrumbs} onNavigate={onNavigateToBreadcrumb} />}
-
             <div className={`group-view ${depth > 0 ? 'sub-group' : ''}`}>
                 <div className="group-header fade-in">
+                    {/* Show parent photo only on new page (depth 0) for sub-groups */}
+                    {depth === 0 && parentPerson && parentPerson.photos.length > 0 && (() => {
+                        // Get the latest photo based on yearTaken
+                        const latestPhoto = [...parentPerson.photos].sort((a, b) => b.yearTaken - a.yearTaken)[0];
+                        return (
+                            <div className="parent-photo-container">
+                                <img
+                                    src={latestPhoto.url}
+                                    alt={parentPerson.name}
+                                    className="parent-photo-img"
+                                />
+                            </div>
+                        );
+                    })()}
                     <div className="group-header-content">
                         {depth > 0 && (
                             <div className="sub-group-indicator">
@@ -110,7 +154,7 @@ export const GroupView: React.FC<GroupViewProps> = ({
                             <span className="stat-label">Photos</span>
                         </div>
                     </div>
-                    {(onEditGroup || onAddMember) && (
+                    {(onEditGroup || onAddMember || depth > 0) && (
                         <div className="group-actions">
                             {onAddMember && (
                                 <button className="btn btn-primary" onClick={() => setIsAddingMember(true)}>
@@ -124,11 +168,25 @@ export const GroupView: React.FC<GroupViewProps> = ({
                                     Edit Group
                                 </button>
                             )}
+                            {depth > 0 && (
+                                <button
+                                    className="btn btn-secondary open-page-btn"
+                                    onClick={(e) => {
+                                        e.preventDefault();
+                                        console.log('Open Page clicked for group:', group.id);
+                                        onNavigateToBreadcrumb(group.id);
+                                    }}
+                                    title="Open this group in a new page"
+                                >
+                                    <span>🔗</span>
+                                    <span className="btn-text">Open Page</span>
+                                </button>
+                            )}
                         </div>
                     )}
                 </div>
 
-                {searchQuery && depth === 0 && (
+                {searchQuery && (
                     <div className="search-results-info">
                         Found {filteredMembers.length} {filteredMembers.length === 1 ? 'member' : 'members'}
                     </div>
@@ -169,7 +227,7 @@ export const GroupView: React.FC<GroupViewProps> = ({
                                             onUpdateMember={onUpdateMember}
                                             onEditGroup={onEditGroup}
                                             onAddMember={onAddMember}
-                                            searchQuery=""
+                                            searchQuery={searchQuery}
                                             depth={depth + 1}
                                         />
                                     </div>

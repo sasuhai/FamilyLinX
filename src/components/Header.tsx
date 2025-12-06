@@ -10,6 +10,9 @@ interface HeaderProps {
     onExportData: () => void;
     onImportData: (file: File) => void;
     onCreateGroup: () => void;
+    onBack?: () => void;
+    canGoBack?: boolean;
+    onNavigateHome?: () => void;
 }
 
 export const Header: React.FC<HeaderProps> = ({
@@ -20,6 +23,9 @@ export const Header: React.FC<HeaderProps> = ({
     onExportData,
     onImportData,
     onCreateGroup,
+    onBack,
+    canGoBack = false,
+    onNavigateHome,
 }) => {
     const [isMenuOpen, setIsMenuOpen] = useState(false);
     const fileInputRef = useRef<HTMLInputElement>(null);
@@ -51,11 +57,14 @@ export const Header: React.FC<HeaderProps> = ({
         <header className="app-header">
             <div className="container">
                 <div className="header-content">
-                    <div className="header-brand">
+                    <div className="header-brand" onClick={onNavigateHome}>
                         <div className="brand-icon">👨‍👩‍👧‍👦</div>
-                        <h1 className="brand-name">
-                            <span className="gradient-text">FamilyLinX</span>
-                        </h1>
+                        <div>
+                            <h1 className="brand-name">
+                                <span className="gradient-text">FamilyLinX</span>
+                            </h1>
+                            <p className="brand-credit">@ designed by Idiahus</p>
+                        </div>
                     </div>
 
                     <div className="header-search">
@@ -72,6 +81,16 @@ export const Header: React.FC<HeaderProps> = ({
                     </div>
 
                     <div className="header-actions">
+                        {canGoBack && onBack && (
+                            <button
+                                className="btn btn-secondary"
+                                onClick={onBack}
+                                title="Go back"
+                            >
+                                <span>←</span>
+                                <span className="btn-text">Back</span>
+                            </button>
+                        )}
                         <button
                             className="btn btn-primary"
                             onClick={onCreateGroup}

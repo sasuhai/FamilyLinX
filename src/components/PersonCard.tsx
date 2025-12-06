@@ -40,16 +40,18 @@ export const PersonCard: React.FC<PersonCardProps> = ({
                         <span className="detail-text">{person.relationship}</span>
                     </div>
 
-                    <div className="detail-item">
-                        <span className="detail-icon">🎂</span>
-                        <span className="detail-text">{ageDisplay}</span>
-                    </div>
+                    <div className="detail-row">
+                        <div className="detail-item">
+                            <span className="detail-icon">🎂</span>
+                            <span className="detail-text">{ageDisplay}</span>
+                        </div>
 
-                    <div className="detail-item">
-                        <span className="detail-icon">📸</span>
-                        <span className="detail-text">
-                            {person.photos.length} {person.photos.length === 1 ? 'photo' : 'photos'}
-                        </span>
+                        <div className="detail-item">
+                            <span className="detail-icon">📸</span>
+                            <span className="detail-text">
+                                {person.photos.length} {person.photos.length === 1 ? 'photo' : 'photos'}
+                            </span>
+                        </div>
                     </div>
                 </div>
 

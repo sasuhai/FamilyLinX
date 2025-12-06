@@ -4,6 +4,7 @@ import type { Group, Person, BreadcrumbItem } from './types';
 import { Header } from './components/Header';
 import { GroupView } from './components/GroupView';
 import { AddMemberModal } from './components/AddMemberModal';
+import { AddGroupModal } from './components/AddGroupModal';
 import { EditGroupModal } from './components/EditGroupModal';
 import { generateId } from './utils/helpers';
 import {
@@ -26,6 +27,7 @@ export function FamilyApp() {
     const [searchQuery, setSearchQuery] = useState('');
     const [isLoading, setIsLoading] = useState(true);
     const [showAddMember, setShowAddMember] = useState(false);
+    const [showAddGroup, setShowAddGroup] = useState(false);
     const [showEditGroup, setShowEditGroup] = useState(false);
     const [familyName, setFamilyName] = useState('');
 
@@ -106,16 +108,52 @@ export function FamilyApp() {
     const handleNavigateToBreadcrumb = (groupId: string) => {
         const index = navigationHistory.indexOf(groupId);
         if (index !== -1) {
+            // Group is already in history, navigate back to it
             setCurrentGroupId(groupId);
             setNavigationHistory(navigationHistory.slice(0, index + 1));
+        } else {
+            // Group is not in history, add it (for sub-group navigation)
+            setCurrentGroupId(groupId);
+            setNavigationHistory([...navigationHistory, groupId]);
+        }
+    };
+
+    const handleBack = () => {
+        if (navigationHistory.length > 1) {
+            const newHistory = navigationHistory.slice(0, -1);
+            setNavigationHistory(newHistory);
+            setCurrentGroupId(newHistory[newHistory.length - 1]);
+        }
+    };
+
+    const handleNavigateHome = () => {
+        if (navigationHistory.length > 0) {
+            const firstGroupId = navigationHistory[0];
+            setCurrentGroupId(firstGroupId);
+            setNavigationHistory([firstGroupId]);
         }
     };
 
     const handleCreateSubGroup = async (personId: string) => {
-        if (!currentGroup || !familyId) return;
+        if (!familyId) return;
 
-        const person = currentGroup.members.find(m => m.id === personId);
-        if (!person) return;
+        // Find the person and their parent group across all groups
+        let person: Person | undefined;
+        let parentGroup: Group | undefined;
+
+        for (const group of Object.values(groups)) {
+            const foundPerson = group.members.find(m => m.id === personId);
+            if (foundPerson) {
+                person = foundPerson;
+                parentGroup = group;
+                break;
+            }
+        }
+
+        if (!person || !parentGroup) {
+            console.error('Person or parent group not found');
+            return;
+        }
 
         const newGroupId = generateId();
         const newGroup: Omit<Group, 'createdAt' | 'updatedAt'> = {
@@ -123,7 +161,7 @@ export function FamilyApp() {
             name: `${person.name}'s Family`,
             description: `Sub-group for ${person.name}`,
             members: [],
-            parentGroupId: currentGroup.id
+            parentGroupId: parentGroup.id
         };
 
         try {
@@ -131,18 +169,18 @@ export function FamilyApp() {
             await createGroup(familyId, newGroup);
 
             // Update person with subGroupId
-            const updatedMembers = currentGroup.members.map(m =>
+            const updatedMembers = parentGroup.members.map(m =>
                 m.id === personId ? { ...m, subGroupId: newGroupId } : m
             );
 
-            await updateGroup(familyId, currentGroup.id, { members: updatedMembers });
+            await updateGroup(familyId, parentGroup.id, { members: updatedMembers });
 
             // Update local state
             setGroups(prev => ({
                 ...prev,
                 [newGroupId]: { ...newGroup, createdAt: Date.now(), updatedAt: Date.now() },
-                [currentGroup.id]: {
-                    ...currentGroup,
+                [parentGroup.id]: {
+                    ...parentGroup,
                     members: updatedMembers,
                     updatedAt: Date.now()
                 }
@@ -158,13 +196,34 @@ export function FamilyApp() {
 
     const handleToggleSubGroup = (subGroupId: string) => {
         setExpandedGroups(prev => {
-            const newSet = new Set<string>();
+            const newSet = new Set(prev);
 
             // If this sub-group is already open, close it
-            // Otherwise, close all others and open only this one
-            if (!prev.has(subGroupId)) {
-                newSet.add(subGroupId);
+            if (prev.has(subGroupId)) {
+                newSet.delete(subGroupId);
+                return newSet;
             }
+
+            // Find the parent of this sub-group
+            const subGroup = groups[subGroupId];
+            if (!subGroup) return newSet;
+
+            const parentGroupId = subGroup.parentGroupId;
+            if (!parentGroupId) return newSet;
+
+            // Find all siblings (sub-groups with the same parent)
+            const parentGroup = groups[parentGroupId];
+            if (!parentGroup) return newSet;
+
+            const siblingSubGroupIds = parentGroup.members
+                .filter(m => m.subGroupId)
+                .map(m => m.subGroupId!);
+
+            // Close all siblings
+            siblingSubGroupIds.forEach(id => newSet.delete(id));
+
+            // Open this sub-group
+            newSet.add(subGroupId);
 
             return newSet;
         });
@@ -470,30 +529,34 @@ export function FamilyApp() {
     };
 
     const handleCreateGroup = () => {
-        const groupName = prompt('Enter group name:');
-        if (!groupName || !familyId) return;
+        setShowAddGroup(true);
+    };
+
+    const handleAddGroup = async (groupData: { name: string; description?: string; slug: string }) => {
+        if (!familyId) return;
 
         const newGroupId = generateId();
         const newGroup: Omit<Group, 'createdAt' | 'updatedAt'> = {
             id: newGroupId,
-            name: groupName,
-            description: '',
+            name: groupData.name,
+            description: groupData.description || '',
+            slug: groupData.slug,
             members: []
         };
 
-        createGroup(familyId, newGroup)
-            .then(() => {
-                setGroups(prev => ({
-                    ...prev,
-                    [newGroupId]: { ...newGroup, createdAt: Date.now(), updatedAt: Date.now() }
-                }));
-                setCurrentGroupId(newGroupId);
-                setNavigationHistory([newGroupId]);
-            })
-            .catch(error => {
-                console.error('Error creating group:', error);
-                alert('Failed to create group. Please try again.');
-            });
+        try {
+            await createGroup(familyId, newGroup);
+
+            setGroups(prev => ({
+                ...prev,
+                [newGroupId]: { ...newGroup, createdAt: Date.now(), updatedAt: Date.now() }
+            }));
+            setCurrentGroupId(newGroupId);
+            setNavigationHistory([newGroupId]);
+        } catch (error) {
+            console.error('Error creating group:', error);
+            alert('Failed to create group. Please try again.');
+        }
     };
 
     const handleExportData = () => {
@@ -516,7 +579,38 @@ export function FamilyApp() {
     };
 
     const handleSearchChange = (query: string) => {
+        console.log('🔍 Search query:', query);
         setSearchQuery(query);
+
+        // Auto-expand all sub-groups when searching to show results
+        if (query.trim()) {
+            const allSubGroupIds = new Set<string>();
+
+            // Recursively find all sub-groups
+            const findAllSubGroups = (groupId: string) => {
+                const group = groups[groupId];
+                if (!group) return;
+
+                group.members.forEach(member => {
+                    if (member.subGroupId) {
+                        allSubGroupIds.add(member.subGroupId);
+                        findAllSubGroups(member.subGroupId); // Recursive for nested sub-groups
+                    }
+                });
+            };
+
+            // Start from current group
+            if (currentGroupId) {
+                findAllSubGroups(currentGroupId);
+            }
+
+            console.log('📂 Expanding sub-groups:', Array.from(allSubGroupIds));
+            setExpandedGroups(allSubGroupIds);
+        } else {
+            // Clear expansion when search is cleared
+            console.log('🔄 Clearing search, collapsing groups');
+            setExpandedGroups(new Set());
+        }
     };
 
     if (isLoading) {
@@ -568,21 +662,13 @@ export function FamilyApp() {
                 onExportData={handleExportData}
                 onImportData={handleImportData}
                 onCreateGroup={handleCreateGroup}
+                onBack={handleBack}
+                canGoBack={navigationHistory.length > 1}
+                onNavigateHome={handleNavigateHome}
             />
 
             <main className="app-main">
                 <div className="container">
-                    <div className="group-actions">
-                        <button className="btn btn-primary" onClick={() => setShowAddMember(true)}>
-                            <span>➕</span>
-                            Add Member
-                        </button>
-                        <button className="btn btn-secondary" onClick={() => setShowEditGroup(true)}>
-                            <span>✏️</span>
-                            Edit Group
-                        </button>
-                    </div>
-
                     <GroupView
                         group={currentGroup}
                         allGroups={groups}
@@ -605,6 +691,13 @@ export function FamilyApp() {
                     <p>FamilyLinX © 2025 - {familyName}</p>
                 </div>
             </footer>
+
+            {showAddGroup && (
+                <AddGroupModal
+                    onClose={() => setShowAddGroup(false)}
+                    onSave={handleAddGroup}
+                />
+            )}
 
             {showAddMember && (
                 <AddMemberModal

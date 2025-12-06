@@ -13,6 +13,7 @@ export interface Person {
   id: string;
   name: string;
   relationship: string;
+  gender?: 'male' | 'female';
   yearOfBirth: number;
   isDeceased?: boolean;
   yearOfDeath?: number;

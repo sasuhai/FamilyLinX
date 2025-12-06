@@ -8,8 +8,9 @@
 }
 
 .group-view.sub-group {
-    margin-top: var(--spacing-lg);
-    padding-left: var(--spacing-xl);
+    margin-top: 0;
+    padding-left: var(--spacing-2xl);
+    padding-right: var(--spacing-lg);
     border-left: 3px solid var(--primary-300);
 }
 
@@ -38,16 +39,48 @@
     flex: 1;
 }
 
+.parent-photo-container {
+    width: 200px;
+    height: 200px;
+    border-radius: var(--radius-xl);
+    overflow: hidden;
+    border: 2px solid var(--border-light);
+    box-shadow: var(--shadow-xl);
+    flex-shrink: 0;
+}
+
+.parent-photo-img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+}
+
+.sub-group-header-row {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-lg);
+    margin-bottom: var(--spacing-sm);
+}
+
 .sub-group-indicator {
     display: flex;
     align-items: center;
     gap: var(--spacing-sm);
-    margin-bottom: var(--spacing-sm);
     color: var(--primary-500);
     font-size: 0.875rem;
     font-weight: 600;
     text-transform: uppercase;
     letter-spacing: 0.05em;
+}
+
+.parent-photo {
+    width: 80px;
+    height: 80px;
+    border-radius: var(--radius-lg);
+    overflow: hidden;
+    border: 3px solid var(--primary-300);
+    box-shadow: var(--shadow-md);
 }
 
 .indicator-icon {
@@ -129,6 +162,15 @@
     font-size: 0.75rem;
 }
 
+.open-page-btn {
+    white-space: nowrap;
+    font-size: 0.875rem;
+}
+
+.open-page-btn:hover {
+    transform: translateY(-2px);
+}
+
 .group-actions {
     display: flex;
     flex-wrap: wrap;
@@ -177,7 +219,7 @@
 }
 
 .sub-group .members-grid {
-    grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
     gap: var(--spacing-lg);
 }
 
@@ -189,7 +231,7 @@
 /* Only the sub-group container spans full width */
 .member-with-subgroup>.sub-group-container {
     grid-column: 1 / -1;
-    margin-top: var(--spacing-lg);
+    margin-top: 0;
 }
 
 /* Sub-group toggle button */
@@ -305,6 +347,12 @@
     .group-header {
         flex-direction: column;
         padding: var(--spacing-lg);
+    }
+
+    .parent-photo-container {
+        width: 150px;
+        height: 150px;
+        margin: 0 auto var(--spacing-md);
     }
 
     .group-stats {

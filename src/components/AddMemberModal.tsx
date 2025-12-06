@@ -12,6 +12,7 @@ interface AddMemberModalProps {
 export const AddMemberModal: React.FC<AddMemberModalProps> = ({ onClose, onAdd }) => {
     const [name, setName] = useState('');
     const [relationship, setRelationship] = useState('');
+    const [gender, setGender] = useState<'male' | 'female' | ''>('');
     const [yearOfBirth, setYearOfBirth] = useState('');
     const [isDeceased, setIsDeceased] = useState(false);
     const [yearOfDeath, setYearOfDeath] = useState('');
@@ -90,6 +91,7 @@ export const AddMemberModal: React.FC<AddMemberModalProps> = ({ onClose, onAdd }
                 id: generateId(),
                 name,
                 relationship,
+                gender: gender || undefined,
                 yearOfBirth: parseInt(yearOfBirth),
                 isDeceased: isDeceased ? true : undefined,
                 yearOfDeath: isDeceased && yearOfDeath ? parseInt(yearOfDeath) : undefined,
@@ -154,6 +156,22 @@ export const AddMemberModal: React.FC<AddMemberModalProps> = ({ onClose, onAdd }
                             placeholder="e.g., Father, Mother, Son, Friend"
                             required
                         />
+                    </div>
+
+                    <div className="form-group">
+                        <label htmlFor="gender" className="form-label">
+                            Gender
+                        </label>
+                        <select
+                            id="gender"
+                            className="form-input"
+                            value={gender}
+                            onChange={(e) => setGender(e.target.value as 'male' | 'female' | '')}
+                        >
+                            <option value="">Select gender</option>
+                            <option value="male">Male</option>
+                            <option value="female">Female</option>
+                        </select>
                     </div>
 
                     <div className="form-group">
