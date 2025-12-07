@@ -38,97 +38,151 @@ export const PersonModal: React.FC<PersonModalProps> = ({
     };
 
     return (
-        <div className="modal-backdrop fade-in" onClick={handleBackdropClick}>
-            <div className="person-modal scale-in">
-                <button className="modal-close" onClick={onClose} aria-label="Close">
-                    ✕
-                </button>
-
-                <div className="modal-header">
-                    <div className="header-content">
-                        <h2 className="modal-title">{person.name}</h2>
-                        <div className="header-details">
-                            <span className="detail-badge">
-                                <span className="badge-icon">👤</span>
+        <div className="modal-backdrop-dark" onClick={handleBackdropClick}>
+            <div className="modal-container-dark modal-lg person-modal-dark">
+                {/* Header */}
+                <div className="modal-header-dark person-header-dark">
+                    <div className="person-header-content">
+                        <h2 className="person-name-dark">{person.name}</h2>
+                        <div className="person-badges-dark">
+                            <span className="person-badge-dark badge-relationship">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                                    <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
+                                    <circle cx="12" cy="7" r="4" />
+                                </svg>
                                 {person.relationship}
                             </span>
-                            <span className="detail-badge">
-                                <span className="badge-icon">🎂</span>
-                                Born {person.yearOfBirth} ({age} years)
+                            <span className="person-badge-dark badge-birth">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                                    <rect x="3" y="4" width="18" height="18" rx="2" ry="2" />
+                                    <line x1="16" y1="2" x2="16" y2="6" />
+                                    <line x1="8" y1="2" x2="8" y2="6" />
+                                    <line x1="3" y1="10" x2="21" y2="10" />
+                                </svg>
+                                {person.yearOfBirth} ({age} yrs)
                             </span>
-                            <span className="detail-badge">
-                                <span className="badge-icon">📸</span>
-                                {person.photos.length} {person.photos.length === 1 ? 'photo' : 'photos'}
+                            <span className="person-badge-dark badge-photos">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                                    <rect x="3" y="3" width="18" height="18" rx="2" ry="2" />
+                                    <circle cx="8.5" cy="8.5" r="1.5" />
+                                    <polyline points="21 15 16 10 5 21" />
+                                </svg>
+                                {person.photos.length}
                             </span>
+                            {person.isDeceased && (
+                                <span className="person-badge-dark badge-deceased">
+                                    Deceased {person.yearOfDeath ? `(${person.yearOfDeath})` : ''}
+                                </span>
+                            )}
                         </div>
                     </div>
-
-                    {isAdminMode && (
-                        <div className="header-actions">
-                            {onEdit && (
-                                <button className="btn btn-secondary" onClick={onEdit}>
-                                    Edit Member
-                                </button>
-                            )}
-                            {subGroupExists && onViewSubGroup ? (
-                                <button className="btn btn-primary" onClick={onViewSubGroup}>
-                                    View Sub-Group
-                                </button>
-                            ) : (
-                                <button className="btn btn-primary" onClick={onCreateSubGroup}>
-                                    Create Sub-Group
-                                </button>
-                            )}
-                        </div>
-                    )}
+                    <button className="modal-close-dark" onClick={onClose} aria-label="Close">
+                        ✕
+                    </button>
                 </div>
 
-                <div className="modal-body">
-                    <div className="view-mode-toggle">
+                {/* Action Buttons */}
+                {isAdminMode && (
+                    <div className="person-actions-bar">
+                        {onEdit && (
+                            <button className="btn-dark btn-dark-secondary btn-compact" onClick={onEdit}>
+                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                                    <path d="M17 3a2.828 2.828 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z" />
+                                </svg>
+                                Edit
+                            </button>
+                        )}
+                        {subGroupExists && onViewSubGroup ? (
+                            <button className="btn-dark btn-dark-primary btn-compact" onClick={onViewSubGroup}>
+                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                                    <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" />
+                                    <circle cx="9" cy="7" r="4" />
+                                    <path d="M23 21v-2a4 4 0 0 0-3-3.87" />
+                                    <path d="M16 3.13a4 4 0 0 1 0 7.75" />
+                                </svg>
+                                View Family
+                            </button>
+                        ) : (
+                            <button className="btn-dark btn-dark-primary btn-compact" onClick={onCreateSubGroup}>
+                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                                    <path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" />
+                                    <circle cx="8.5" cy="7" r="4" />
+                                    <line x1="20" y1="8" x2="20" y2="14" />
+                                    <line x1="17" y1="11" x2="23" y2="11" />
+                                </svg>
+                                Create Family
+                            </button>
+                        )}
+                    </div>
+                )}
+
+                {/* Body */}
+                <div className="modal-body-dark person-body-dark">
+                    {/* View Toggle */}
+                    <div className="view-toggle-dark">
                         <button
-                            className={`toggle - btn ${viewMode === 'grid' ? 'active' : ''} `}
+                            className={`toggle-btn-dark ${viewMode === 'grid' ? 'active' : ''}`}
                             onClick={() => setViewMode('grid')}
                         >
-                            <span>🔲</span>
-                            Grid View
+                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                                <rect x="3" y="3" width="7" height="7" />
+                                <rect x="14" y="3" width="7" height="7" />
+                                <rect x="14" y="14" width="7" height="7" />
+                                <rect x="3" y="14" width="7" height="7" />
+                            </svg>
+                            Grid
                         </button>
                         <button
-                            className={`toggle - btn ${viewMode === 'timeline' ? 'active' : ''} `}
+                            className={`toggle-btn-dark ${viewMode === 'timeline' ? 'active' : ''}`}
                             onClick={() => setViewMode('timeline')}
                         >
-                            <span>📅</span>
-                            Timeline View
+                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                                <line x1="12" y1="20" x2="12" y2="10" />
+                                <line x1="18" y1="20" x2="18" y2="4" />
+                                <line x1="6" y1="20" x2="6" y2="16" />
+                            </svg>
+                            Timeline
                         </button>
                     </div>
 
-                    {viewMode === 'grid' ? (
-                        <div className="photo-grid">
+                    {sortedPhotos.length === 0 ? (
+                        <div className="no-photos-dark">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
+                                <rect x="3" y="3" width="18" height="18" rx="2" ry="2" />
+                                <circle cx="8.5" cy="8.5" r="1.5" />
+                                <polyline points="21 15 16 10 5 21" />
+                            </svg>
+                            <p>No photos yet</p>
+                            <span>Add photos to see them here</span>
+                        </div>
+                    ) : viewMode === 'grid' ? (
+                        <div className="photo-grid-dark">
                             {sortedPhotos.map((photo) => (
                                 <div
                                     key={photo.id}
-                                    className="photo-grid-item"
+                                    className="photo-grid-item-dark"
                                     onClick={() => setSelectedPhoto(photo)}
                                 >
-                                    <img src={photo.url} alt={`Photo from ${photo.yearTaken} `} />
-                                    <div className="photo-grid-overlay">
-                                        <span className="photo-year-badge">{photo.yearTaken}</span>
+                                    <img src={photo.url} alt={`Photo from ${photo.yearTaken}`} />
+                                    <div className="photo-overlay-dark">
+                                        <span className="photo-year-dark">{photo.yearTaken}</span>
                                     </div>
                                 </div>
                             ))}
                         </div>
                     ) : (
-                        <div className="photo-timeline">
+                        <div className="photo-timeline-dark">
                             {sortedPhotos.map((photo, index) => (
-                                <div key={photo.id} className="timeline-item slide-in-right" style={{ animationDelay: `${index * 0.1} s` }}>
-                                    <div className="timeline-marker">
-                                        <div className="marker-dot"></div>
-                                        {index < sortedPhotos.length - 1 && <div className="marker-line"></div>}
+                                <div key={photo.id} className="timeline-item-dark">
+                                    <div className="timeline-marker-dark">
+                                        <div className="marker-dot-dark"></div>
+                                        {index < sortedPhotos.length - 1 && <div className="marker-line-dark"></div>}
                                     </div>
-                                    <div className="timeline-content">
-                                        <div className="timeline-year">{photo.yearTaken}</div>
-                                        <div className="timeline-photo" onClick={() => setSelectedPhoto(photo)}>
-                                            <img src={photo.url} alt={`Photo from ${photo.yearTaken} `} />
-                                            {photo.caption && <p className="timeline-caption">{photo.caption}</p>}
+                                    <div className="timeline-content-dark">
+                                        <div className="timeline-year-dark">{photo.yearTaken}</div>
+                                        <div className="timeline-photo-dark" onClick={() => setSelectedPhoto(photo)}>
+                                            <img src={photo.url} alt={`Photo from ${photo.yearTaken}`} />
+                                            {photo.caption && <p className="timeline-caption-dark">{photo.caption}</p>}
                                         </div>
                                     </div>
                                 </div>
@@ -137,14 +191,15 @@ export const PersonModal: React.FC<PersonModalProps> = ({
                     )}
                 </div>
 
+                {/* Lightbox */}
                 {selectedPhoto && (
-                    <div className="photo-lightbox fade-in" onClick={() => setSelectedPhoto(null)}>
-                        <div className="lightbox-content" onClick={(e) => e.stopPropagation()}>
-                            <button className="lightbox-close" onClick={() => setSelectedPhoto(null)}>
+                    <div className="lightbox-dark" onClick={() => setSelectedPhoto(null)}>
+                        <div className="lightbox-content-dark" onClick={(e) => e.stopPropagation()}>
+                            <button className="lightbox-close-dark" onClick={() => setSelectedPhoto(null)}>
                                 ✕
                             </button>
-                            <img src={selectedPhoto.url} alt={`Photo from ${selectedPhoto.yearTaken} `} />
-                            <div className="lightbox-info">
+                            <img src={selectedPhoto.url} alt={`Photo from ${selectedPhoto.yearTaken}`} />
+                            <div className="lightbox-info-dark">
                                 <h3>{selectedPhoto.yearTaken}</h3>
                                 {selectedPhoto.caption && <p>{selectedPhoto.caption}</p>}
                             </div>

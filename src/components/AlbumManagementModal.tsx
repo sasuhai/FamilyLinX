@@ -8,6 +8,7 @@ export interface Album {
     url: string;
     type: 'photo' | 'video';
     albumDate?: string; // Format: "YYYY-MM" (e.g., "2024-06")
+    coverUrl?: string;  // Optional custom cover image URL for services without thumbnails
     createdAt: number;
 }
 

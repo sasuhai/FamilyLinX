@@ -1,16 +1,20 @@
 import React, { useMemo, useEffect, useRef, useState } from 'react';
 import type { Group, Person } from '../types';
+import type { CalendarEvent } from '../types/calendar';
+import { getUpcomingEvents } from '../services/calendar.service';
 import './HeroSection.css';
 
 interface HeroSectionProps {
     group: Group;
     allGroups: Record<string, Group>;
+    familyId?: string;
     searchQuery?: string;
     onSearchChange?: (query: string) => void;
 }
 
-export const HeroSection: React.FC<HeroSectionProps> = ({ group, allGroups, searchQuery: parentSearchQuery, onSearchChange }) => {
+export const HeroSection: React.FC<HeroSectionProps> = ({ group, allGroups, familyId, searchQuery: parentSearchQuery, onSearchChange }) => {
     const marqueeRef = useRef<HTMLDivElement>(null);
+    const eventsMarqueeRef = useRef<HTMLDivElement>(null);
     const animationRef = useRef<number | undefined>(undefined);
     const scrollPositionRef = useRef<number>(0);
     const isPausedRef = useRef<boolean>(false);
@@ -18,6 +22,9 @@ export const HeroSection: React.FC<HeroSectionProps> = ({ group, allGroups, sear
     // Use parent's search query if provided, otherwise use local state
     const [localSearchQuery, setLocalSearchQuery] = useState('');
     const searchQuery = parentSearchQuery !== undefined ? parentSearchQuery : localSearchQuery;
+
+    // Upcoming events state
+    const [upcomingEvents, setUpcomingEvents] = useState<CalendarEvent[]>([]);
 
     // Helper to update search query - calls parent if available, otherwise updates local state
     const updateSearchQuery = (query: string) => {
@@ -31,6 +38,22 @@ export const HeroSection: React.FC<HeroSectionProps> = ({ group, allGroups, sear
     // Year filter (local only - for photos)
     const [yearFilter, setYearFilter] = useState<string>('');
     const [showFilters, setShowFilters] = useState(false);
+
+    // Fetch upcoming events
+    useEffect(() => {
+        if (!familyId) return;
+
+        const fetchEvents = async () => {
+            try {
+                const events = await getUpcomingEvents(familyId, 60); // Next 60 days
+                setUpcomingEvents(events);
+            } catch (error) {
+                console.error('Error fetching upcoming events:', error);
+            }
+        };
+
+        fetchEvents();
+    }, [familyId]);
 
     // Collect all photos from the group and its sub-groups recursively
     const allPhotos = useMemo(() => {
@@ -184,6 +207,8 @@ export const HeroSection: React.FC<HeroSectionProps> = ({ group, allGroups, sear
     return (
         <section className="hero-section">
             <div className="hero-container">
+
+
                 <div className="hero-content">
                     <h1 className="hero-title gradient-text fade-in">
                         {group.name}
@@ -257,6 +282,8 @@ export const HeroSection: React.FC<HeroSectionProps> = ({ group, allGroups, sear
                                 </div>
                             </div>
                         </div>
+
+
 
                         {/* Search and Filter Section */}
                         <div className="photo-filter-section">
@@ -333,6 +360,69 @@ export const HeroSection: React.FC<HeroSectionProps> = ({ group, allGroups, sear
                                 </div>
                             )}
                         </div>
+
+                        {/* Upcoming Events Marquee */}
+                        {upcomingEvents.length > 0 && (
+                            <div className="events-marquee-container" style={{ marginTop: '1.5rem', marginBottom: '0.5rem' }}>
+                                <div className="events-marquee">
+                                    <div
+                                        ref={eventsMarqueeRef}
+                                        className="events-marquee-track"
+                                    >
+                                        {/* First set */}
+                                        {upcomingEvents.map((event, index) => {
+                                            const eventDate = new Date(event.startDate);
+                                            const dateStr = eventDate.toLocaleDateString('en-US', {
+                                                month: 'short',
+                                                day: 'numeric'
+                                            });
+                                            const categoryIcons: Record<string, string> = {
+                                                'birthday': '🎂',
+                                                'anniversary': '💍',
+                                                'meeting': '📅',
+                                                'holiday': '🎉',
+                                                'reminder': '⏰',
+                                                'other': '📌'
+                                            };
+                                            const icon = categoryIcons[event.category] || '📌';
+
+                                            return (
+                                                <div key={`event-1-${index}`} className="events-marquee-item">
+                                                    <span className="event-icon">{icon}</span>
+                                                    <span className="event-date">{dateStr}</span>
+                                                    <span className="event-title">{event.title}</span>
+                                                </div>
+                                            );
+                                        })}
+                                        {/* Second set - for seamless loop */}
+                                        {upcomingEvents.map((event, index) => {
+                                            const eventDate = new Date(event.startDate);
+                                            const dateStr = eventDate.toLocaleDateString('en-US', {
+                                                month: 'short',
+                                                day: 'numeric'
+                                            });
+                                            const categoryIcons: Record<string, string> = {
+                                                'birthday': '🎂',
+                                                'anniversary': '💍',
+                                                'meeting': '📅',
+                                                'holiday': '🎉',
+                                                'reminder': '⏰',
+                                                'other': '📌'
+                                            };
+                                            const icon = categoryIcons[event.category] || '📌';
+
+                                            return (
+                                                <div key={`event-2-${index}`} className="events-marquee-item">
+                                                    <span className="event-icon">{icon}</span>
+                                                    <span className="event-date">{dateStr}</span>
+                                                    <span className="event-title">{event.title}</span>
+                                                </div>
+                                            );
+                                        })}
+                                    </div>
+                                </div>
+                            </div>
+                        )}
                     </>
                 )}
             </div>

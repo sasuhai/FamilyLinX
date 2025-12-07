@@ -88,7 +88,7 @@ export const EditGroupModal: React.FC<EditGroupModalProps> = ({ group, onClose, 
                     </div>
 
                     {/* Body */}
-                    <form onSubmit={handleSubmit}>
+                    <form onSubmit={handleSubmit} className="modal-form-scrollable">
                         <div className="modal-body-dark">
                             {/* Stats */}
                             <div className="stats-row-dark">

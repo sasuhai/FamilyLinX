@@ -248,6 +248,13 @@ export const EditMemberModal: React.FC<EditMemberModalProps> = ({ person, onClos
         setPhotosToDelete(newSet);
     };
 
+    const handleRemoveNewPhoto = (index: number) => {
+        const newFiles = photoFiles.filter((_, i) => i !== index);
+        const newYears = photoYears.filter((_, i) => i !== index);
+        setPhotoFiles(newFiles);
+        setPhotoYears(newYears);
+    };
+
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
 
@@ -289,290 +296,388 @@ export const EditMemberModal: React.FC<EditMemberModalProps> = ({ person, onClos
         }
     };
 
-    const handleBackdropClick = (e: React.MouseEvent) => {
-        if (e.target === e.currentTarget) {
-            onClose();
-        }
-    };
-
     return (
-        <div className="modal-backdrop fade-in" onClick={handleBackdropClick}>
-            <div className="edit-member-modal scale-in">
-                <button className="modal-close" onClick={onClose} aria-label="Close">
-                    ✕
-                </button>
-
-                <div className="modal-header">
-                    <h2 className="modal-title">Edit Member</h2>
-                    <p className="modal-subtitle">Update member details and manage photos</p>
-                </div>
-
-                <form className="modal-form" onSubmit={handleSubmit}>
-                    <div className="form-group">
-                        <label htmlFor="name" className="form-label">
-                            Name <span className="required">*</span>
-                        </label>
-                        <input
-                            type="text"
-                            id="name"
-                            className="form-input"
-                            value={name}
-                            onChange={(e) => setName(e.target.value)}
-                            placeholder="Enter full name"
-                            required
-                        />
-                    </div>
-
-                    <div className="form-group">
-                        <label htmlFor="relationship" className="form-label">
-                            Relationship <span className="required">*</span>
-                        </label>
-                        <input
-                            type="text"
-                            id="relationship"
-                            className="form-input"
-                            value={relationship}
-                            onChange={(e) => setRelationship(e.target.value)}
-                            placeholder="e.g., Father, Mother, Son, Friend"
-                            required
-                        />
-                    </div>
-
-                    <div className="form-group">
-                        <label htmlFor="gender" className="form-label">
-                            Gender
-                        </label>
-                        <select
-                            id="gender"
-                            className="form-input"
-                            value={gender}
-                            onChange={(e) => setGender(e.target.value as 'male' | 'female' | '')}
-                        >
-                            <option value="">Select gender</option>
-                            <option value="male">Male</option>
-                            <option value="female">Female</option>
-                        </select>
-                    </div>
-
-                    <div className="form-group">
-                        <label htmlFor="yearOfBirth" className="form-label">
-                            Year of Birth <span className="required">*</span>
-                        </label>
-                        <input
-                            type="number"
-                            id="yearOfBirth"
-                            className="form-input"
-                            value={yearOfBirth}
-                            onChange={(e) => setYearOfBirth(e.target.value)}
-                            placeholder="e.g., 1990"
-                            min="1900"
-                            max={new Date().getFullYear()}
-                            required
-                        />
-                    </div>
-
-                    <div className="form-group">
-                        <label className="form-label checkbox-label">
-                            <input
-                                type="checkbox"
-                                checked={isDeceased}
-                                onChange={(e) => setIsDeceased(e.target.checked)}
-                                className="form-checkbox"
-                            />
-                            <span>Deceased</span>
-                        </label>
-                        <small className="form-hint">Check if this person has passed away</small>
-                    </div>
-
-                    {isDeceased && (
-                        <div className="form-group">
-                            <label htmlFor="yearOfDeath" className="form-label">
-                                Year of Death <span className="required">*</span>
-                            </label>
-                            <input
-                                type="number"
-                                id="yearOfDeath"
-                                className="form-input"
-                                value={yearOfDeath}
-                                onChange={(e) => setYearOfDeath(e.target.value)}
-                                placeholder="e.g., 2020"
-                                min={yearOfBirth || "1900"}
-                                max={new Date().getFullYear()}
-                                required={isDeceased}
-                            />
+        <>
+            <div className="modal-backdrop-dark" onClick={onClose}>
+                <div className="modal-container-dark modal-lg" onClick={(e) => e.stopPropagation()}>
+                    {/* Header */}
+                    <div className="modal-header-dark">
+                        <div className="modal-header-content">
+                            <div className="modal-icon-box icon-blue">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                                    <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" />
+                                    <circle cx="9" cy="7" r="4" />
+                                    <path d="M23 21v-2a4 4 0 0 0-3-3.87" />
+                                    <path d="M16 3.13a4 4 0 0 1 0 7.75" />
+                                </svg>
+                            </div>
+                            <div className="modal-titles">
+                                <h2 className="modal-title-dark">Edit Member</h2>
+                                <p className="modal-subtitle-dark">Update member details and manage photos</p>
+                            </div>
                         </div>
-                    )}
+                        <button className="modal-close-dark" onClick={onClose} aria-label="Close">
+                            ✕
+                        </button>
+                    </div>
 
-                    {/* Existing Photos */}
-                    {person.photos.length > 0 && (
-                        <div className="form-group">
-                            <label className="form-label">Current Photos</label>
-                            <div className="existing-photos-grid">
-                                {person.photos.map((photo) => (
-                                    <div
-                                        key={photo.url}
-                                        className={`existing-photo-item ${photosToDelete.has(photo.url) ? 'marked-delete' : ''}`}
-                                    >
-                                        <img
-                                            src={photo.url}
-                                            alt={`${person.name} - ${photo.yearTaken}`}
-                                            className="existing-photo-image"
-                                        />
-                                        <div className="existing-photo-info">
-                                            <span className="photo-year-badge">{photo.yearTaken}</span>
-                                            <button
-                                                type="button"
-                                                className="btn-delete-photo"
-                                                onClick={() => handleDeletePhoto(photo.url)}
-                                                title={photosToDelete.has(photo.url) ? 'Undo delete' : 'Delete photo'}
-                                            >
-                                                {photosToDelete.has(photo.url) ? '↶' : '🗑️'}
-                                            </button>
-                                        </div>
-                                        {photosToDelete.has(photo.url) && (
-                                            <div className="delete-overlay">Will be deleted</div>
-                                        )}
+                    {/* Body */}
+                    <form onSubmit={handleSubmit} className="modal-form-scrollable">
+                        <div className="modal-body-dark">
+                            {/* Stats Row */}
+                            <div className="stats-row-dark">
+                                <div className="stat-item-dark">
+                                    <div className="stat-value-dark">{person.photos.length}</div>
+                                    <div className="stat-label-dark">Photos</div>
+                                </div>
+                                <div className="stat-item-dark">
+                                    <div className="stat-value-dark">
+                                        {new Date().getFullYear() - person.yearOfBirth}
                                     </div>
-                                ))}
+                                    <div className="stat-label-dark">Age</div>
+                                </div>
                             </div>
-                            {photosToDelete.size > 0 && (
-                                <p className="delete-warning">
-                                    ⚠️ {photosToDelete.size} photo(s) will be deleted
-                                </p>
+
+                            {/* Form Grid */}
+                            <div className="form-row-dark">
+                                <div className="form-group-dark">
+                                    <label htmlFor="name" className="form-label-dark">
+                                        Name <span className="form-required">*</span>
+                                    </label>
+                                    <input
+                                        type="text"
+                                        id="name"
+                                        className="form-input-dark"
+                                        value={name}
+                                        onChange={(e) => setName(e.target.value)}
+                                        placeholder="Enter full name"
+                                        required
+                                        disabled={isSubmitting}
+                                    />
+                                </div>
+
+                                <div className="form-group-dark">
+                                    <label htmlFor="relationship" className="form-label-dark">
+                                        Relationship <span className="form-required">*</span>
+                                    </label>
+                                    <input
+                                        type="text"
+                                        id="relationship"
+                                        className="form-input-dark"
+                                        value={relationship}
+                                        onChange={(e) => setRelationship(e.target.value)}
+                                        placeholder="e.g., Father, Mother, Son"
+                                        required
+                                        disabled={isSubmitting}
+                                    />
+                                </div>
+                            </div>
+
+                            <div className="form-row-dark">
+                                <div className="form-group-dark">
+                                    <label htmlFor="gender" className="form-label-dark">
+                                        Gender
+                                    </label>
+                                    <select
+                                        id="gender"
+                                        className="form-select-dark"
+                                        value={gender}
+                                        onChange={(e) => setGender(e.target.value as 'male' | 'female' | '')}
+                                        disabled={isSubmitting}
+                                    >
+                                        <option value="">Select gender</option>
+                                        <option value="male">Male</option>
+                                        <option value="female">Female</option>
+                                    </select>
+                                </div>
+
+                                <div className="form-group-dark">
+                                    <label htmlFor="yearOfBirth" className="form-label-dark">
+                                        Year of Birth <span className="form-required">*</span>
+                                    </label>
+                                    <input
+                                        type="number"
+                                        id="yearOfBirth"
+                                        className="form-input-dark"
+                                        value={yearOfBirth}
+                                        onChange={(e) => setYearOfBirth(e.target.value)}
+                                        placeholder="e.g., 1990"
+                                        min="1900"
+                                        max={new Date().getFullYear()}
+                                        required
+                                        disabled={isSubmitting}
+                                    />
+                                </div>
+                            </div>
+
+                            {/* Deceased Section */}
+                            <div className="form-group-dark">
+                                <label className="checkbox-group-dark">
+                                    <input
+                                        type="checkbox"
+                                        checked={isDeceased}
+                                        onChange={(e) => setIsDeceased(e.target.checked)}
+                                        disabled={isSubmitting}
+                                    />
+                                    <span>Mark as Deceased</span>
+                                </label>
+                                <span className="form-hint-dark">Check if this person has passed away</span>
+                            </div>
+
+                            {isDeceased && (
+                                <div className="form-group-dark">
+                                    <label htmlFor="yearOfDeath" className="form-label-dark">
+                                        Year of Death <span className="form-required">*</span>
+                                    </label>
+                                    <input
+                                        type="number"
+                                        id="yearOfDeath"
+                                        className="form-input-dark"
+                                        value={yearOfDeath}
+                                        onChange={(e) => setYearOfDeath(e.target.value)}
+                                        placeholder="e.g., 2020"
+                                        min={yearOfBirth || "1900"}
+                                        max={new Date().getFullYear()}
+                                        required={isDeceased}
+                                        disabled={isSubmitting}
+                                    />
+                                </div>
                             )}
-                        </div>
-                    )}
 
-                    {/* Add New Photos */}
-                    <div className="form-group">
-                        <label htmlFor="photos" className="form-label">
-                            Add New Photos
-                        </label>
-                        <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'flex-start', flexWrap: 'wrap' }}>
-                            <input
-                                type="file"
-                                id="photos"
-                                className="form-input-file"
-                                accept="image/*,.heic"
-                                multiple
-                                onChange={handlePhotoChange}
-                                disabled={isCompressing}
-                                style={{ flex: '1', minWidth: '200px' }}
-                            />
-                            <button
-                                type="button"
-                                className="btn btn-secondary"
-                                onClick={handlePasteButton}
-                                disabled={isCompressing}
-                                title="Paste image from clipboard"
-                                style={{ whiteSpace: 'nowrap' }}
-                            >
-                                📋 Paste Photo
-                            </button>
-                        </div>
-                        <p className="form-help">
-                            Upload photos or paste from clipboard. HEIC images supported. Auto-compressed to ≤ 0.5MB.
-                        </p>
-                    </div>
+                            {/* Current Photos Section */}
+                            {person.photos.length > 0 && (
+                                <div className="photos-section-dark">
+                                    <h4 className="section-title-dark">
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                                            <rect x="3" y="3" width="18" height="18" rx="2" ry="2" />
+                                            <circle cx="8.5" cy="8.5" r="1.5" />
+                                            <polyline points="21 15 16 10 5 21" />
+                                        </svg>
+                                        Current Photos
+                                    </h4>
+                                    <div className="photos-grid-dark">
+                                        {person.photos.map((photo) => (
+                                            <div
+                                                key={photo.url}
+                                                className={`photo-card-dark ${photosToDelete.has(photo.url) ? 'marked-delete' : ''}`}
+                                            >
+                                                <img
+                                                    src={photo.url}
+                                                    alt={`${person.name} - ${photo.yearTaken}`}
+                                                    className="photo-image-dark"
+                                                />
+                                                <div className="photo-overlay-dark">
+                                                    <span className="photo-year-dark">{photo.yearTaken}</span>
+                                                    <button
+                                                        type="button"
+                                                        className={`photo-delete-btn-dark ${photosToDelete.has(photo.url) ? 'undo' : ''}`}
+                                                        onClick={() => handleDeletePhoto(photo.url)}
+                                                        title={photosToDelete.has(photo.url) ? 'Undo delete' : 'Delete photo'}
+                                                    >
+                                                        {photosToDelete.has(photo.url) ? (
+                                                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                                                                <path d="M3 12a9 9 0 0 1 9-9 9.75 9.75 0 0 1 6.74 2.74L21 8" />
+                                                                <path d="M21 3v5h-5" />
+                                                                <path d="M21 12a9 9 0 0 1-9 9 9.75 9.75 0 0 1-6.74-2.74L3 16" />
+                                                                <path d="M8 16H3v5" />
+                                                            </svg>
+                                                        ) : (
+                                                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                                                                <polyline points="3 6 5 6 21 6" />
+                                                                <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" />
+                                                            </svg>
+                                                        )}
+                                                    </button>
+                                                </div>
+                                                {photosToDelete.has(photo.url) && (
+                                                    <div className="photo-delete-overlay-dark">
+                                                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                                                            <polyline points="3 6 5 6 21 6" />
+                                                            <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" />
+                                                        </svg>
+                                                        <span>Will be deleted</span>
+                                                    </div>
+                                                )}
+                                            </div>
+                                        ))}
+                                    </div>
+                                    {photosToDelete.size > 0 && (
+                                        <div className="delete-warning-dark">
+                                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                                                <circle cx="12" cy="12" r="10" />
+                                                <line x1="12" y1="8" x2="12" y2="12" />
+                                                <line x1="12" y1="16" x2="12.01" y2="16" />
+                                            </svg>
+                                            {photosToDelete.size} photo{photosToDelete.size !== 1 ? 's' : ''} will be deleted on save
+                                        </div>
+                                    )}
+                                </div>
+                            )}
 
-                    {isCompressing && (
-                        <div className="compression-progress">
-                            <div className="progress-bar">
-                                <div
-                                    className="progress-fill"
-                                    style={{ width: `${(compressionProgress.current / compressionProgress.total) * 100}%` }}
-                                />
-                            </div>
-                            <p className="progress-text">
-                                Compressing images... {compressionProgress.current} of {compressionProgress.total}
-                            </p>
-                        </div>
-                    )}
+                            {/* Add New Photos Section */}
+                            <div className="form-group-dark">
+                                <label htmlFor="photos" className="form-label-dark">
+                                    Add New Photos
+                                </label>
+                                <div className="photo-upload-row">
+                                    <input
+                                        type="file"
+                                        id="photos"
+                                        className="form-file-dark"
+                                        accept="image/*,.heic"
+                                        multiple
+                                        onChange={handlePhotoChange}
+                                        disabled={isCompressing || isSubmitting}
+                                    />
+                                    <button
+                                        type="button"
+                                        className="btn-dark btn-dark-secondary"
+                                        onClick={handlePasteButton}
+                                        disabled={isCompressing || isSubmitting}
+                                        title="Paste image from clipboard"
+                                    >
+                                        📋 Paste
+                                    </button>
+                                </div>
+                                <span className="form-hint-dark">
+                                    Upload photos or paste from clipboard. HEIC images supported.
+                                </span>
 
-                    {photoFiles.length > 0 && !isCompressing && (
-                        <div className="photo-preview">
-                            <p className="preview-label">{photoFiles.length} new photo(s) to add</p>
-                            <div className="preview-grid">
-                                {photoFiles.map((file, index) => (
-                                    <div key={index} className="preview-item">
-                                        <img
-                                            src={URL.createObjectURL(file)}
-                                            alt={`Preview ${index + 1}`}
-                                            className="preview-image"
-                                        />
-                                        <div className="preview-info">
-                                            <span className="preview-size">{formatFileSize(file.size)}</span>
-                                            <input
-                                                type="number"
-                                                className="preview-year"
-                                                value={photoYears[index]}
-                                                onChange={(e) => {
-                                                    const newYears = [...photoYears];
-                                                    newYears[index] = parseInt(e.target.value) || new Date().getFullYear();
-                                                    setPhotoYears(newYears);
-                                                }}
-                                                placeholder="Year"
-                                                min="1900"
-                                                max={new Date().getFullYear()}
+                                {/* Compression Progress */}
+                                {isCompressing && (
+                                    <div className="compression-progress-dark">
+                                        <div className="progress-bar-dark">
+                                            <div
+                                                className="progress-fill-dark"
+                                                style={{ width: `${(compressionProgress.current / compressionProgress.total) * 100}%` }}
                                             />
                                         </div>
+                                        <span className="progress-text-dark">
+                                            Compressing... {compressionProgress.current} of {compressionProgress.total}
+                                        </span>
                                     </div>
-                                ))}
+                                )}
+
+                                {/* New Photos Preview */}
+                                {photoFiles.length > 0 && !isCompressing && (
+                                    <div className="photo-preview-dark">
+                                        <p className="preview-label-dark">{photoFiles.length} photo(s) selected</p>
+                                        <div className="preview-grid-dark">
+                                            {photoFiles.map((file, index) => (
+                                                <div key={index} className="preview-item-dark">
+                                                    <img
+                                                        src={URL.createObjectURL(file)}
+                                                        alt={`Preview ${index + 1}`}
+                                                        className="preview-image-dark"
+                                                    />
+                                                    <div className="preview-info-dark">
+                                                        <span className="preview-size-dark">{formatFileSize(file.size)}</span>
+                                                        <input
+                                                            type="number"
+                                                            className="preview-year-dark"
+                                                            value={photoYears[index]}
+                                                            onChange={(e) => {
+                                                                const newYears = [...photoYears];
+                                                                newYears[index] = parseInt(e.target.value) || new Date().getFullYear();
+                                                                setPhotoYears(newYears);
+                                                            }}
+                                                            placeholder="Year"
+                                                            min="1900"
+                                                            max={new Date().getFullYear()}
+                                                        />
+                                                        <button
+                                                            type="button"
+                                                            className="preview-remove-btn"
+                                                            onClick={() => handleRemoveNewPhoto(index)}
+                                                            title="Remove photo"
+                                                        >
+                                                            ✕
+                                                        </button>
+                                                    </div>
+                                                </div>
+                                            ))}
+                                        </div>
+                                    </div>
+                                )}
+                            </div>
+
+                            {/* Danger Zone */}
+                            <div className="danger-section-dark">
+                                <h4>⚠️ Danger Zone</h4>
+                                <p>Permanently delete this member and all their {person.photos.length} photos.</p>
+                                <button
+                                    type="button"
+                                    className="btn-dark btn-dark-danger"
+                                    onClick={() => setShowDeleteConfirm(true)}
+                                    disabled={isSubmitting || isCompressing}
+                                >
+                                    Delete Member
+                                </button>
                             </div>
                         </div>
-                    )}
 
-                    <div className="form-actions">
-                        <button
-                            type="button"
-                            className="btn btn-danger"
-                            onClick={() => setShowDeleteConfirm(true)}
-                            disabled={isSubmitting || isCompressing}
-                        >
-                            Delete Member
-                        </button>
-                        <div style={{ flex: 1 }}></div>
-                        <button type="button" className="btn btn-secondary" onClick={onClose}>
-                            Cancel
-                        </button>
-                        <button type="submit" className="btn btn-primary" disabled={isSubmitting || isCompressing}>
-                            {isSubmitting ? 'Saving...' : isCompressing ? 'Processing...' : 'Save Changes'}
-                        </button>
-                    </div>
-                </form>
+                        {/* Footer */}
+                        <div className="modal-footer-dark">
+                            <button
+                                type="button"
+                                className="btn-dark btn-dark-secondary"
+                                onClick={onClose}
+                                disabled={isSubmitting}
+                            >
+                                Cancel
+                            </button>
+                            <button
+                                type="submit"
+                                className="btn-dark btn-dark-primary"
+                                disabled={isSubmitting || isCompressing}
+                            >
+                                {isSubmitting ? 'Saving...' : isCompressing ? 'Processing...' : 'Save Changes'}
+                            </button>
+                        </div>
+                    </form>
+                </div>
             </div>
 
             {/* Delete Confirmation Dialog */}
             {showDeleteConfirm && (
-                <div className="modal-overlay" onClick={() => setShowDeleteConfirm(false)}>
-                    <div className="modal-content confirmation-dialog" onClick={(e) => e.stopPropagation()}>
-                        <h2>⚠️ Delete Member</h2>
-                        <p>Are you sure you want to delete <strong>{person.name}</strong>?</p>
-                        <p style={{ color: 'var(--error-500)', fontSize: '0.875rem' }}>
-                            This action cannot be undone. All photos and data will be permanently deleted.
+                <div className="confirm-backdrop-dark" onClick={() => setShowDeleteConfirm(false)}>
+                    <div className="confirm-modal-dark" onClick={(e) => e.stopPropagation()}>
+                        <div className="confirm-icon-dark">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                                <circle cx="12" cy="12" r="10" />
+                                <line x1="12" y1="8" x2="12" y2="12" />
+                                <line x1="12" y1="16" x2="12.01" y2="16" />
+                            </svg>
+                        </div>
+                        <h3 className="confirm-title-dark">Delete Member?</h3>
+                        <p className="confirm-text-dark">
+                            Are you sure you want to delete <strong>"{person.name}"</strong>?
                         </p>
-                        <div className="form-actions">
+                        <p className="confirm-text-dark" style={{ color: '#ef4444', fontSize: '0.875rem' }}>
+                            ⚠️ This will permanently delete all {person.photos.length} photo{person.photos.length !== 1 ? 's' : ''} and cannot be undone!
+                        </p>
+                        <div className="confirm-actions-dark">
                             <button
                                 type="button"
-                                className="btn btn-secondary"
+                                className="btn-dark btn-dark-secondary"
                                 onClick={() => setShowDeleteConfirm(false)}
                             >
                                 Cancel
                             </button>
                             <button
                                 type="button"
-                                className="btn btn-danger"
+                                className="btn-dark btn-dark-danger"
                                 onClick={() => {
                                     onDelete(person.id);
                                     onClose();
                                 }}
                             >
-                                Yes, Delete
+                                Delete
                             </button>
                         </div>
                     </div>
                 </div>
             )}
-        </div>
+        </>
     );
 };

@@ -87,7 +87,7 @@ export const AddGroupModal: React.FC<AddGroupModalProps> = ({ onClose, onSave, e
                     </div>
 
                     {/* Body */}
-                    <form onSubmit={handleSubmit}>
+                    <form onSubmit={handleSubmit} className="modal-form-scrollable">
                         <div className="modal-body-dark">
                             <div className="form-group-dark">
                                 <label htmlFor="group-name" className="form-label-dark">

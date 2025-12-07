@@ -1075,6 +1075,7 @@ export function FamilyApp() {
                 <HeroSection
                     group={currentGroup}
                     allGroups={groups}
+                    familyId={familyId || undefined}
                     searchQuery={searchQuery}
                     onSearchChange={handleSearchChange}
                 />

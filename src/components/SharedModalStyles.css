@@ -46,7 +46,7 @@
     border-radius: 1.25rem;
     width: 100%;
     max-width: 600px;
-    max-height: 85vh;
+    max-height: 90vh;
     overflow: hidden;
     display: flex;
     flex-direction: column;
@@ -169,6 +169,27 @@
     padding: 1.5rem 2rem 2rem;
     overflow-y: auto;
     flex: 1;
+    min-height: 0;
+    /* Critical for flexbox overflow scrolling */
+}
+
+/* Form inside modal - needs flex for proper scrolling */
+.modal-container-dark form,
+.modal-form-scrollable {
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+    min-height: 0;
+    overflow: hidden;
+}
+
+.modal-container-dark form .modal-body-dark,
+.modal-form-scrollable .modal-body-dark {
+    flex: 1;
+    min-height: 0;
+    overflow-y: auto !important;
+    max-height: calc(90vh - 180px);
+    /* Account for header and footer */
 }
 
 /* Modal Footer */
@@ -179,6 +200,8 @@
     padding: 1.25rem 2rem;
     background: rgba(0, 0, 0, 0.2);
     border-top: 1px solid rgba(255, 255, 255, 0.08);
+    flex-shrink: 0;
+    /* Prevent footer from shrinking */
 }
 
 /* Form Styles */

@@ -8,7 +8,8 @@ import {
     updateAlbum,
     deleteAlbum,
     getVideoThumbnailUrl,
-    getPhotoThumbnailUrl
+    getPhotoThumbnailUrl,
+    getPlatformPlaceholder
 } from '../services/album.service';
 import { getFamilyByRootSlug } from '../services/firebase.service';
 import './AlbumPage.css';
@@ -141,12 +142,25 @@ export const AlbumPage: React.FC = () => {
         return date.toLocaleDateString('en-US', { month: 'short', year: 'numeric' });
     };
 
-    // Get thumbnail URL with fallback
+    // Get thumbnail URL with fallback - uses custom cover, then auto-detection, then platform placeholder
     const getThumbnailSrc = (album: Album): string => {
-        if (album.type === 'video') {
-            return getVideoThumbnailUrl(album.url);
+        // First, check if there's a custom cover URL
+        if (album.coverUrl) {
+            return album.coverUrl;
         }
-        return getPhotoThumbnailUrl(album.url);
+
+        // Try to get automatic thumbnail from the URL
+        const autoThumbnail = album.type === 'video'
+            ? getVideoThumbnailUrl(album.url)
+            : getPhotoThumbnailUrl(album.url);
+
+        // If auto-detection returned a valid URL, use it
+        if (autoThumbnail) {
+            return autoThumbnail;
+        }
+
+        // Fall back to platform-specific placeholder
+        return getPlatformPlaceholder(album.url, album.type);
     };
 
     // Get unique years for filter dropdown
