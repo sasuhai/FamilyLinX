@@ -318,81 +318,107 @@ export const CalendarPage: React.FC = () => {
         );
     };
 
+    // Helper to format hour for display
+    const formatHourDisplay = (hour: number): string => {
+        if (hour === 0) return '12:00 AM';
+        if (hour < 12) return `${hour}:00 AM`;
+        if (hour === 12) return '12:00 PM';
+        return `${hour - 12}:00 PM`;
+    };
+
     // Render weekly calendar
     const renderWeeklyCalendar = () => {
         const weekDays = getWeekDays(currentWeekStart);
         const hours = Array.from({ length: 24 }, (_, i) => i);
 
         return (
-            <div className="weekly-grid">
-                {/* Time column */}
-                <div className="time-column">
-                    <div className="day-header" style={{ visibility: 'hidden' }}>Time</div>
-                    {hours.map(hour => (
-                        <div key={hour} className="time-slot">
-                            {hour === 0 ? '12 AM' : hour < 12 ? `${hour} AM` : hour === 12 ? '12 PM' : `${hour - 12} PM`}
-                        </div>
-                    ))}
-                </div>
-
-                {/* Day columns */}
-                {weekDays.map((day, dayIndex) => {
-                    const dayEvents = getEventsForDay(day);
-                    const isTodayDate = isToday(day);
-
-                    return (
-                        <div key={dayIndex} className="day-column">
-                            <div className={`day-header ${isTodayDate ? 'today' : ''}`}>
+            <div className="weekly-grid-container">
+                {/* Sticky Header Row */}
+                <div className="weekly-grid-header">
+                    <div className="time-column-header"></div>
+                    {weekDays.map((day, dayIndex) => {
+                        const isTodayDate = isToday(day);
+                        return (
+                            <div key={dayIndex} className={`day-header ${isTodayDate ? 'today' : ''}`}>
                                 <div className="day-header-date">
                                     {day.toLocaleDateString('en-US', { weekday: 'short' })}
                                 </div>
                                 <div className="day-header-day">{day.getDate()}</div>
+                                <div className="day-header-month">
+                                    {day.toLocaleDateString('en-US', { month: 'short' })}
+                                </div>
                             </div>
-                            <div className="day-slots">
-                                {hours.map(hour => (
-                                    <div
-                                        key={hour}
-                                        className="hour-slot"
-                                        onClick={() => {
-                                            setSelectedDate(day);
-                                            setShowAddEvent(true);
-                                        }}
-                                    />
-                                ))}
-                                {/* Render events */}
-                                {dayEvents.map(event => {
-                                    const startTime = event.startTime || '09:00';
-                                    const endTime = event.endTime || '10:00';
-                                    const [startHour, startMinute] = startTime.split(':').map(Number);
-                                    const [endHour, endMinute] = endTime.split(':').map(Number);
+                        );
+                    })}
+                </div>
 
-                                    const top = (startHour * 60 + startMinute) / 60 * 48;
-                                    const height = ((endHour * 60 + endMinute) - (startHour * 60 + startMinute)) / 60 * 48;
-
-                                    return (
-                                        <div
-                                            key={event.id}
-                                            className={`calendar-event event-${event.category}`}
-                                            style={{
-                                                top: `${top}px`,
-                                                height: `${Math.max(height, 24)}px`
-                                            }}
-                                            onClick={(e) => {
-                                                e.stopPropagation();
-                                                handleEventClick(event);
-                                            }}
-                                        >
-                                            <div className="calendar-event-title">{event.title}</div>
-                                            <div className="calendar-event-time">
-                                                {formatTime(startTime)} - {formatTime(endTime)}
-                                            </div>
-                                        </div>
-                                    );
-                                })}
-                            </div>
+                {/* Scrollable Grid Body */}
+                <div className="weekly-grid-body">
+                    <div className="weekly-grid">
+                        {/* Time column */}
+                        <div className="time-column">
+                            {hours.map(hour => (
+                                <div key={hour} className="time-slot">
+                                    {hour === 0 ? '12 AM' : hour < 12 ? `${hour} AM` : hour === 12 ? '12 PM' : `${hour - 12} PM`}
+                                </div>
+                            ))}
                         </div>
-                    );
-                })}
+
+                        {/* Day columns */}
+                        {weekDays.map((day, dayIndex) => {
+                            const dayEvents = getEventsForDay(day);
+                            const dayLabel = day.toLocaleDateString('en-US', { weekday: 'long', month: 'short', day: 'numeric' });
+
+                            return (
+                                <div key={dayIndex} className="day-column">
+                                    <div className="day-slots">
+                                        {hours.map(hour => (
+                                            <div
+                                                key={hour}
+                                                className="hour-slot"
+                                                data-tooltip={`${dayLabel} • ${formatHourDisplay(hour)}`}
+                                                onClick={() => {
+                                                    setSelectedDate(day);
+                                                    setShowAddEvent(true);
+                                                }}
+                                            />
+                                        ))}
+                                        {/* Render events */}
+                                        {dayEvents.map(event => {
+                                            const startTime = event.startTime || '09:00';
+                                            const endTime = event.endTime || '10:00';
+                                            const [startHour, startMinute] = startTime.split(':').map(Number);
+                                            const [endHour, endMinute] = endTime.split(':').map(Number);
+
+                                            const top = (startHour * 60 + startMinute) / 60 * 48;
+                                            const height = ((endHour * 60 + endMinute) - (startHour * 60 + startMinute)) / 60 * 48;
+
+                                            return (
+                                                <div
+                                                    key={event.id}
+                                                    className={`calendar-event event-${event.category}`}
+                                                    style={{
+                                                        top: `${top}px`,
+                                                        height: `${Math.max(height, 24)}px`
+                                                    }}
+                                                    onClick={(e) => {
+                                                        e.stopPropagation();
+                                                        handleEventClick(event);
+                                                    }}
+                                                >
+                                                    <div className="calendar-event-title">{event.title}</div>
+                                                    <div className="calendar-event-time">
+                                                        {formatTime(startTime)} - {formatTime(endTime)}
+                                                    </div>
+                                                </div>
+                                            );
+                                        })}
+                                    </div>
+                                </div>
+                            );
+                        })}
+                    </div>
+                </div>
             </div>
         );
     };

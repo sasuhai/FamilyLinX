@@ -112,7 +112,7 @@
     color: #ffffff;
 }
 
-.btn-primary {
+.calendar-page .btn-primary {
     padding: 0.75rem 1.75rem;
     background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
     color: white;
@@ -128,16 +128,16 @@
     white-space: nowrap;
 }
 
-.btn-primary:hover {
+.calendar-page .btn-primary:hover {
     transform: translateY(-2px);
     box-shadow: 0 8px 25px rgba(99, 102, 241, 0.4);
 }
 
-.btn-primary:active {
+.calendar-page .btn-primary:active {
     transform: translateY(0);
 }
 
-.btn-secondary {
+.calendar-page .btn-secondary {
     padding: 0.75rem 1.75rem;
     background: rgba(255, 255, 255, 0.05);
     color: #ffffff;
@@ -153,13 +153,13 @@
     white-space: nowrap;
 }
 
-.btn-secondary:hover {
+.calendar-page .btn-secondary:hover {
     background: rgba(255, 255, 255, 0.1);
     transform: translateY(-2px);
     border-color: rgba(99, 102, 241, 0.5);
 }
 
-.btn-secondary:active {
+.calendar-page .btn-secondary:active {
     transform: translateY(0);
 }
 
@@ -506,14 +506,62 @@
     transform: translateY(-2px);
 }
 
-.weekly-grid {
-    display: grid;
-    grid-template-columns: 80px repeat(7, 1fr);
-    gap: 0;
+/* Weekly Grid Container - New Sticky Header Structure */
+.weekly-grid-container {
+    display: flex;
+    flex-direction: column;
     background: rgba(255, 255, 255, 0.05);
     border: 1px solid rgba(255, 255, 255, 0.1);
     border-radius: 12px;
     overflow: hidden;
+}
+
+/* Sticky Header Row */
+.weekly-grid-header {
+    display: grid;
+    grid-template-columns: 80px repeat(7, 1fr);
+    position: sticky;
+    top: 0;
+    z-index: 30;
+    background: linear-gradient(135deg, rgba(20, 20, 35, 0.98) 0%, rgba(15, 15, 30, 0.98) 100%);
+    backdrop-filter: blur(20px);
+    border-bottom: 2px solid rgba(99, 102, 241, 0.3);
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+}
+
+.time-column-header {
+    background: rgba(0, 0, 0, 0.3);
+    min-height: 70px;
+}
+
+/* Scrollable Grid Body */
+.weekly-grid-body {
+    max-height: 600px;
+    overflow-y: auto;
+    overflow-x: hidden;
+}
+
+.weekly-grid-body::-webkit-scrollbar {
+    width: 8px;
+}
+
+.weekly-grid-body::-webkit-scrollbar-track {
+    background: rgba(0, 0, 0, 0.2);
+}
+
+.weekly-grid-body::-webkit-scrollbar-thumb {
+    background: rgba(99, 102, 241, 0.4);
+    border-radius: 4px;
+}
+
+.weekly-grid-body::-webkit-scrollbar-thumb:hover {
+    background: rgba(99, 102, 241, 0.6);
+}
+
+.weekly-grid {
+    display: grid;
+    grid-template-columns: 80px repeat(7, 1fr);
+    gap: 0;
 }
 
 .time-column {
@@ -543,15 +591,17 @@
 }
 
 .day-header {
-    padding: 0.6rem 0.25rem;
+    padding: 0.75rem 0.25rem;
     text-align: center;
-    background: rgba(0, 0, 0, 0.2);
-    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
     font-weight: 700;
     color: rgba(255, 255, 255, 0.9);
-    position: sticky;
-    top: 0;
-    z-index: 20;
+    border-left: 1px solid rgba(255, 255, 255, 0.05);
+    min-height: 70px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    transition: all 0.3s ease;
 }
 
 .day-header.today {
@@ -561,15 +611,32 @@
 }
 
 .day-header-date {
-    font-size: 0.75rem;
+    font-size: 0.7rem;
     font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    opacity: 0.7;
     margin-bottom: 2px;
-    opacity: 0.8;
 }
 
 .day-header-day {
-    font-size: 1.125rem;
-    font-weight: 700;
+    font-size: 1.5rem;
+    font-weight: 800;
+    line-height: 1;
+}
+
+.day-header-month {
+    font-size: 0.65rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    opacity: 0.6;
+    margin-top: 2px;
+}
+
+.day-header.today .day-header-date,
+.day-header.today .day-header-month {
+    opacity: 0.9;
 }
 
 .day-slots {
@@ -582,11 +649,46 @@
     height: 48px;
     border-bottom: 1px solid rgba(255, 255, 255, 0.04);
     cursor: pointer;
-    transition: background 0.2s ease;
+    transition: all 0.2s ease;
+    position: relative;
 }
 
 .hour-slot:hover {
-    background: rgba(99, 102, 241, 0.08);
+    background: rgba(99, 102, 241, 0.12);
+}
+
+/* Tooltip on hover for hour slots */
+.hour-slot[data-tooltip]:hover::before {
+    content: attr(data-tooltip);
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background: linear-gradient(135deg, rgba(30, 30, 50, 0.98) 0%, rgba(20, 20, 40, 0.98) 100%);
+    backdrop-filter: blur(10px);
+    color: #ffffff;
+    padding: 0.6rem 1rem;
+    border-radius: 10px;
+    font-size: 0.8rem;
+    font-weight: 600;
+    white-space: nowrap;
+    z-index: 50;
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.4), 0 0 0 1px rgba(99, 102, 241, 0.3);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    pointer-events: none;
+    animation: tooltipFadeIn 0.15s ease-out;
+}
+
+@keyframes tooltipFadeIn {
+    from {
+        opacity: 0;
+        transform: translate(-50%, -50%) scale(0.95);
+    }
+
+    to {
+        opacity: 1;
+        transform: translate(-50%, -50%) scale(1);
+    }
 }
 
 .calendar-event {
@@ -690,12 +792,26 @@
         order: 1;
     }
 
-    .weekly-grid {
+    .weekly-grid,
+    .weekly-grid-header {
         grid-template-columns: 60px repeat(7, 1fr);
     }
 
     .time-slot {
         font-size: 0.7rem;
+    }
+
+    .time-column-header {
+        min-height: 60px;
+    }
+
+    .day-header {
+        min-height: 60px;
+        padding: 0.5rem 0.25rem;
+    }
+
+    .day-header-day {
+        font-size: 1.25rem;
     }
 }
 
@@ -717,17 +833,36 @@
         justify-content: space-between;
     }
 
-    .weekly-grid {
-        grid-template-columns: 50px repeat(3, 1fr);
+    .weekly-grid,
+    .weekly-grid-header {
+        grid-template-columns: 50px repeat(7, 1fr);
         font-size: 0.85rem;
     }
 
-    .day-column:nth-child(n+5) {
+    .weekly-grid-body {
+        max-height: 500px;
+    }
+
+    .day-header {
+        min-height: 50px;
+        padding: 0.4rem 0.15rem;
+    }
+
+    .day-header-day {
+        font-size: 1rem;
+    }
+
+    .day-header-month {
         display: none;
     }
 
     .sidebar-section {
         padding: 1rem;
+    }
+
+    /* Hide tooltip on smaller screens - use header instead */
+    .hour-slot[data-tooltip]:hover::before {
+        display: none;
     }
 }
 
