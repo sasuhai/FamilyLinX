@@ -1,0 +1,1086 @@
+/* ============================================
+   Album Page Styles
+   Premium dark theme with seamless scrolling carousel
+   ============================================ */
+
+.album-page {
+    min-height: 100vh;
+    background: #0a0a0a;
+    background-image:
+        radial-gradient(ellipse at 20% 0%, rgba(163, 230, 53, 0.08) 0%, transparent 50%),
+        radial-gradient(ellipse at 80% 100%, rgba(59, 130, 246, 0.06) 0%, transparent 50%),
+        radial-gradient(ellipse at 50% 50%, rgba(139, 92, 246, 0.04) 0%, transparent 60%);
+    color: #fff;
+    overflow-x: hidden;
+    position: relative;
+}
+
+/* Animated Background Glow */
+.album-page::before {
+    content: '';
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: radial-gradient(circle at var(--mouse-x, 50%) var(--mouse-y, 50%), rgba(163, 230, 53, 0.03) 0%, transparent 40%);
+    pointer-events: none;
+    z-index: 0;
+}
+
+/* Container */
+.album-container {
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: 2rem 1rem 4rem;
+    position: relative;
+    z-index: 1;
+}
+
+/* Header Section */
+.album-header {
+    text-align: center;
+    margin-bottom: 3rem;
+    padding: 2rem 1rem;
+    position: relative;
+}
+
+.album-header::before {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 300px;
+    height: 300px;
+    background: radial-gradient(circle, rgba(163, 230, 53, 0.1) 0%, transparent 70%);
+    pointer-events: none;
+    z-index: -1;
+}
+
+.album-title {
+    font-size: 3rem;
+    font-weight: 800;
+    background: linear-gradient(135deg, #a3e635 0%, #84cc16 50%, #a3e635 100%);
+    background-size: 200% 200%;
+    animation: gradientShift 5s ease infinite;
+    background-clip: text;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    margin-bottom: 0.75rem;
+    letter-spacing: -0.03em;
+}
+
+@keyframes gradientShift {
+
+    0%,
+    100% {
+        background-position: 0% 50%;
+    }
+
+    50% {
+        background-position: 100% 50%;
+    }
+}
+
+.album-subtitle {
+    font-size: 1.125rem;
+    color: rgba(255, 255, 255, 0.6);
+    max-width: 600px;
+    margin: 0 auto;
+    line-height: 1.6;
+}
+
+/* Tab Navigation */
+.album-tabs {
+    display: flex;
+    justify-content: center;
+    gap: 1rem;
+    margin-bottom: 2rem;
+}
+
+.album-tab {
+    padding: 0.75rem 1.5rem;
+    border-radius: 9999px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    background: rgba(255, 255, 255, 0.05);
+    color: #a3a3a3;
+    font-size: 0.875rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.album-tab:hover {
+    background: rgba(255, 255, 255, 0.1);
+    color: #fff;
+    border-color: rgba(255, 255, 255, 0.2);
+}
+
+.album-tab.active {
+    background: linear-gradient(135deg, rgba(163, 230, 53, 0.2) 0%, rgba(132, 204, 22, 0.2) 100%);
+    border-color: rgba(163, 230, 53, 0.4);
+    color: #a3e635;
+}
+
+.tab-count {
+    padding: 0.125rem 0.5rem;
+    border-radius: 9999px;
+    background: rgba(255, 255, 255, 0.1);
+    font-size: 0.75rem;
+}
+
+.album-tab.active .tab-count {
+    background: rgba(163, 230, 53, 0.3);
+}
+
+/* Section Header */
+.album-section {
+    margin-bottom: 4rem;
+}
+
+.section-header {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.75rem;
+    margin-bottom: 2rem;
+}
+
+.section-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.25rem;
+    padding: 0.25rem 0.75rem;
+    border-radius: 9999px;
+    background: rgba(163, 230, 53, 0.1);
+    color: #a3e635;
+    font-size: 0.75rem;
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    border: 1px solid rgba(163, 230, 53, 0.2);
+}
+
+.section-title {
+    font-size: 2rem;
+    font-weight: 600;
+    color: #fff;
+    letter-spacing: -0.02em;
+}
+
+/* Carousel Container */
+.carousel-section {
+    position: relative;
+    width: 100%;
+    overflow: hidden;
+    padding: 2rem 0;
+}
+
+/* Navigation Buttons */
+.carousel-nav {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    z-index: 20;
+    width: 3rem;
+    height: 3rem;
+    border-radius: 50%;
+    background: rgba(0, 0, 0, 0.6);
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    color: #fff;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.3s ease;
+}
+
+.carousel-nav:hover {
+    background: rgba(255, 255, 255, 0.1);
+    border-color: rgba(255, 255, 255, 0.2);
+}
+
+.carousel-nav.prev {
+    left: 1rem;
+}
+
+.carousel-nav.next {
+    right: 1rem;
+}
+
+.carousel-nav svg {
+    width: 1.25rem;
+    height: 1.25rem;
+}
+
+/* Carousel Track - Seamless Scrolling */
+.carousel-track-wrapper {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    perspective: 1200px;
+    height: 500px;
+    position: relative;
+}
+
+.carousel-track {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: absolute;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    transform-style: preserve-3d;
+    transition: transform 0.5s ease-out;
+}
+
+/* Video Card (Landscape) */
+.carousel-card-video {
+    position: absolute;
+    width: 28rem;
+    height: 16rem;
+    border-radius: 1rem;
+    overflow: hidden;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    transition: all 0.5s ease;
+    cursor: pointer;
+}
+
+.carousel-card-video .card-thumbnail {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.3s ease;
+}
+
+.carousel-card-video:hover .card-thumbnail {
+    transform: scale(1.05);
+}
+
+/* Photo Card (Portrait) */
+.carousel-card-photo {
+    position: absolute;
+    width: 20rem;
+    height: 28rem;
+    border-radius: 1rem;
+    overflow: hidden;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    transition: all 0.5s ease;
+    cursor: pointer;
+}
+
+.carousel-card-photo .card-thumbnail {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.3s ease;
+}
+
+.carousel-card-photo:hover .card-thumbnail {
+    transform: scale(1.05);
+}
+
+/* Card Overlay */
+.card-overlay {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(to top, rgba(0, 0, 0, 0.85) 0%, rgba(0, 0, 0, 0.3) 40%, transparent 100%);
+    pointer-events: none;
+}
+
+/* Card Content */
+.card-content {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    padding: 1.5rem;
+    z-index: 5;
+}
+
+/* Type Badge */
+.type-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.375rem;
+    padding: 0.25rem 0.75rem;
+    border-radius: 9999px;
+    background: rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(8px);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    font-size: 0.75rem;
+    color: #fff;
+    margin-bottom: 0.75rem;
+}
+
+.type-badge .badge-icon {
+    color: #a3e635;
+}
+
+/* Card Title */
+.card-title {
+    font-size: 1.25rem;
+    font-weight: 600;
+    color: #fff;
+    margin-bottom: 0.25rem;
+    letter-spacing: -0.01em;
+}
+
+/* Card Date */
+.card-date {
+    font-size: 0.75rem;
+    color: #a3a3a3;
+}
+
+/* Featured Card (Center) */
+.carousel-card-video.featured,
+.carousel-card-photo.featured {
+    border: 2px solid rgba(163, 230, 53, 0.4);
+    background: rgba(163, 230, 53, 0.1);
+    box-shadow: 0 20px 60px rgba(163, 230, 53, 0.3);
+}
+
+.featured-badge {
+    position: absolute;
+    top: 1rem;
+    right: 1rem;
+    z-index: 10;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.25rem;
+    padding: 0.375rem 0.75rem;
+    border-radius: 9999px;
+    background: #a3e635;
+    color: #0a0a0a;
+    font-size: 0.75rem;
+    font-weight: 600;
+}
+
+.featured .card-content {
+    padding: 2rem;
+}
+
+.featured .card-title {
+    font-size: 1.5rem;
+    font-weight: 700;
+}
+
+.featured .card-description {
+    font-size: 0.875rem;
+    color: #d4d4d4;
+    margin-top: 0.5rem;
+}
+
+/* Play Button for Videos */
+.play-button {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    z-index: 10;
+    width: 4rem;
+    height: 4rem;
+    border-radius: 50%;
+    background: rgba(163, 230, 53, 0.9);
+    backdrop-filter: blur(10px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 0;
+    transition: all 0.3s ease;
+}
+
+.carousel-card-video:hover .play-button {
+    opacity: 1;
+}
+
+.play-button svg {
+    width: 1.5rem;
+    height: 1.5rem;
+    color: #0a0a0a;
+    margin-left: 0.25rem;
+}
+
+/* ============================================
+   Infinite Scrolling Carousel
+   ============================================ */
+
+/* Container for the infinite carousel */
+.infinite-carousel-container {
+    width: 100%;
+    overflow: hidden;
+    padding: 2rem 0;
+    position: relative;
+    mask-image: linear-gradient(to right, transparent, black 5%, black 95%, transparent);
+    -webkit-mask-image: linear-gradient(to right, transparent, black 5%, black 95%, transparent);
+}
+
+/* The scrolling track - contains duplicated items for seamless loop */
+.infinite-carousel-track {
+    display: flex;
+    gap: 1.5rem;
+    width: max-content;
+    animation: infiniteScroll 25s linear infinite;
+}
+
+/* Pause animation on hover */
+.infinite-carousel-track:hover {
+    animation-play-state: paused;
+}
+
+/* Keyframes for infinite scroll to the left */
+@keyframes infiniteScroll {
+    0% {
+        transform: translateX(0);
+    }
+
+    100% {
+        transform: translateX(-50%);
+    }
+}
+
+/* Video cards - Landscape orientation */
+.infinite-carousel-card.video-card {
+    flex-shrink: 0;
+    width: 420px;
+    height: 240px;
+    border-radius: 1rem;
+    overflow: hidden;
+    position: relative;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    cursor: pointer;
+    transition: all 0.3s ease;
+    background: #1a1a1a;
+}
+
+.infinite-carousel-card.video-card:hover {
+    transform: scale(1.02);
+    border-color: rgba(163, 230, 53, 0.4);
+    box-shadow: 0 10px 40px rgba(163, 230, 53, 0.2);
+}
+
+/* Photo cards - Portrait orientation */
+.infinite-carousel-card.photo-card {
+    flex-shrink: 0;
+    width: 280px;
+    height: 380px;
+    border-radius: 1rem;
+    overflow: hidden;
+    position: relative;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    cursor: pointer;
+    transition: all 0.3s ease;
+    background: #1a1a1a;
+}
+
+.infinite-carousel-card.photo-card:hover {
+    transform: scale(1.02);
+    border-color: rgba(163, 230, 53, 0.4);
+    box-shadow: 0 10px 40px rgba(163, 230, 53, 0.2);
+}
+
+/* Thumbnail image */
+.infinite-carousel-card .card-thumbnail {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.4s ease;
+}
+
+.infinite-carousel-card:hover .card-thumbnail {
+    transform: scale(1.1);
+}
+
+/* Play button for videos */
+.infinite-carousel-card.video-card .play-button {
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+.infinite-carousel-card.video-card:hover .play-button {
+    opacity: 1;
+}
+
+/* Card overlay gradient */
+.infinite-carousel-card .card-overlay {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(to top, rgba(0, 0, 0, 0.9) 0%, rgba(0, 0, 0, 0.4) 40%, transparent 70%);
+    pointer-events: none;
+}
+
+/* Card content positioning */
+.infinite-carousel-card .card-content {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    padding: 1.25rem;
+    z-index: 5;
+}
+
+.infinite-carousel-card .card-title {
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: #fff;
+    margin-bottom: 0.25rem;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.infinite-carousel-card .card-date {
+    font-size: 0.75rem;
+    color: #a3a3a3;
+}
+
+/* Video track - slightly faster for videos */
+.infinite-carousel-track.video-track {
+    animation-duration: 30s;
+}
+
+/* Photo track - slightly slower for photos */
+.infinite-carousel-track.photo-track {
+    animation-duration: 35s;
+}
+
+/* Responsive adjustments for infinite carousel */
+@media (max-width: 1024px) {
+    .infinite-carousel-card.video-card {
+        width: 340px;
+        height: 195px;
+    }
+
+    .infinite-carousel-card.photo-card {
+        width: 220px;
+        height: 300px;
+    }
+}
+
+@media (max-width: 768px) {
+    .infinite-carousel-card.video-card {
+        width: 280px;
+        height: 160px;
+    }
+
+    .infinite-carousel-card.photo-card {
+        width: 180px;
+        height: 250px;
+    }
+
+    .infinite-carousel-track {
+        gap: 1rem;
+    }
+
+    .infinite-carousel-card .card-content {
+        padding: 1rem;
+    }
+
+    .infinite-carousel-card .card-title {
+        font-size: 0.95rem;
+    }
+}
+
+@media (max-width: 480px) {
+    .infinite-carousel-card.video-card {
+        width: 220px;
+        height: 125px;
+    }
+
+    .infinite-carousel-card.photo-card {
+        width: 140px;
+        height: 200px;
+    }
+
+    .infinite-carousel-track {
+        gap: 0.75rem;
+    }
+
+    .infinite-carousel-card .card-content {
+        padding: 0.75rem;
+    }
+
+    .infinite-carousel-card .card-title {
+        font-size: 0.85rem;
+    }
+
+    .infinite-carousel-card .type-badge {
+        font-size: 0.6rem;
+        padding: 0.125rem 0.4rem;
+    }
+}
+
+/* Simple Grid for Admin Mode */
+.album-admin-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 1.5rem;
+    padding: 1rem;
+}
+
+/* Empty State */
+.empty-state {
+    text-align: center;
+    padding: 4rem 2rem;
+    background: rgba(255, 255, 255, 0.02);
+    border-radius: 1rem;
+    border: 1px dashed rgba(255, 255, 255, 0.1);
+}
+
+.empty-icon {
+    font-size: 4rem;
+    margin-bottom: 1rem;
+    opacity: 0.5;
+}
+
+.empty-state h3 {
+    font-size: 1.25rem;
+    font-weight: 600;
+    color: #fff;
+    margin-bottom: 0.5rem;
+}
+
+.empty-state p {
+    color: #737373;
+    font-size: 0.875rem;
+}
+
+/* Add Album Button */
+.add-album-floating-btn {
+    position: fixed;
+    bottom: 2rem;
+    right: 2rem;
+    z-index: 100;
+    padding: 1rem 1.5rem;
+    border-radius: 9999px;
+    background: linear-gradient(135deg, #a3e635 0%, #84cc16 100%);
+    color: #0a0a0a;
+    font-size: 0.875rem;
+    font-weight: 600;
+    border: none;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    box-shadow: 0 10px 40px rgba(163, 230, 53, 0.4);
+    transition: all 0.3s ease;
+}
+
+.add-album-floating-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 15px 50px rgba(163, 230, 53, 0.5);
+}
+
+/* Back Button */
+.back-btn {
+    position: absolute;
+    top: 1rem;
+    right: 1rem;
+    padding: 0.5rem 1rem;
+    border-radius: 0.5rem;
+    background: rgba(255, 255, 255, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    color: #fff;
+    font-size: 0.875rem;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    transition: all 0.3s ease;
+}
+
+.back-btn:hover {
+    background: rgba(255, 255, 255, 0.15);
+    border-color: rgba(255, 255, 255, 0.2);
+}
+
+/* Responsive Adjustments */
+@media (max-width: 1024px) {
+    .carousel-track-wrapper {
+        height: 400px;
+    }
+
+    .carousel-card-video {
+        width: 22rem;
+        height: 12.5rem;
+    }
+
+    .carousel-card-photo {
+        width: 16rem;
+        height: 22rem;
+    }
+
+    .section-title {
+        font-size: 1.5rem;
+    }
+}
+
+@media (max-width: 768px) {
+    .album-header {
+        margin-bottom: 2rem;
+    }
+
+    .album-title {
+        font-size: 1.75rem;
+    }
+
+    .album-subtitle {
+        font-size: 0.875rem;
+    }
+
+    .carousel-track-wrapper {
+        height: 320px;
+    }
+
+    .carousel-card-video {
+        width: 16rem;
+        height: 9rem;
+    }
+
+    .carousel-card-photo {
+        width: 12rem;
+        height: 17rem;
+    }
+
+    .carousel-nav {
+        width: 2.5rem;
+        height: 2.5rem;
+    }
+
+    .carousel-nav.prev {
+        left: 0.5rem;
+    }
+
+    .carousel-nav.next {
+        right: 0.5rem;
+    }
+
+    .album-tabs {
+        flex-wrap: wrap;
+    }
+
+    .album-tab {
+        padding: 0.5rem 1rem;
+        font-size: 0.75rem;
+    }
+
+    .featured .card-title {
+        font-size: 1.25rem;
+    }
+
+    .card-title {
+        font-size: 1rem;
+    }
+
+    .add-album-floating-btn {
+        bottom: 1rem;
+        right: 1rem;
+        padding: 0.75rem 1rem;
+        font-size: 0.75rem;
+    }
+}
+
+@media (max-width: 480px) {
+    .album-container {
+        padding: 1rem 0.5rem;
+    }
+
+    .carousel-track-wrapper {
+        height: 280px;
+    }
+
+    .carousel-card-video {
+        width: 12rem;
+        height: 7rem;
+    }
+
+    .carousel-card-photo {
+        width: 9rem;
+        height: 12.5rem;
+    }
+
+    .card-content {
+        padding: 0.75rem;
+    }
+
+    .card-title {
+        font-size: 0.875rem;
+    }
+
+    .type-badge {
+        font-size: 0.625rem;
+        padding: 0.125rem 0.5rem;
+    }
+}
+
+/* ============================================
+   Album Filter Section
+   ============================================ */
+
+.album-filter-section {
+    margin-bottom: 2rem;
+    padding: 0 1rem;
+}
+
+.album-filter-row {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 1rem;
+    flex-wrap: wrap;
+}
+
+.album-search-box {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 9999px;
+    padding: 0.625rem 1rem;
+    min-width: 300px;
+    transition: all 0.3s ease;
+}
+
+.album-search-box:focus-within {
+    border-color: rgba(163, 230, 53, 0.4);
+    background: rgba(255, 255, 255, 0.08);
+    box-shadow: 0 0 0 3px rgba(163, 230, 53, 0.1);
+}
+
+.album-search-box svg {
+    color: rgba(255, 255, 255, 0.4);
+    flex-shrink: 0;
+}
+
+.album-search-input {
+    background: transparent;
+    border: none;
+    outline: none;
+    color: white;
+    font-size: 0.875rem;
+    width: 100%;
+}
+
+.album-search-input::placeholder {
+    color: rgba(255, 255, 255, 0.4);
+}
+
+.album-clear-btn {
+    background: rgba(255, 255, 255, 0.1);
+    border: none;
+    border-radius: 50%;
+    width: 22px;
+    height: 22px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: rgba(255, 255, 255, 0.6);
+    font-size: 0.75rem;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    flex-shrink: 0;
+}
+
+.album-clear-btn:hover {
+    background: rgba(239, 68, 68, 0.3);
+    color: #ef4444;
+}
+
+.album-select-wrapper {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 9999px;
+    padding: 0.625rem 1rem;
+    transition: all 0.3s ease;
+}
+
+.album-select-wrapper:focus-within {
+    border-color: rgba(163, 230, 53, 0.4);
+}
+
+.album-select-wrapper svg {
+    color: rgba(255, 255, 255, 0.4);
+    flex-shrink: 0;
+}
+
+.album-filter-select {
+    background: transparent;
+    border: none;
+    outline: none;
+    color: white;
+    font-size: 0.875rem;
+    cursor: pointer;
+    min-width: 100px;
+}
+
+.album-filter-select option {
+    background: #1a1a2e;
+    color: white;
+}
+
+.album-clear-all-btn {
+    padding: 0.625rem 1.25rem;
+    background: rgba(239, 68, 68, 0.15);
+    border: 1px solid rgba(239, 68, 68, 0.3);
+    border-radius: 9999px;
+    color: #ef4444;
+    font-size: 0.8125rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.album-clear-all-btn:hover {
+    background: rgba(239, 68, 68, 0.25);
+    border-color: rgba(239, 68, 68, 0.5);
+}
+
+.album-filter-results {
+    text-align: center;
+    margin-top: 0.75rem;
+    font-size: 0.8125rem;
+    color: rgba(163, 230, 53, 0.9);
+    font-weight: 500;
+}
+
+/* Responsive Filter Styles */
+@media (max-width: 768px) {
+    .album-filter-row {
+        flex-direction: column;
+        gap: 0.75rem;
+    }
+
+    .album-search-box {
+        min-width: 100%;
+        max-width: 400px;
+    }
+
+    .album-select-wrapper {
+        width: 100%;
+        max-width: 400px;
+    }
+}
+
+@media (max-width: 480px) {
+    .album-search-box {
+        padding: 0.5rem 0.75rem;
+    }
+
+    .album-search-input {
+        font-size: 0.8125rem;
+    }
+
+    .album-select-wrapper {
+        padding: 0.5rem 0.75rem;
+    }
+
+    .album-filter-select {
+        font-size: 0.8125rem;
+    }
+
+    .album-clear-all-btn {
+        padding: 0.5rem 1rem;
+        font-size: 0.75rem;
+    }
+}
+
+/* Loading State */
+.album-loading {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-height: 400px;
+    gap: 1rem;
+}
+
+.loading-spinner {
+    width: 3rem;
+    height: 3rem;
+    border: 3px solid rgba(163, 230, 53, 0.2);
+    border-top-color: #a3e635;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+/* Smooth Scroll Behavior */
+.carousel-section {
+    scroll-behavior: smooth;
+}
+
+/* Focus States for Accessibility */
+.carousel-card-video:focus,
+.carousel-card-photo:focus,
+.carousel-nav:focus,
+.album-tab:focus {
+    outline: 2px solid #a3e635;
+    outline-offset: 2px;
+}
+
+/* Grid Corners Decoration (from template) */
+.grid-corners {
+    position: relative;
+}
+
+.grid-corners::before,
+.grid-corners::after {
+    content: '';
+    position: absolute;
+    width: 20px;
+    height: 20px;
+    border: 2px solid rgba(163, 230, 53, 0.3);
+}
+
+.grid-corners::before {
+    top: 0;
+    left: 0;
+    border-right: none;
+    border-bottom: none;
+}
+
+.grid-corners::after {
+    top: 0;
+    right: 0;
+    border-left: none;
+    border-bottom: none;
+}
+
+.grid-corners-bottom::before,
+.grid-corners-bottom::after {
+    content: '';
+    position: absolute;
+    width: 20px;
+    height: 20px;
+    border: 2px solid rgba(163, 230, 53, 0.3);
+}
+
+.grid-corners-bottom::before {
+    bottom: 0;
+    left: 0;
+    border-right: none;
+    border-top: none;
+}
+
+.grid-corners-bottom::after {
+    bottom: 0;
+    right: 0;
+    border-left: none;
+    border-top: none;
+}

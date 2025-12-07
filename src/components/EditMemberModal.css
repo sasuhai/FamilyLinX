@@ -138,6 +138,45 @@
     font-weight: 600;
 }
 
+.confirmation-dialog {
+    max-width: 450px !important;
+    padding: var(--spacing-2xl) !important;
+}
+
+.confirmation-dialog h2 {
+    margin-bottom: var(--spacing-lg);
+    color: var(--error-500);
+}
+
+.confirmation-dialog p {
+    margin-bottom: var(--spacing-md);
+    line-height: 1.6;
+}
+
+.btn-danger {
+    background: var(--error-500);
+    color: white;
+    border: 2px solid var(--error-500);
+}
+
+.btn-danger:hover:not(:disabled) {
+    background: var(--error-600);
+    border-color: var(--error-600);
+    transform: translateY(-1px);
+    box-shadow: var(--shadow-md);
+}
+
+.btn-danger:active:not(:disabled) {
+    background: var(--error-700);
+    border-color: var(--error-700);
+    transform: translateY(0);
+}
+
+.btn-danger:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
 @media (max-width: 768px) {
     .edit-member-modal {
         max-width: 100%;
@@ -146,5 +185,10 @@
 
     .existing-photos-grid {
         grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+    }
+
+    .confirmation-dialog {
+        max-width: 90% !important;
+        padding: var(--spacing-lg) !important;
     }
 }

@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import type { Person, Photo } from '../types';
+import type { Person, Photo, Group } from '../types';
 import { sortPhotosByYear, calculateAge } from '../utils/helpers';
 import './PersonModal.css';
 
@@ -9,6 +9,8 @@ interface PersonModalProps {
     onCreateSubGroup: () => void;
     onViewSubGroup?: () => void;
     onEdit?: () => void;
+    allGroups?: Record<string, Group>;
+    isAdminMode: boolean;
 }
 
 export const PersonModal: React.FC<PersonModalProps> = ({
@@ -17,12 +19,17 @@ export const PersonModal: React.FC<PersonModalProps> = ({
     onCreateSubGroup,
     onViewSubGroup,
     onEdit,
+    allGroups,
+    isAdminMode,
 }) => {
     const [selectedPhoto, setSelectedPhoto] = useState<Photo | null>(null);
     const [viewMode, setViewMode] = useState<'grid' | 'timeline'>('grid');
 
     const sortedPhotos = sortPhotosByYear(person.photos);
     const age = calculateAge(person.yearOfBirth);
+
+    // Check if sub-group actually exists
+    const subGroupExists = person.subGroupId && allGroups && allGroups[person.subGroupId];
 
     const handleBackdropClick = (e: React.MouseEvent) => {
         if (e.target === e.currentTarget) {
@@ -56,38 +63,37 @@ export const PersonModal: React.FC<PersonModalProps> = ({
                         </div>
                     </div>
 
-                    <div className="header-actions">
-                        {onEdit && (
-                            <button className="btn btn-secondary" onClick={onEdit}>
-                                <span>✏️</span>
-                                Edit Member
-                            </button>
-                        )}
-                        {person.subGroupId && onViewSubGroup ? (
-                            <button className="btn btn-primary" onClick={onViewSubGroup}>
-                                <span>👨‍👩‍👧‍👦</span>
-                                View Sub-Group
-                            </button>
-                        ) : (
-                            <button className="btn btn-primary" onClick={onCreateSubGroup}>
-                                <span>➕</span>
-                                Create Sub-Group
-                            </button>
-                        )}
-                    </div>
+                    {isAdminMode && (
+                        <div className="header-actions">
+                            {onEdit && (
+                                <button className="btn btn-secondary" onClick={onEdit}>
+                                    Edit Member
+                                </button>
+                            )}
+                            {subGroupExists && onViewSubGroup ? (
+                                <button className="btn btn-primary" onClick={onViewSubGroup}>
+                                    View Sub-Group
+                                </button>
+                            ) : (
+                                <button className="btn btn-primary" onClick={onCreateSubGroup}>
+                                    Create Sub-Group
+                                </button>
+                            )}
+                        </div>
+                    )}
                 </div>
 
                 <div className="modal-body">
                     <div className="view-mode-toggle">
                         <button
-                            className={`toggle-btn ${viewMode === 'grid' ? 'active' : ''}`}
+                            className={`toggle - btn ${viewMode === 'grid' ? 'active' : ''} `}
                             onClick={() => setViewMode('grid')}
                         >
                             <span>🔲</span>
                             Grid View
                         </button>
                         <button
-                            className={`toggle-btn ${viewMode === 'timeline' ? 'active' : ''}`}
+                            className={`toggle - btn ${viewMode === 'timeline' ? 'active' : ''} `}
                             onClick={() => setViewMode('timeline')}
                         >
                             <span>📅</span>
@@ -103,7 +109,7 @@ export const PersonModal: React.FC<PersonModalProps> = ({
                                     className="photo-grid-item"
                                     onClick={() => setSelectedPhoto(photo)}
                                 >
-                                    <img src={photo.url} alt={`Photo from ${photo.yearTaken}`} />
+                                    <img src={photo.url} alt={`Photo from ${photo.yearTaken} `} />
                                     <div className="photo-grid-overlay">
                                         <span className="photo-year-badge">{photo.yearTaken}</span>
                                     </div>
@@ -113,7 +119,7 @@ export const PersonModal: React.FC<PersonModalProps> = ({
                     ) : (
                         <div className="photo-timeline">
                             {sortedPhotos.map((photo, index) => (
-                                <div key={photo.id} className="timeline-item slide-in-right" style={{ animationDelay: `${index * 0.1}s` }}>
+                                <div key={photo.id} className="timeline-item slide-in-right" style={{ animationDelay: `${index * 0.1} s` }}>
                                     <div className="timeline-marker">
                                         <div className="marker-dot"></div>
                                         {index < sortedPhotos.length - 1 && <div className="marker-line"></div>}
@@ -121,7 +127,7 @@ export const PersonModal: React.FC<PersonModalProps> = ({
                                     <div className="timeline-content">
                                         <div className="timeline-year">{photo.yearTaken}</div>
                                         <div className="timeline-photo" onClick={() => setSelectedPhoto(photo)}>
-                                            <img src={photo.url} alt={`Photo from ${photo.yearTaken}`} />
+                                            <img src={photo.url} alt={`Photo from ${photo.yearTaken} `} />
                                             {photo.caption && <p className="timeline-caption">{photo.caption}</p>}
                                         </div>
                                     </div>
@@ -137,7 +143,7 @@ export const PersonModal: React.FC<PersonModalProps> = ({
                             <button className="lightbox-close" onClick={() => setSelectedPhoto(null)}>
                                 ✕
                             </button>
-                            <img src={selectedPhoto.url} alt={`Photo from ${selectedPhoto.yearTaken}`} />
+                            <img src={selectedPhoto.url} alt={`Photo from ${selectedPhoto.yearTaken} `} />
                             <div className="lightbox-info">
                                 <h3>{selectedPhoto.yearTaken}</h3>
                                 {selectedPhoto.caption && <p>{selectedPhoto.caption}</p>}

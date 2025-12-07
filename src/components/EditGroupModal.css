@@ -1,242 +1,143 @@
-/* Edit Group Modal - Matches AddMemberModal style */
+/* ============================================
+   Edit Group Modal - Professional Dark Theme
+   ============================================ */
 
-/* Modal Overlay */
-.edit-group-modal {
-    max-width: 600px;
-}
+/* Import shared styles */
+@import './SharedModalStyles.css';
 
-/* Ensure modal overlay is visible */
-.modal-overlay {
-    position: fixed;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background: rgba(0, 0, 0, 0.7);
-    backdrop-filter: blur(4px);
+/* URL Preview */
+.url-preview-dark {
     display: flex;
     align-items: center;
-    justify-content: center;
-    z-index: 1000;
-    padding: var(--spacing-lg);
-    animation: fadeIn 200ms ease-out;
+    gap: 0.5rem;
+    padding: 0.75rem 1rem;
+    background: rgba(0, 0, 0, 0.3);
+    border-radius: 8px;
+    margin-top: 0.5rem;
 }
 
-.modal-container {
-    background: var(--bg-primary);
-    border-radius: var(--radius-2xl);
-    box-shadow: var(--shadow-2xl);
-    max-height: 90vh;
-    overflow-y: auto;
-    width: 100%;
-    animation: slideUp 300ms ease-out;
-}
-
-@keyframes fadeIn {
-    from {
-        opacity: 0;
-    }
-
-    to {
-        opacity: 1;
-    }
-}
-
-@keyframes slideUp {
-    from {
-        transform: translateY(20px);
-        opacity: 0;
-    }
-
-    to {
-        transform: translateY(0);
-        opacity: 1;
-    }
-}
-
-/* Modal Header */
-.edit-group-modal .modal-header {
-    padding: var(--spacing-xl);
-    border-bottom: 2px solid var(--border-light);
-    background: linear-gradient(135deg, var(--primary-50), var(--accent-50));
-}
-
-.edit-group-modal .modal-header h2 {
-    font-size: 1.75rem;
-    font-weight: 800;
-    color: var(--text-primary);
-    margin: 0;
-}
-
-/* Modal Body */
-.edit-group-modal .modal-body {
-    padding: var(--spacing-2xl);
-}
-
-.edit-group-modal .form-section {
-    margin-bottom: var(--spacing-xl);
-}
-
-.edit-group-modal .form-section h3 {
-    font-size: 1.125rem;
-    font-weight: 700;
-    margin-bottom: var(--spacing-lg);
-    color: var(--text-primary);
-    display: flex;
-    align-items: center;
-    gap: var(--spacing-sm);
-    padding-bottom: var(--spacing-sm);
-    border-bottom: 2px solid var(--border-light);
-}
-
-.edit-group-modal .form-section h3::before {
-    content: '📝';
-    font-size: 1.5rem;
-}
-
-/* Form Groups */
-.edit-group-modal .form-group {
-    margin-bottom: var(--spacing-xl);
-}
-
-.edit-group-modal .form-group label {
-    display: block;
-    font-weight: 600;
-    font-size: 0.9375rem;
-    color: var(--text-primary);
-    margin-bottom: var(--spacing-sm);
-    letter-spacing: 0.01em;
-}
-
-.edit-group-modal .required {
-    color: var(--error-500);
-    margin-left: var(--spacing-xs);
-}
-
-/* Input Fields */
-.edit-group-modal input[type="text"],
-.edit-group-modal textarea {
-    width: 100%;
-    padding: var(--spacing-md) var(--spacing-lg);
-    font-size: 1rem;
-    font-family: inherit;
-    color: var(--text-primary);
-    background: var(--bg-secondary);
-    border: 2px solid var(--border-light);
-    border-radius: var(--radius-lg);
-    transition: all 200ms ease;
-    outline: none;
-}
-
-.edit-group-modal input[type="text"]:hover,
-.edit-group-modal textarea:hover {
-    border-color: var(--primary-300);
-    background: var(--bg-primary);
-}
-
-.edit-group-modal input[type="text"]:focus,
-.edit-group-modal textarea:focus {
-    border-color: var(--primary-500);
-    background: var(--bg-primary);
-    box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.1);
-}
-
-.edit-group-modal input[type="text"]::placeholder,
-.edit-group-modal textarea::placeholder {
-    color: var(--text-tertiary);
-    opacity: 0.6;
-}
-
-.edit-group-modal textarea {
-    resize: vertical;
-    min-height: 120px;
-    line-height: 1.6;
-}
-
-.edit-group-modal .form-hint {
-    display: block;
-    margin-top: var(--spacing-sm);
-    font-size: 0.875rem;
-    color: var(--text-tertiary);
-    font-style: italic;
-    line-height: 1.5;
-}
-
-/* Modal Footer */
-.edit-group-modal .modal-footer {
-    padding: var(--spacing-xl);
-    display: flex;
-    gap: var(--spacing-md);
-    justify-content: flex-end;
-}
-
-.edit-group-modal .modal-footer .btn {
-    min-width: 120px;
-    padding: var(--spacing-md) var(--spacing-xl);
-    font-weight: 600;
-    font-size: 1rem;
-}
-
-/* Disabled State */
-.edit-group-modal input:disabled,
-.edit-group-modal textarea:disabled {
-    opacity: 0.6;
-    cursor: not-allowed;
-    background: var(--bg-tertiary);
-}
-
-/* URL Preview and Warning */
-.url-preview {
-    margin-top: var(--spacing-md);
-    padding: var(--spacing-md);
-    background: var(--bg-tertiary);
-    border-radius: var(--radius-md);
-    border-left: 4px solid var(--primary-500);
-    font-size: 0.875rem;
-    line-height: 1.8;
-}
-
-.url-preview code {
-    background: var(--bg-primary);
-    padding: var(--spacing-xs) var(--spacing-sm);
-    border-radius: var(--radius-sm);
-    font-family: 'Monaco', 'Courier New', monospace;
+.url-preview-dark span {
     font-size: 0.8125rem;
-    color: var(--primary-600);
-    border: 1px solid var(--border-light);
+    color: rgba(255, 255, 255, 0.6);
 }
 
-.url-warning {
-    margin-top: var(--spacing-md);
-    padding: var(--spacing-md);
-    background: rgba(99, 102, 241, 0.1);
-    border: 2px solid var(--primary-500);
-    border-radius: var(--radius-md);
-    color: var(--primary-700);
+.url-preview-dark code {
+    font-family: 'Fira Code', 'Monaco', monospace;
     font-size: 0.875rem;
-    line-height: 1.6;
+    color: #a3e635;
+    background: rgba(163, 230, 53, 0.1);
+    padding: 0.25rem 0.5rem;
+    border-radius: 4px;
 }
 
-.url-warning strong {
-    color: var(--primary-600);
+/* Section Title */
+.form-section-dark {
+    margin-bottom: 1.5rem;
 }
 
-/* Responsive */
-@media (max-width: 640px) {
-    .edit-group-modal .modal-header {
-        padding: var(--spacing-lg);
-    }
+.form-section-title-dark {
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: rgba(255, 255, 255, 0.7);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    margin: 0 0 1rem 0;
+    padding-bottom: 0.5rem;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
 
-    .edit-group-modal .modal-body {
-        padding: var(--spacing-lg);
-    }
+/* Delete Section */
+.danger-section-dark {
+    padding: 1rem;
+    background: rgba(239, 68, 68, 0.1);
+    border: 1px solid rgba(239, 68, 68, 0.2);
+    border-radius: 12px;
+    margin-top: 1.5rem;
+}
 
-    .edit-group-modal .modal-footer {
-        padding: var(--spacing-lg);
-        flex-direction: column;
-    }
+.danger-section-dark h4 {
+    font-size: 0.9375rem;
+    font-weight: 600;
+    color: #ef4444;
+    margin: 0 0 0.5rem 0;
+}
 
-    .edit-group-modal .modal-footer .btn {
-        width: 100%;
-    }
+.danger-section-dark p {
+    font-size: 0.875rem;
+    color: rgba(255, 255, 255, 0.6);
+    margin: 0 0 1rem 0;
+}
+
+/* Checkbox styling for group modals */
+.checkbox-group-dark {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.75rem 1rem;
+    background: rgba(0, 0, 0, 0.2);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 10px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.checkbox-group-dark:hover {
+    background: rgba(0, 0, 0, 0.3);
+    border-color: rgba(255, 255, 255, 0.15);
+}
+
+.checkbox-group-dark input[type="checkbox"] {
+    width: 20px;
+    height: 20px;
+    accent-color: #a3e635;
+    cursor: pointer;
+}
+
+.checkbox-group-dark span {
+    color: #ffffff;
+    font-size: 0.9375rem;
+}
+
+/* Member count badge */
+.member-count-dark {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.5rem 1rem;
+    background: rgba(59, 130, 246, 0.1);
+    border: 1px solid rgba(59, 130, 246, 0.2);
+    border-radius: 8px;
+    color: #3b82f6;
+    font-size: 0.875rem;
+    margin-bottom: 1rem;
+}
+
+/* Stats row */
+.stats-row-dark {
+    display: flex;
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+}
+
+.stat-item-dark {
+    flex: 1;
+    padding: 1rem;
+    background: rgba(0, 0, 0, 0.2);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 10px;
+    text-align: center;
+}
+
+.stat-value-dark {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: #a3e635;
+    margin-bottom: 0.25rem;
+}
+
+.stat-label-dark {
+    font-size: 0.75rem;
+    color: rgba(255, 255, 255, 0.5);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
 }

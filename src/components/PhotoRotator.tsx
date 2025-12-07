@@ -7,12 +7,16 @@ interface PhotoRotatorProps {
     photos: Photo[];
     interval?: number; // milliseconds
     className?: string;
+    gender?: 'male' | 'female';
+    onPhotoChange?: (photo: Photo) => void; // Callback when photo changes
 }
 
 export const PhotoRotator: React.FC<PhotoRotatorProps> = ({
     photos,
     interval = 3000,
     className = '',
+    gender,
+    onPhotoChange,
 }) => {
     const [currentIndex, setCurrentIndex] = useState(0);
     const [showingLayer, setShowingLayer] = useState<'A' | 'B'>('A');
@@ -28,6 +32,13 @@ export const PhotoRotator: React.FC<PhotoRotatorProps> = ({
             img.src = photo.url;
         });
     }, [sortedPhotos]);
+
+    // Notify parent of current photo
+    useEffect(() => {
+        if (sortedPhotos.length > 0 && onPhotoChange) {
+            onPhotoChange(sortedPhotos[currentIndex]);
+        }
+    }, [currentIndex, sortedPhotos, onPhotoChange]);
 
     useEffect(() => {
         if (sortedPhotos.length <= 1) return;
@@ -70,10 +81,18 @@ export const PhotoRotator: React.FC<PhotoRotatorProps> = ({
     };
 
     if (sortedPhotos.length === 0) {
+        // Use placeholder image based on gender
+        const placeholderImage = gender === 'male'
+            ? '/male-placeholder.png'
+            : '/female-placeholder.png';
+
         return (
             <div className={`photo-rotator-placeholder ${className}`}>
-                <div className="placeholder-icon">📷</div>
-                <p>No photos available</p>
+                <img
+                    src={placeholderImage}
+                    alt={`${gender || 'person'} placeholder`}
+                    className="placeholder-image"
+                />
             </div>
         );
     }

@@ -1,81 +1,122 @@
 import { useState, useEffect } from 'react';
-import { useParams } from 'react-router-dom';
+import { useParams, useNavigate } from 'react-router-dom';
 import type { Group, Person, BreadcrumbItem } from './types';
-import { Header } from './components/Header';
+import { ModernHeader } from './components/ModernHeader';
+import { HeroSection } from './components/HeroSection';
 import { GroupView } from './components/GroupView';
 import { AddMemberModal } from './components/AddMemberModal';
 import { AddGroupModal } from './components/AddGroupModal';
 import { EditGroupModal } from './components/EditGroupModal';
+import { CreatePageModal } from './components/CreatePageModal';
+import { AlbumManagementModal, type Album } from './components/AlbumManagementModal';
 import { generateId } from './utils/helpers';
 import {
     createFamily,
-    getFamily,
+    getFamilyByRootSlug,
     getAllGroups,
+    getAllRootSlugs,
     createGroup,
     updateGroup,
     addPersonToGroup
 } from './services/firebase.service';
+import {
+    getAlbums,
+    createAlbum as createAlbumInFirebase,
+    updateAlbum as updateAlbumInFirebase,
+    deleteAlbum as deleteAlbumInFirebase
+} from './services/album.service';
 import './App.css';
 
 export function FamilyApp() {
-    const { familyId } = useParams<{ familyId: string }>();
+    const { rootSlug, groupSlug } = useParams<{ rootSlug: string; groupSlug?: string }>();
+    const navigate = useNavigate();
     const [groups, setGroups] = useState<Record<string, Group>>({});
     const [currentGroupId, setCurrentGroupId] = useState<string | null>(null);
     const [navigationHistory, setNavigationHistory] = useState<string[]>([]);
     const [expandedGroups, setExpandedGroups] = useState<Set<string>>(new Set());
     const [darkMode, setDarkMode] = useState(false);
+    const [isAdminMode, setIsAdminMode] = useState(true);
     const [searchQuery, setSearchQuery] = useState('');
     const [isLoading, setIsLoading] = useState(true);
     const [showAddMember, setShowAddMember] = useState(false);
     const [showAddGroup, setShowAddGroup] = useState(false);
     const [showEditGroup, setShowEditGroup] = useState(false);
     const [familyName, setFamilyName] = useState('');
+    const [familyId, setFamilyId] = useState<string | null>(null);
+    const [errorMessage, setErrorMessage] = useState<string | null>(null);
+    const [showCreatePage, setShowCreatePage] = useState(false);
+    const [showAlbumManagement, setShowAlbumManagement] = useState(false);
+    const [albums, setAlbums] = useState<Album[]>([]);
+    const [existingRootSlugs, setExistingRootSlugs] = useState<string[]>([]);
+    const [successMessage, setSuccessMessage] = useState<{ title: string; message: string; url: string } | null>(null);
 
-    // Load family data from Firebase
+
+
+    // Helper function to generate URL-friendly slug from name
+    const generateSlug = (name: string): string => {
+        return name
+            .toLowerCase()
+            .replace(/[^a-z0-9]+/g, '-')
+            .replace(/^-+|-+$/g, '');
+    };
+
+    // Load family data from Firebase using root slug
     useEffect(() => {
         const loadFamilyData = async () => {
-            if (!familyId) return;
+            if (!rootSlug) return;
 
             setIsLoading(true);
             try {
-                // Check if family exists
-                let family = await getFamily(familyId);
+                // Find family by root slug
+                const familyData = await getFamilyByRootSlug(rootSlug);
 
-                if (!family) {
-                    // Create new family if it doesn't exist
-                    const displayName = familyId
-                        .split('-')
-                        .map(word => word.charAt(0).toUpperCase() + word.slice(1))
-                        .join(' ');
-
-                    await createFamily(familyId, `${displayName} Family`, 'Welcome to your family group!');
-
-                    // Create main group
-                    const mainGroupId = generateId();
-                    const mainGroup: Omit<Group, 'createdAt' | 'updatedAt'> = {
-                        id: mainGroupId,
-                        name: `${displayName} Family`,
-                        description: 'Our wonderful family through the years',
-                        members: []
-                    };
-
-                    await createGroup(familyId, mainGroup);
-
-                    setFamilyName(`${displayName} Family`);
-                    setGroups({ [mainGroupId]: { ...mainGroup, createdAt: Date.now(), updatedAt: Date.now() } });
-                    setCurrentGroupId(mainGroupId);
-                    setNavigationHistory([mainGroupId]);
+                if (!familyData) {
+                    // Root slug doesn't exist - show error
+                    setErrorMessage(`The family "${rootSlug}" does not exist. Please check the URL and try again.`);
+                    setIsLoading(false);
+                    return;
                 } else {
                     // Load existing family
-                    setFamilyName(family.name);
-                    const loadedGroups = await getAllGroups(familyId);
-                    setGroups(loadedGroups);
+                    setFamilyId(familyData.familyId);
+                    setFamilyName(familyData.family.name);
+                    const loadedGroups = await getAllGroups(familyData.familyId);
 
-                    // Find root group (no parent)
-                    const rootGroup = Object.values(loadedGroups).find(g => !g.parentGroupId);
-                    if (rootGroup) {
-                        setCurrentGroupId(rootGroup.id);
-                        setNavigationHistory([rootGroup.id]);
+                    // Generate slugs for groups that don't have them
+                    const groupsWithSlugs: Record<string, Group> = {};
+                    for (const [id, group] of Object.entries(loadedGroups)) {
+                        if (!group.slug) {
+                            const slug = generateSlug(group.name);
+                            groupsWithSlugs[id] = { ...group, slug };
+                            // Update in Firebase
+                            await updateGroup(familyData.familyId, id, { slug });
+                        } else {
+                            groupsWithSlugs[id] = group;
+                        }
+                    }
+
+                    setGroups(groupsWithSlugs);
+
+                    // Find the target group
+                    let targetGroup: Group | undefined;
+
+                    if (groupSlug) {
+                        // If groupSlug is provided, find that specific group
+                        targetGroup = Object.values(groupsWithSlugs).find(g => g.slug === groupSlug);
+
+                        // If groupSlug provided but not found, show error
+                        if (!targetGroup) {
+                            setErrorMessage(`The group "${groupSlug}" does not exist under "${rootSlug}". Please check the URL and try again.`);
+                            setIsLoading(false);
+                            return;
+                        }
+                    } else {
+                        // Otherwise, find the root group (should match rootSlug)
+                        targetGroup = Object.values(groupsWithSlugs).find(g => !g.parentGroupId && g.slug === rootSlug);
+                    }
+
+                    if (targetGroup) {
+                        setCurrentGroupId(targetGroup.id);
+                        setNavigationHistory([targetGroup.id]);
                     }
                 }
             } catch (error) {
@@ -87,7 +128,7 @@ export function FamilyApp() {
         };
 
         loadFamilyData();
-    }, [familyId]);
+    }, [rootSlug, groupSlug]);
 
     useEffect(() => {
         document.documentElement.setAttribute(
@@ -95,6 +136,38 @@ export function FamilyApp() {
             darkMode ? 'dark' : 'light'
         );
     }, [darkMode]);
+
+    // Load existing root slugs when create page modal is shown
+    useEffect(() => {
+        const loadExistingSlugs = async () => {
+            if (showCreatePage) {
+                try {
+                    const slugs = await getAllRootSlugs();
+                    setExistingRootSlugs(slugs);
+                } catch (error) {
+                    console.error('Error loading existing slugs:', error);
+                    setExistingRootSlugs([]);
+                }
+            }
+        };
+        loadExistingSlugs();
+    }, [showCreatePage]);
+
+    // Load albums when familyId is available
+    useEffect(() => {
+        const loadAlbumData = async () => {
+            if (!familyId) return;
+
+            try {
+                const loadedAlbums = await getAlbums(familyId);
+                setAlbums(loadedAlbums);
+                console.log('📀 Loaded albums in FamilyApp:', loadedAlbums.length);
+            } catch (error) {
+                console.error('Error loading albums:', error);
+            }
+        };
+        loadAlbumData();
+    }, [familyId]);
 
     const currentGroup = currentGroupId ? groups[currentGroupId] : null;
 
@@ -105,7 +178,15 @@ export function FamilyApp() {
         }));
     };
 
+    const getRootSlug = (): string => {
+        const rootGroup = Object.values(groups).find(g => !g.parentGroupId);
+        return rootGroup?.slug || rootSlug || 'otai';
+    };
+
     const handleNavigateToBreadcrumb = (groupId: string) => {
+        const group = groups[groupId];
+        if (!group) return;
+
         const index = navigationHistory.indexOf(groupId);
         if (index !== -1) {
             // Group is already in history, navigate back to it
@@ -116,21 +197,29 @@ export function FamilyApp() {
             setCurrentGroupId(groupId);
             setNavigationHistory([...navigationHistory, groupId]);
         }
-    };
 
-    const handleBack = () => {
-        if (navigationHistory.length > 1) {
-            const newHistory = navigationHistory.slice(0, -1);
-            setNavigationHistory(newHistory);
-            setCurrentGroupId(newHistory[newHistory.length - 1]);
+        // Update URL with slug
+        const rootSlugValue = getRootSlug();
+        if (group.parentGroupId && group.slug) {
+            // Sub-group: /:rootSlug/:groupSlug
+            navigate(`/${rootSlugValue}/${group.slug}`, { replace: true });
+        } else {
+            // Root group: /:rootSlug
+            navigate(`/${rootSlugValue}`, { replace: true });
         }
     };
+
 
     const handleNavigateHome = () => {
         if (navigationHistory.length > 0) {
             const firstGroupId = navigationHistory[0];
+            const rootSlugValue = getRootSlug();
+
             setCurrentGroupId(firstGroupId);
             setNavigationHistory([firstGroupId]);
+
+            // Update URL to root group
+            navigate(`/${rootSlugValue}`, { replace: true });
         }
     };
 
@@ -156,9 +245,11 @@ export function FamilyApp() {
         }
 
         const newGroupId = generateId();
+        const groupName = `${person.name}'s Family`;
         const newGroup: Omit<Group, 'createdAt' | 'updatedAt'> = {
             id: newGroupId,
-            name: `${person.name}'s Family`,
+            name: groupName,
+            slug: generateSlug(groupName),
             description: `Sub-group for ${person.name}`,
             members: [],
             parentGroupId: parentGroup.id
@@ -294,8 +385,15 @@ export function FamilyApp() {
         console.log('🎯 currentGroup:', currentGroup?.id, currentGroup?.name);
         console.log('🎯 familyId:', familyId);
 
-        if (!currentGroup || !familyId) {
-            console.log('❌ Early return: currentGroup or familyId missing');
+        if (!currentGroup) {
+            console.log('❌ Early return: currentGroup missing');
+            alert('Error: No group selected. Please try again.');
+            return;
+        }
+
+        if (!familyId) {
+            console.log('❌ Early return: familyId missing');
+            alert('Error: Family ID not loaded. Please refresh the page and try again.');
             return;
         }
 
@@ -421,18 +519,30 @@ export function FamilyApp() {
     };
 
     const handleUpdateMember = async (personId: string, updates: Partial<Person>, newPhotos?: File[], photoYears?: number[]) => {
-        if (!currentGroup || !familyId) return;
+        if (!familyId) return;
 
         console.log('🔄 Starting member update...', { personId, updates, newPhotos: newPhotos?.length });
 
         try {
-            const person = currentGroup.members.find(m => m.id === personId);
-            if (!person) {
+            // Find the person and their group across all groups
+            let person: Person | undefined;
+            let personGroup: Group | undefined;
+
+            for (const group of Object.values(groups)) {
+                const foundPerson = group.members.find(m => m.id === personId);
+                if (foundPerson) {
+                    person = foundPerson;
+                    personGroup = group;
+                    break;
+                }
+            }
+
+            if (!person || !personGroup) {
                 console.error('❌ Person not found:', personId);
                 return;
             }
 
-            console.log('👤 Found person:', person.name, 'Current photos:', person.photos.length);
+            console.log('👤 Found person:', person.name, 'in group:', personGroup.name, 'Current photos:', person.photos.length);
 
             // Start with existing photos or filtered photos from updates
             let finalPhotos = updates.photos ? [...updates.photos] : [...person.photos];
@@ -500,7 +610,7 @@ export function FamilyApp() {
             };
 
             // Update person in Firestore
-            const updatedMembers = currentGroup.members.map(m =>
+            const updatedMembers = personGroup.members.map(m =>
                 m.id === personId ? updatedPerson : m
             );
 
@@ -509,14 +619,14 @@ export function FamilyApp() {
 
             console.log('🧹 Cleaned members array');
 
-            await updateGroup(familyId, currentGroup.id, { members: cleanMembers });
+            await updateGroup(familyId, personGroup.id, { members: cleanMembers });
             console.log('✅ Firestore updated successfully');
 
             // Update local state
             setGroups(prev => ({
                 ...prev,
-                [currentGroup.id]: {
-                    ...currentGroup,
+                [personGroup.id]: {
+                    ...personGroup,
                     members: updatedMembers,
                     updatedAt: Date.now()
                 }
@@ -528,13 +638,144 @@ export function FamilyApp() {
         }
     };
 
+    const handleDeleteMember = async (personId: string) => {
+        if (!familyId) return;
+
+        console.log('🗑️ Deleting member:', personId);
+
+        try {
+            // Find the person and their group across all groups
+            let personGroup: Group | undefined;
+
+            for (const group of Object.values(groups)) {
+                const foundPerson = group.members.find(m => m.id === personId);
+                if (foundPerson) {
+                    personGroup = group;
+                    break;
+                }
+            }
+
+            if (!personGroup) {
+                console.error('❌ Person not found:', personId);
+                return;
+            }
+
+            console.log('🗑️ Deleting from group:', personGroup.name);
+
+            // Remove member from group
+            const updatedMembers = personGroup.members.filter(m => m.id !== personId);
+
+            // Update Firestore
+            await updateGroup(familyId, personGroup.id, { members: updatedMembers });
+            console.log('✅ Member deleted from Firestore');
+
+            // Update local state
+            setGroups(prev => ({
+                ...prev,
+                [personGroup.id]: {
+                    ...personGroup,
+                    members: updatedMembers,
+                    updatedAt: Date.now()
+                }
+            }));
+            console.log('✅ Member deleted from local state');
+        } catch (error) {
+            console.error('❌ Error deleting member:', error);
+            alert('Failed to delete member. Please try again.');
+        }
+    };
+
+    const handleDeleteGroup = async (groupId: string) => {
+        if (!familyId) return;
+
+        console.log('🗑️ Deleting group:', groupId);
+
+        try {
+            const groupToDelete = groups[groupId];
+            if (!groupToDelete) {
+                console.error('❌ Group not found:', groupId);
+                return;
+            }
+
+            console.log('🗑️ Deleting group:', groupToDelete.name, 'with', groupToDelete.members.length, 'members');
+
+            // Find the parent person who has this sub-group
+            let parentPerson: Person | undefined;
+            let parentGroup: Group | undefined;
+
+            for (const group of Object.values(groups)) {
+                const person = group.members.find(m => m.subGroupId === groupId);
+                if (person) {
+                    parentPerson = person;
+                    parentGroup = group;
+                    break;
+                }
+            }
+
+            // Delete from Firestore
+            const { deleteGroup, updateGroup } = await import('./services/firebase.service');
+            await deleteGroup(familyId, groupId);
+            console.log('✅ Group deleted from Firestore');
+
+            // If there's a parent person, remove their subGroupId
+            if (parentPerson && parentGroup) {
+                console.log('🔗 Removing subGroupId from parent person:', parentPerson.name);
+
+                // Remove subGroupId by destructuring and omitting it (Firestore doesn't accept undefined)
+                const updatedMembers = parentGroup.members.map(m => {
+                    if (m.id === parentPerson.id) {
+                        const { subGroupId, ...personWithoutSubGroup } = m;
+                        return personWithoutSubGroup;
+                    }
+                    return m;
+                });
+
+                await updateGroup(familyId, parentGroup.id, { members: updatedMembers });
+                console.log('✅ Parent person updated in Firestore');
+
+                // Update local state for parent group (here we can use undefined for local state)
+                setGroups(prev => ({
+                    ...prev,
+                    [parentGroup.id]: {
+                        ...parentGroup,
+                        members: parentGroup.members.map(m =>
+                            m.id === parentPerson.id ? { ...m, subGroupId: undefined } : m
+                        ),
+                        updatedAt: Date.now()
+                    }
+                }));
+            }
+
+            // Update local state - remove the group
+            setGroups(prev => {
+                const newGroups = { ...prev };
+                delete newGroups[groupId];
+                return newGroups;
+            });
+
+            // If we're currently viewing this group, navigate to first group
+            if (currentGroup?.id === groupId) {
+                const remainingGroups = Object.values(groups).filter(g => g.id !== groupId);
+                if (remainingGroups.length > 0) {
+                    setNavigationHistory([remainingGroups[0].id]);
+                }
+            }
+
+            console.log('✅ Group deleted from local state');
+            setShowEditGroup(false);
+        } catch (error) {
+            console.error('❌ Error deleting group:', error);
+            alert('Failed to delete group. Please try again.');
+        }
+    };
+
     const handleCreateGroup = () => {
         setShowAddGroup(true);
     };
 
     const handleAddGroup = async (groupData: { name: string; description?: string; slug: string }) => {
-        if (!familyId) return;
-
+        // Create a new family and root group
+        const newFamilyId = `family_${Date.now()}`;
         const newGroupId = generateId();
         const newGroup: Omit<Group, 'createdAt' | 'updatedAt'> = {
             id: newGroupId,
@@ -542,44 +783,42 @@ export function FamilyApp() {
             description: groupData.description || '',
             slug: groupData.slug,
             members: []
+            // No parentGroupId - this is a root group
         };
 
         try {
-            await createGroup(familyId, newGroup);
+            // Create new family
+            await createFamily(newFamilyId, groupData.name, groupData.description || '');
 
-            setGroups(prev => ({
-                ...prev,
-                [newGroupId]: { ...newGroup, createdAt: Date.now(), updatedAt: Date.now() }
-            }));
+            // Create root group under new family
+            await createGroup(newFamilyId, newGroup);
+
+            // Update state to the new family
+            setFamilyId(newFamilyId);
+            setFamilyName(groupData.name);
+            setGroups({ [newGroupId]: { ...newGroup, createdAt: Date.now(), updatedAt: Date.now() } });
             setCurrentGroupId(newGroupId);
             setNavigationHistory([newGroupId]);
+
+            // Navigate to the new root group's URL
+            if (newGroup.slug) {
+                navigate(`/${newGroup.slug}`, { replace: true });
+            }
         } catch (error) {
             console.error('Error creating group:', error);
             alert('Failed to create group. Please try again.');
         }
     };
 
-    const handleExportData = () => {
-        const dataStr = JSON.stringify(groups, null, 2);
-        const dataBlob = new Blob([dataStr], { type: 'application/json' });
-        const url = URL.createObjectURL(dataBlob);
-        const link = document.createElement('a');
-        link.href = url;
-        link.download = `${familyId}_export_${Date.now()}.json`;
-        link.click();
-        URL.revokeObjectURL(url);
-    };
-
-    const handleImportData = async (_file: File) => {
-        alert('Import functionality coming soon! Data is now stored in Firebase.');
-    };
-
     const handleToggleDarkMode = () => {
         setDarkMode(prev => !prev);
     };
 
+    const handleToggleAdminMode = () => {
+        setIsAdminMode(prev => !prev);
+    };
+
     const handleSearchChange = (query: string) => {
-        console.log('🔍 Search query:', query);
         setSearchQuery(query);
 
         // Auto-expand all sub-groups when searching to show results
@@ -604,11 +843,9 @@ export function FamilyApp() {
                 findAllSubGroups(currentGroupId);
             }
 
-            console.log('📂 Expanding sub-groups:', Array.from(allSubGroupIds));
             setExpandedGroups(allSubGroupIds);
         } else {
             // Clear expansion when search is cleared
-            console.log('🔄 Clearing search, collapsing groups');
             setExpandedGroups(new Set());
         }
     };
@@ -628,14 +865,15 @@ export function FamilyApp() {
     if (!currentGroup) {
         return (
             <div className="app">
-                <Header
+                <ModernHeader
                     darkMode={darkMode}
                     onToggleDarkMode={handleToggleDarkMode}
-                    searchQuery={searchQuery}
-                    onSearchChange={handleSearchChange}
-                    onExportData={handleExportData}
-                    onImportData={handleImportData}
-                    onCreateGroup={handleCreateGroup}
+                    onNavigateHome={() => { }}
+                    familyName="FamilyLinX"
+                    isAdminMode={isAdminMode}
+                    onToggleAdminMode={handleToggleAdminMode}
+                    onCreateNewPage={handleCreateGroup}
+                    onManageAlbums={() => { }}
                 />
                 <div className="container">
                     <div className="empty-state" style={{ marginTop: '4rem' }}>
@@ -648,24 +886,199 @@ export function FamilyApp() {
                         </button>
                     </div>
                 </div>
+
+                {/* Error Modal for Invalid URLs */}
+                {errorMessage && (
+                    <div className="modal-backdrop fade-in" onClick={() => setErrorMessage(null)}>
+                        <div
+                            className="modal-container"
+                            onClick={(e) => e.stopPropagation()}
+                            style={{
+                                maxWidth: '500px',
+                                textAlign: 'center',
+                                padding: '2rem'
+                            }}
+                        >
+                            <div style={{ marginBottom: '1.5rem' }}>
+                                <div style={{
+                                    fontSize: '4rem',
+                                    marginBottom: '1rem',
+                                    filter: 'drop-shadow(0 2px 4px rgba(0,0,0,0.1))'
+                                }}>
+                                    🔍
+                                </div>
+                                <h2 style={{
+                                    fontSize: '1.5rem',
+                                    fontWeight: '700',
+                                    color: 'var(--error-600)',
+                                    marginBottom: '0.5rem'
+                                }}>
+                                    Page Not Found
+                                </h2>
+                            </div>
+
+                            <div style={{ marginBottom: '2rem' }}>
+                                <p style={{
+                                    fontSize: '1rem',
+                                    lineHeight: '1.6',
+                                    marginBottom: '1rem',
+                                    color: 'var(--gray-700)'
+                                }}>
+                                    {errorMessage}
+                                </p>
+                                <div style={{
+                                    backgroundColor: 'var(--primary-50)',
+                                    border: '1px solid var(--primary-200)',
+                                    borderRadius: '0.5rem',
+                                    padding: '0.75rem 1rem',
+                                    marginTop: '1rem'
+                                }}>
+                                    <p style={{
+                                        fontSize: '0.875rem',
+                                        color: 'var(--primary-700)',
+                                        margin: 0,
+                                        display: 'flex',
+                                        alignItems: 'center',
+                                        justifyContent: 'center',
+                                        gap: '0.5rem'
+                                    }}>
+                                        <span>💡</span>
+                                        <span>Check the URL in your browser's address bar and correct it.</span>
+                                    </p>
+                                </div>
+                            </div>
+
+                            <div style={{
+                                display: 'flex',
+                                justifyContent: 'center'
+                            }}>
+                                <button
+                                    className="btn btn-primary"
+                                    onClick={() => setErrorMessage(null)}
+                                    style={{
+                                        minWidth: '120px',
+                                        padding: '0.75rem 2rem',
+                                        fontSize: '1rem',
+                                        fontWeight: '600'
+                                    }}
+                                >
+                                    Got it
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                )}
             </div>
         );
     }
 
+    // Handler for creating new page
+    const handleCreateNewPage = async (pageData: { name: string; description?: string; slug: string }) => {
+        console.log('Creating new page:', pageData);
+
+        try {
+            // Create a new family and root group
+            const newFamilyId = `family_${Date.now()}`;
+            const newGroupId = generateId();
+            const newGroup: Omit<Group, 'createdAt' | 'updatedAt'> = {
+                id: newGroupId,
+                name: pageData.name,
+                description: pageData.description || '',
+                slug: pageData.slug,
+                members: []
+                // No parentGroupId - this is a root group
+            };
+
+            // Create new family
+            await createFamily(newFamilyId, pageData.name, pageData.description || '');
+
+            // Create root group under new family
+            await createGroup(newFamilyId, newGroup);
+
+            // Show success modal
+            setSuccessMessage({
+                title: pageData.name,
+                message: 'Your new page has been created successfully!',
+                url: `/${pageData.slug}`
+            });
+        } catch (error) {
+            console.error('Error creating page:', error);
+            alert('Failed to create page. Please try again.');
+        }
+    };
+
+    // Handler for album management
+    const handleAddAlbum = async (album: Omit<Album, 'id' | 'createdAt'>) => {
+        if (!familyId) return;
+
+        try {
+            const albumId = await createAlbumInFirebase(familyId, album);
+            const newAlbum: Album = {
+                ...album,
+                id: albumId,
+                createdAt: Date.now(),
+            };
+            setAlbums([...albums, newAlbum]);
+        } catch (error) {
+            console.error('Error creating album:', error);
+            // Fallback to local-only if Firebase fails
+            const newAlbum: Album = {
+                ...album,
+                id: generateId(),
+                createdAt: Date.now(),
+            };
+            setAlbums([...albums, newAlbum]);
+        }
+    };
+
+    const handleUpdateAlbum = async (id: string, updates: Partial<Album>) => {
+        if (!familyId) return;
+
+        try {
+            await updateAlbumInFirebase(familyId, id, updates);
+            setAlbums(albums.map(album => album.id === id ? { ...album, ...updates } : album));
+        } catch (error) {
+            console.error('Error updating album:', error);
+            // Still update local state
+            setAlbums(albums.map(album => album.id === id ? { ...album, ...updates } : album));
+        }
+    };
+
+    const handleDeleteAlbum = async (id: string) => {
+        if (!familyId) return;
+
+        try {
+            await deleteAlbumInFirebase(familyId, id);
+            setAlbums(albums.filter(album => album.id !== id));
+        } catch (error) {
+            console.error('Error deleting album:', error);
+            // Still update local state
+            setAlbums(albums.filter(album => album.id !== id));
+        }
+    };
+
     return (
         <div className="app">
-            <Header
+            <ModernHeader
                 darkMode={darkMode}
                 onToggleDarkMode={handleToggleDarkMode}
-                searchQuery={searchQuery}
-                onSearchChange={handleSearchChange}
-                onExportData={handleExportData}
-                onImportData={handleImportData}
-                onCreateGroup={handleCreateGroup}
-                onBack={handleBack}
-                canGoBack={navigationHistory.length > 1}
                 onNavigateHome={handleNavigateHome}
+                familyName={familyName}
+                isAdminMode={isAdminMode}
+                onToggleAdminMode={handleToggleAdminMode}
+                onCreateNewPage={() => setShowCreatePage(true)}
+                onManageAlbums={() => setShowAlbumManagement(true)}
             />
+
+            {/* Hero Section - Only for root groups */}
+            {!currentGroup?.parentGroupId && (
+                <HeroSection
+                    group={currentGroup}
+                    allGroups={groups}
+                    searchQuery={searchQuery}
+                    onSearchChange={handleSearchChange}
+                />
+            )}
 
             <main className="app-main">
                 <div className="container">
@@ -678,17 +1091,20 @@ export function FamilyApp() {
                         onCreateSubGroup={handleCreateSubGroup}
                         onToggleSubGroup={handleToggleSubGroup}
                         onUpdateMember={handleUpdateMember}
+                        onDeleteMember={handleDeleteMember}
                         onEditGroup={handleEditAnyGroup}
+                        onDeleteGroup={handleDeleteGroup}
                         onAddMember={handleAddMemberToAnyGroup}
                         searchQuery={searchQuery}
                         depth={0}
+                        isAdminMode={isAdminMode}
                     />
                 </div>
             </main>
 
             <footer className="app-footer">
                 <div className="container">
-                    <p>FamilyLinX © 2025 - {familyName}</p>
+                    <p>FamilyLinX © Idiahus 2025 - {familyName}</p>
                 </div>
             </footer>
 
@@ -696,6 +1112,7 @@ export function FamilyApp() {
                 <AddGroupModal
                     onClose={() => setShowAddGroup(false)}
                     onSave={handleAddGroup}
+                    existingGroups={groups}
                 />
             )}
 
@@ -714,9 +1131,216 @@ export function FamilyApp() {
                         group={currentGroup}
                         onClose={() => setShowEditGroup(false)}
                         onSave={handleEditGroup}
+                        onDelete={handleDeleteGroup}
+                        existingGroups={groups}
                     />
                 );
             })()}
+
+            {/* Error Modal for Invalid URLs */}
+            {errorMessage && (
+                <div className="modal-backdrop fade-in" onClick={() => setErrorMessage(null)}>
+                    <div
+                        className="modal-container"
+                        onClick={(e) => e.stopPropagation()}
+                        style={{
+                            maxWidth: '500px',
+                            textAlign: 'center',
+                            padding: '2rem'
+                        }}
+                    >
+                        <div style={{ marginBottom: '1.5rem' }}>
+                            <div style={{
+                                fontSize: '4rem',
+                                marginBottom: '1rem',
+                                filter: 'drop-shadow(0 2px 4px rgba(0,0,0,0.1))'
+                            }}>
+                                🔍
+                            </div>
+                            <h2 style={{
+                                fontSize: '1.5rem',
+                                fontWeight: '700',
+                                color: 'var(--error-600)',
+                                marginBottom: '0.5rem'
+                            }}>
+                                Page Not Found
+                            </h2>
+                        </div>
+
+                        <div style={{ marginBottom: '2rem' }}>
+                            <p style={{
+                                fontSize: '1rem',
+                                lineHeight: '1.6',
+                                marginBottom: '1rem',
+                                color: 'var(--gray-700)'
+                            }}>
+                                {errorMessage}
+                            </p>
+                            <div style={{
+                                backgroundColor: 'var(--primary-50)',
+                                border: '1px solid var(--primary-200)',
+                                borderRadius: '0.5rem',
+                                padding: '0.75rem 1rem',
+                                marginTop: '1rem'
+                            }}>
+                                <p style={{
+                                    fontSize: '0.875rem',
+                                    color: 'var(--primary-700)',
+                                    margin: 0,
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    justifyContent: 'center',
+                                    gap: '0.5rem'
+                                }}>
+                                    <span>💡</span>
+                                    <span>Check the URL in your browser's address bar and correct it.</span>
+                                </p>
+                            </div>
+                        </div>
+
+                        <div style={{
+                            display: 'flex',
+                            justifyContent: 'center'
+                        }}>
+                            <button
+                                className="btn btn-primary"
+                                onClick={() => setErrorMessage(null)}
+                                style={{
+                                    minWidth: '120px',
+                                    padding: '0.75rem 2rem',
+                                    fontSize: '1rem',
+                                    fontWeight: '600'
+                                }}
+                            >
+                                Got it
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
+
+            {/* Create New Page Modal */}
+            {showCreatePage && (
+                <CreatePageModal
+                    onClose={() => setShowCreatePage(false)}
+                    onSave={handleCreateNewPage}
+                    existingSlugs={existingRootSlugs}
+                />
+            )}
+
+            {/* Album Management Modal */}
+            {showAlbumManagement && (
+                <AlbumManagementModal
+                    onClose={() => setShowAlbumManagement(false)}
+                    albums={albums}
+                    onAddAlbum={handleAddAlbum}
+                    onUpdateAlbum={handleUpdateAlbum}
+                    onDeleteAlbum={handleDeleteAlbum}
+                />
+            )}
+
+            {/* Success Modal */}
+            {successMessage && (
+                <div className="modal-backdrop fade-in" onClick={() => setSuccessMessage(null)}>
+                    <div
+                        className="modal-container"
+                        onClick={(e) => e.stopPropagation()}
+                        style={{
+                            maxWidth: '500px',
+                            textAlign: 'center',
+                            padding: '2rem'
+                        }}
+                    >
+                        <div style={{ marginBottom: '1.5rem' }}>
+                            <div style={{
+                                fontSize: '4rem',
+                                marginBottom: '1rem',
+                                filter: 'drop-shadow(0 2px 4px rgba(0,0,0,0.1))'
+                            }}>
+                                ✅
+                            </div>
+                            <h2 style={{
+                                fontSize: '1.5rem',
+                                fontWeight: '700',
+                                color: 'var(--success-600)',
+                                marginBottom: '0.5rem'
+                            }}>
+                                Page Created Successfully!
+                            </h2>
+                        </div>
+
+                        <div style={{ marginBottom: '2rem' }}>
+                            <p style={{
+                                fontSize: '1rem',
+                                lineHeight: '1.6',
+                                marginBottom: '1rem',
+                                color: 'var(--gray-700)'
+                            }}>
+                                <strong>{successMessage.title}</strong> {successMessage.message}
+                            </p>
+                            <div style={{
+                                backgroundColor: 'var(--primary-50)',
+                                border: '1px solid var(--primary-200)',
+                                borderRadius: '0.5rem',
+                                padding: '0.75rem 1rem',
+                                marginTop: '1rem'
+                            }}>
+                                <p style={{
+                                    fontSize: '0.875rem',
+                                    color: 'var(--primary-700)',
+                                    margin: 0,
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    justifyContent: 'center',
+                                    gap: '0.5rem'
+                                }}>
+                                    <span>🔗</span>
+                                    <span>Access your page at: <code style={{
+                                        backgroundColor: 'var(--primary-100)',
+                                        padding: '0.25rem 0.5rem',
+                                        borderRadius: '0.25rem',
+                                        fontFamily: 'monospace'
+                                    }}>{successMessage.url}</code></span>
+                                </p>
+                            </div>
+                        </div>
+
+                        <div style={{
+                            display: 'flex',
+                            gap: '1rem',
+                            justifyContent: 'center'
+                        }}>
+                            <button
+                                className="btn btn-secondary"
+                                onClick={() => setSuccessMessage(null)}
+                                style={{
+                                    minWidth: '120px',
+                                    padding: '0.75rem 2rem',
+                                    fontSize: '1rem',
+                                    fontWeight: '600'
+                                }}
+                            >
+                                Close
+                            </button>
+                            <button
+                                className="btn btn-primary"
+                                onClick={() => {
+                                    navigate(successMessage.url, { replace: true });
+                                    setSuccessMessage(null);
+                                }}
+                                style={{
+                                    minWidth: '120px',
+                                    padding: '0.75rem 2rem',
+                                    fontSize: '1rem',
+                                    fontWeight: '600'
+                                }}
+                            >
+                                Visit Page
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
         </div>
     );
 }

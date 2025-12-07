@@ -7,9 +7,10 @@ interface EditMemberModalProps {
     person: Person;
     onClose: () => void;
     onUpdate: (personId: string, updates: Partial<Person>, newPhotos?: File[], photoYears?: number[]) => void;
+    onDelete: (personId: string) => void;
 }
 
-export const EditMemberModal: React.FC<EditMemberModalProps> = ({ person, onClose, onUpdate }) => {
+export const EditMemberModal: React.FC<EditMemberModalProps> = ({ person, onClose, onUpdate, onDelete }) => {
     const [name, setName] = useState(person.name);
     const [relationship, setRelationship] = useState(person.relationship);
     const [gender, setGender] = useState<'male' | 'female' | ''>(person.gender || '');
@@ -22,6 +23,7 @@ export const EditMemberModal: React.FC<EditMemberModalProps> = ({ person, onClos
     const [isCompressing, setIsCompressing] = useState(false);
     const [compressionProgress, setCompressionProgress] = useState({ current: 0, total: 0 });
     const [photosToDelete, setPhotosToDelete] = useState<Set<string>>(new Set());
+    const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
 
     const handlePhotoChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
         if (e.target.files) {
@@ -76,6 +78,165 @@ export const EditMemberModal: React.FC<EditMemberModalProps> = ({ person, onClos
             }
         }
     };
+
+    // Handle paste events for images
+    const handlePaste = async (e: ClipboardEvent) => {
+        const items = e.clipboardData?.items;
+        if (!items) return;
+
+        const imageFiles: File[] = [];
+        for (let i = 0; i < items.length; i++) {
+            if (items[i].type.indexOf('image') !== -1) {
+                const file = items[i].getAsFile();
+                if (file) {
+                    imageFiles.push(file);
+                }
+            }
+        }
+
+        if (imageFiles.length > 0) {
+            e.preventDefault();
+
+            // Validate files
+            const invalidFiles: string[] = [];
+            const validFiles: File[] = [];
+
+            imageFiles.forEach(file => {
+                const validation = validateImageFile(file);
+                if (validation === true) {
+                    validFiles.push(file);
+                } else {
+                    invalidFiles.push(`${file.name}: ${validation}`);
+                }
+            });
+
+            if (invalidFiles.length > 0) {
+                alert('Some files were rejected:\n\n' + invalidFiles.join('\n'));
+            }
+
+            if (validFiles.length === 0) {
+                return;
+            }
+
+            // Compress images
+            setIsCompressing(true);
+            setCompressionProgress({ current: 0, total: validFiles.length });
+
+            try {
+                const compressedFiles = await compressImages(
+                    validFiles,
+                    {
+                        maxSizeMB: 1,
+                        maxWidthOrHeight: 1920,
+                        quality: 0.8
+                    },
+                    (current, total) => {
+                        setCompressionProgress({ current, total });
+                    }
+                );
+
+                // Append to existing photos
+                setPhotoFiles([...photoFiles, ...compressedFiles]);
+                setPhotoYears([...photoYears, ...compressedFiles.map(() => new Date().getFullYear())]);
+            } catch (error) {
+                console.error('Error compressing pasted images:', error);
+                alert('Failed to process pasted images. Please try again.');
+            } finally {
+                setIsCompressing(false);
+                setCompressionProgress({ current: 0, total: 0 });
+            }
+        }
+    };
+
+    // Handle paste button click (for mobile)
+    const handlePasteButton = async () => {
+        try {
+            const clipboardItems = await navigator.clipboard.read();
+            const imageFiles: File[] = [];
+
+            for (const item of clipboardItems) {
+                for (const type of item.types) {
+                    if (type.startsWith('image/')) {
+                        const blob = await item.getType(type);
+                        const file = new File([blob], `pasted-image-${Date.now()}.${type.split('/')[1]}`, { type });
+                        imageFiles.push(file);
+                    }
+                }
+            }
+
+            if (imageFiles.length === 0) {
+                alert('No images found in clipboard. Please copy an image first.');
+                return;
+            }
+
+            // Validate files
+            const invalidFiles: string[] = [];
+            const validFiles: File[] = [];
+
+            imageFiles.forEach(file => {
+                const validation = validateImageFile(file);
+                if (validation === true) {
+                    validFiles.push(file);
+                } else {
+                    invalidFiles.push(`${file.name}: ${validation}`);
+                }
+            });
+
+            if (invalidFiles.length > 0) {
+                alert('Some files were rejected:\n\n' + invalidFiles.join('\n'));
+            }
+
+            if (validFiles.length === 0) {
+                return;
+            }
+
+            // Compress images
+            setIsCompressing(true);
+            setCompressionProgress({ current: 0, total: validFiles.length });
+
+            try {
+                const compressedFiles = await compressImages(
+                    validFiles,
+                    {
+                        maxSizeMB: 1,
+                        maxWidthOrHeight: 1920,
+                        quality: 0.8
+                    },
+                    (current, total) => {
+                        setCompressionProgress({ current, total });
+                    }
+                );
+
+                // Append to existing photos
+                const newPhotoFiles = [...photoFiles, ...compressedFiles];
+                const newPhotoYears = [...photoYears, ...compressedFiles.map(() => new Date().getFullYear())];
+                console.log('📋 Pasted images from button:', {
+                    count: compressedFiles.length,
+                    totalPhotos: newPhotoFiles.length,
+                    years: newPhotoYears
+                });
+                setPhotoFiles(newPhotoFiles);
+                setPhotoYears(newPhotoYears);
+            } catch (error) {
+                console.error('Error compressing pasted images:', error);
+                alert('Failed to process pasted images. Please try again.');
+            } finally {
+                setIsCompressing(false);
+                setCompressionProgress({ current: 0, total: 0 });
+            }
+        } catch (error) {
+            console.error('Error reading clipboard:', error);
+            alert('Failed to read from clipboard. Please make sure you have copied an image and granted clipboard permissions.');
+        }
+    };
+
+    // Add paste event listener
+    React.useEffect(() => {
+        window.addEventListener('paste', handlePaste as any);
+        return () => {
+            window.removeEventListener('paste', handlePaste as any);
+        };
+    }); // No dependencies - will use latest closure
 
     const handleDeletePhoto = (photoUrl: string) => {
         const newSet = new Set(photosToDelete);
@@ -287,17 +448,30 @@ export const EditMemberModal: React.FC<EditMemberModalProps> = ({ person, onClos
                         <label htmlFor="photos" className="form-label">
                             Add New Photos
                         </label>
-                        <input
-                            type="file"
-                            id="photos"
-                            className="form-input-file"
-                            accept="image/*,.heic"
-                            multiple
-                            onChange={handlePhotoChange}
-                            disabled={isCompressing}
-                        />
+                        <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'flex-start', flexWrap: 'wrap' }}>
+                            <input
+                                type="file"
+                                id="photos"
+                                className="form-input-file"
+                                accept="image/*,.heic"
+                                multiple
+                                onChange={handlePhotoChange}
+                                disabled={isCompressing}
+                                style={{ flex: '1', minWidth: '200px' }}
+                            />
+                            <button
+                                type="button"
+                                className="btn btn-secondary"
+                                onClick={handlePasteButton}
+                                disabled={isCompressing}
+                                title="Paste image from clipboard"
+                                style={{ whiteSpace: 'nowrap' }}
+                            >
+                                📋 Paste Photo
+                            </button>
+                        </div>
                         <p className="form-help">
-                            Add more photos. HEIC images supported. Auto-compressed to ≤ 1MB.
+                            Upload photos or paste from clipboard. HEIC images supported. Auto-compressed to ≤ 0.5MB.
                         </p>
                     </div>
 
@@ -349,6 +523,15 @@ export const EditMemberModal: React.FC<EditMemberModalProps> = ({ person, onClos
                     )}
 
                     <div className="form-actions">
+                        <button
+                            type="button"
+                            className="btn btn-danger"
+                            onClick={() => setShowDeleteConfirm(true)}
+                            disabled={isSubmitting || isCompressing}
+                        >
+                            Delete Member
+                        </button>
+                        <div style={{ flex: 1 }}></div>
                         <button type="button" className="btn btn-secondary" onClick={onClose}>
                             Cancel
                         </button>
@@ -358,6 +541,38 @@ export const EditMemberModal: React.FC<EditMemberModalProps> = ({ person, onClos
                     </div>
                 </form>
             </div>
+
+            {/* Delete Confirmation Dialog */}
+            {showDeleteConfirm && (
+                <div className="modal-overlay" onClick={() => setShowDeleteConfirm(false)}>
+                    <div className="modal-content confirmation-dialog" onClick={(e) => e.stopPropagation()}>
+                        <h2>⚠️ Delete Member</h2>
+                        <p>Are you sure you want to delete <strong>{person.name}</strong>?</p>
+                        <p style={{ color: 'var(--error-500)', fontSize: '0.875rem' }}>
+                            This action cannot be undone. All photos and data will be permanently deleted.
+                        </p>
+                        <div className="form-actions">
+                            <button
+                                type="button"
+                                className="btn btn-secondary"
+                                onClick={() => setShowDeleteConfirm(false)}
+                            >
+                                Cancel
+                            </button>
+                            <button
+                                type="button"
+                                className="btn btn-danger"
+                                onClick={() => {
+                                    onDelete(person.id);
+                                    onClose();
+                                }}
+                            >
+                                Yes, Delete
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
         </div>
     );
 };

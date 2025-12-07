@@ -124,9 +124,30 @@
     justify-content: center;
     width: 100%;
     height: 100%;
-    background: var(--bg-tertiary);
+    background: #f3f4f6;
     border-radius: var(--radius-lg);
-    color: var(--text-tertiary);
+    overflow: hidden;
+}
+
+.placeholder-image {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    display: block;
+    transform: scale(0.91);
+}
+
+.silhouette-svg {
+    width: 100%;
+    height: 100%;
+    display: block;
+}
+
+.silhouette-svg path {
+    stroke: #9ca3af;
+    stroke-width: 8;
+    stroke-linecap: round;
+    fill: none;
 }
 
 .placeholder-icon {

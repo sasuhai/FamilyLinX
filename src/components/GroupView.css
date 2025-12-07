@@ -26,7 +26,48 @@
     border-radius: var(--radius-2xl);
     box-shadow: var(--shadow-lg);
     border: 2px solid var(--border-light);
+    position: relative;
 }
+
+.back-button {
+    position: absolute;
+    top: var(--spacing-lg);
+    left: var(--spacing-lg);
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-xs);
+    padding: var(--spacing-xs) var(--spacing-md);
+    background: var(--bg-tertiary);
+    border: 1px solid var(--border-light);
+    border-radius: var(--radius-full);
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: var(--text-primary);
+    cursor: pointer;
+    transition: all var(--transition-base);
+    z-index: 10;
+}
+
+.back-button:hover {
+    background: var(--primary-500);
+    border-color: var(--primary-500);
+    color: white;
+    transform: translateX(-4px);
+}
+
+.back-icon {
+    font-size: 1.125rem;
+}
+
+.back-text {
+    font-family: var(--font-sans);
+}
+
+/* Add padding to group header when back button is present */
+.group-header:has(.back-button) {
+    padding-top: calc(var(--spacing-2xl) + var(--spacing-xl));
+}
+
 
 .sub-group .group-header {
     padding: var(--spacing-lg);
@@ -214,13 +255,13 @@
 
 .members-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-    gap: var(--spacing-xl);
+    grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+    gap: var(--spacing-md);
 }
 
 .sub-group .members-grid {
-    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-    gap: var(--spacing-lg);
+    grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+    gap: var(--spacing-sm);
 }
 
 .member-with-subgroup {
@@ -346,40 +387,73 @@
 @media (max-width: 768px) {
     .group-header {
         flex-direction: column;
-        padding: var(--spacing-lg);
+        padding: var(--spacing-md);
+        gap: var(--spacing-md);
+        margin-bottom: var(--spacing-lg);
     }
 
     .parent-photo-container {
-        width: 150px;
-        height: 150px;
-        margin: 0 auto var(--spacing-md);
+        width: 120px;
+        height: 120px;
+        margin: 0 auto var(--spacing-sm);
+    }
+
+    .group-title {
+        font-size: clamp(1.25rem, 4vw, 1.75rem);
+    }
+
+    .sub-group .group-title {
+        font-size: clamp(1.125rem, 3.5vw, 1.5rem);
+    }
+
+    .group-description {
+        font-size: 0.8125rem;
     }
 
     .group-stats {
         width: 100%;
         justify-content: space-around;
+        gap: var(--spacing-sm);
     }
 
     .stat-item {
-        min-width: 100px;
-        padding: var(--spacing-md);
+        min-width: 70px;
+        padding: var(--spacing-sm);
     }
 
     .stat-value {
-        font-size: 2rem;
+        font-size: 1.5rem;
+    }
+
+    .stat-label {
+        font-size: 0.6875rem;
+    }
+
+    .group-actions {
+        gap: var(--spacing-xs);
+    }
+
+    .group-actions .btn {
+        font-size: 0.75rem;
+        padding: var(--spacing-xs) var(--spacing-sm);
     }
 
     .members-grid {
-        grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-        gap: var(--spacing-lg);
+        grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+        gap: var(--spacing-sm);
     }
 
     .sub-group .members-grid {
-        grid-template-columns: 1fr;
+        grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
     }
 
     .group-view.sub-group {
-        padding-left: var(--spacing-md);
+        padding-left: var(--spacing-sm);
+        padding-right: var(--spacing-xs);
+    }
+
+    .sub-group .group-header {
+        padding: var(--spacing-sm);
     }
 
     .group-indent-1,
@@ -390,20 +464,67 @@
 }
 
 @media (max-width: 480px) {
+    .group-header {
+        padding: var(--spacing-sm);
+        margin-bottom: var(--spacing-md);
+    }
+
+    .parent-photo-container {
+        width: 100px;
+        height: 100px;
+    }
+
+    .group-title {
+        font-size: clamp(1.125rem, 4vw, 1.5rem);
+        margin-bottom: var(--spacing-xs);
+    }
+
+    .sub-group .group-title {
+        font-size: clamp(1rem, 3.5vw, 1.25rem);
+    }
+
+    .group-description {
+        font-size: 0.75rem;
+        margin-bottom: var(--spacing-sm);
+    }
+
+    .sub-group-indicator {
+        font-size: 0.6875rem;
+    }
+
     .members-grid {
-        grid-template-columns: 1fr;
+        grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+        gap: var(--spacing-xs);
     }
 
     .group-stats {
-        gap: var(--spacing-md);
+        gap: var(--spacing-xs);
     }
 
     .stat-item {
-        min-width: 80px;
-        padding: var(--spacing-sm);
+        min-width: 60px;
+        padding: var(--spacing-xs);
+    }
+
+    .stat-value {
+        font-size: 1.25rem;
+    }
+
+    .stat-label {
+        font-size: 0.625rem;
+    }
+
+    .group-actions .btn {
+        font-size: 0.6875rem;
+        padding: 6px var(--spacing-xs);
+        min-height: 28px;
     }
 
     .sub-group-container {
-        padding: var(--spacing-md);
+        padding: var(--spacing-sm);
+    }
+
+    .sub-group .group-header {
+        padding: var(--spacing-xs);
     }
 }

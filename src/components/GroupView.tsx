@@ -16,10 +16,13 @@ interface GroupViewProps {
     onCreateSubGroup: (personId: string) => void;
     onToggleSubGroup: (subGroupId: string) => void;
     onUpdateMember?: (personId: string, updates: Partial<Person>, newPhotos?: File[], photoYears?: number[]) => void;
+    onDeleteMember?: (personId: string) => void;
     onEditGroup?: (groupId: string, updates: { name?: string; description?: string }) => void;
+    onDeleteGroup?: (groupId: string) => void;
     onAddMember?: (groupId: string, person: Person, photoFiles?: File[], photoYears?: number[]) => void;
     searchQuery: string;
     depth: number;
+    isAdminMode: boolean;
 }
 
 export const GroupView: React.FC<GroupViewProps> = ({
@@ -31,10 +34,13 @@ export const GroupView: React.FC<GroupViewProps> = ({
     onCreateSubGroup,
     onToggleSubGroup,
     onUpdateMember,
+    onDeleteMember,
     onEditGroup,
+    onDeleteGroup,
     onAddMember,
     searchQuery,
     depth,
+    isAdminMode,
 }) => {
     const [selectedPerson, setSelectedPerson] = useState<Person | null>(null);
     const [editingPerson, setEditingPerson] = useState<Person | null>(null);
@@ -114,6 +120,18 @@ export const GroupView: React.FC<GroupViewProps> = ({
         <div className={`group-view-container ${indentClass}`}>
             <div className={`group-view ${depth > 0 ? 'sub-group' : ''}`}>
                 <div className="group-header fade-in">
+                    {/* Back button for sub-groups on new page */}
+                    {depth === 0 && group.parentGroupId && onNavigateToBreadcrumb && (
+                        <button
+                            className="back-button"
+                            onClick={() => onNavigateToBreadcrumb(group.parentGroupId!)}
+                            title="Go back to parent group"
+                        >
+                            <span className="back-icon">←</span>
+                            <span className="back-text">Back</span>
+                        </button>
+                    )}
+
                     {/* Show parent photo only on new page (depth 0) for sub-groups */}
                     {depth === 0 && parentPerson && parentPerson.photos.length > 0 && (() => {
                         // Get the latest photo based on yearTaken
@@ -128,20 +146,24 @@ export const GroupView: React.FC<GroupViewProps> = ({
                             </div>
                         );
                     })()}
-                    <div className="group-header-content">
-                        {depth > 0 && (
-                            <div className="sub-group-indicator">
-                                <span className="indicator-icon">↳</span>
-                                <span className="indicator-label">Sub-Group</span>
-                            </div>
-                        )}
-                        <h1 className={`group-title ${depth === 0 ? 'gradient-text' : ''}`}>
-                            {group.name}
-                        </h1>
-                        {group.description && (
-                            <p className="group-description">{group.description}</p>
-                        )}
-                    </div>
+
+                    {/* Show group header content for sub-groups (depth > 0) OR when on new page with parent (depth 0 with parentGroupId) */}
+                    {(depth > 0 || (depth === 0 && group.parentGroupId)) && (
+                        <div className="group-header-content">
+                            {depth > 0 && (
+                                <div className="sub-group-indicator">
+                                    <span className="indicator-icon">↳</span>
+                                    <span className="indicator-label">Sub-Group</span>
+                                </div>
+                            )}
+                            <h1 className="group-title">
+                                {group.name}
+                            </h1>
+                            {group.description && (
+                                <p className="group-description">{group.description}</p>
+                            )}
+                        </div>
+                    )}
                     <div className="group-stats">
                         <div className="stat-item">
                             <span className="stat-value">{group.members.length}</span>
@@ -154,36 +176,35 @@ export const GroupView: React.FC<GroupViewProps> = ({
                             <span className="stat-label">Photos</span>
                         </div>
                     </div>
-                    {(onEditGroup || onAddMember || depth > 0) && (
-                        <div className="group-actions">
-                            {onAddMember && (
-                                <button className="btn btn-primary" onClick={() => setIsAddingMember(true)}>
-                                    <span>➕</span>
-                                    Add Member
-                                </button>
-                            )}
-                            {onEditGroup && (
-                                <button className="btn btn-secondary" onClick={() => setIsEditingGroup(true)}>
-                                    <span>✏️</span>
-                                    Edit Group
-                                </button>
-                            )}
-                            {depth > 0 && (
-                                <button
-                                    className="btn btn-secondary open-page-btn"
-                                    onClick={(e) => {
-                                        e.preventDefault();
-                                        console.log('Open Page clicked for group:', group.id);
-                                        onNavigateToBreadcrumb(group.id);
-                                    }}
-                                    title="Open this group in a new page"
-                                >
-                                    <span>🔗</span>
-                                    <span className="btn-text">Open Page</span>
-                                </button>
-                            )}
-                        </div>
-                    )}
+                    <div className="group-actions">
+                        {isAdminMode && (
+                            <>
+                                {onAddMember && (
+                                    <button className="btn btn-primary" onClick={() => setIsAddingMember(true)}>
+                                        Add Member
+                                    </button>
+                                )}
+                                {onEditGroup && (
+                                    <button className="btn btn-secondary" onClick={() => setIsEditingGroup(true)}>
+                                        Edit Group
+                                    </button>
+                                )}
+                            </>
+                        )}
+                        {depth > 0 && (
+                            <button
+                                className="btn btn-secondary open-page-btn"
+                                onClick={(e) => {
+                                    e.preventDefault();
+                                    console.log('Open Page clicked for group:', group.id);
+                                    onNavigateToBreadcrumb(group.id);
+                                }}
+                                title="Open this group in a new page"
+                            >
+                                <span className="btn-text">Open Page</span>
+                            </button>
+                        )}
+                    </div>
                 </div>
 
                 {searchQuery && (
@@ -211,6 +232,7 @@ export const GroupView: React.FC<GroupViewProps> = ({
                                     onClick={() => setSelectedPerson(member)}
                                     onToggleSubGroup={member.subGroupId ? () => onToggleSubGroup(member.subGroupId!) : undefined}
                                     isSubGroupExpanded={member.subGroupId ? expandedGroups.has(member.subGroupId) : false}
+                                    allGroups={allGroups}
                                 />
 
                                 {/* Render sub-group inline if expanded */}
@@ -225,10 +247,13 @@ export const GroupView: React.FC<GroupViewProps> = ({
                                             onCreateSubGroup={onCreateSubGroup}
                                             onToggleSubGroup={onToggleSubGroup}
                                             onUpdateMember={onUpdateMember}
+                                            onDeleteMember={onDeleteMember}
                                             onEditGroup={onEditGroup}
+                                            onDeleteGroup={onDeleteGroup}
                                             onAddMember={onAddMember}
                                             searchQuery={searchQuery}
                                             depth={depth + 1}
+                                            isAdminMode={isAdminMode}
                                         />
                                     </div>
                                 )}
@@ -254,6 +279,8 @@ export const GroupView: React.FC<GroupViewProps> = ({
                                 : undefined
                         }
                         onEdit={() => handleEditMember(selectedPerson)}
+                        allGroups={allGroups}
+                        isAdminMode={isAdminMode}
                     />
                 )}
 
@@ -262,6 +289,12 @@ export const GroupView: React.FC<GroupViewProps> = ({
                         person={editingPerson}
                         onClose={() => setEditingPerson(null)}
                         onUpdate={handleUpdateMember}
+                        onDelete={(personId) => {
+                            if (onDeleteMember) {
+                                onDeleteMember(personId);
+                                setEditingPerson(null);
+                            }
+                        }}
                     />
                 )}
 
@@ -277,6 +310,13 @@ export const GroupView: React.FC<GroupViewProps> = ({
                         group={group}
                         onClose={() => setIsEditingGroup(false)}
                         onSave={handleEditGroupInfo}
+                        onDelete={(groupId) => {
+                            if (onDeleteGroup) {
+                                onDeleteGroup(groupId);
+                                setIsEditingGroup(false);
+                            }
+                        }}
+                        existingGroups={allGroups}
                     />
                 )}
             </div>

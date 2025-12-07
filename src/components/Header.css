@@ -13,7 +13,7 @@
     display: flex;
     align-items: center;
     gap: var(--spacing-xl);
-    padding: var(--spacing-lg) 0;
+    padding: 0.75rem 0;
 }
 
 .header-brand {
@@ -186,19 +186,32 @@
 @media (max-width: 768px) {
     .header-content {
         flex-wrap: wrap;
-        gap: var(--spacing-md);
+        gap: var(--spacing-sm);
+        padding: var(--spacing-sm) 0;
     }
 
     .header-brand {
-        flex: 1;
+        flex: 0 0 auto;
+        gap: var(--spacing-sm);
     }
 
     .brand-icon {
-        font-size: 2rem;
+        font-size: 1.5rem;
     }
 
     .brand-name {
-        font-size: 1.5rem;
+        font-size: 1.125rem;
+    }
+
+    .brand-credit {
+        font-size: 0.625rem;
+    }
+
+    .header-actions {
+        order: 2;
+        flex: 0 0 auto;
+        gap: var(--spacing-xs);
+        margin-left: auto;
     }
 
     .header-search {
@@ -207,23 +220,66 @@
         max-width: none;
     }
 
+    .search-input {
+        font-size: 0.8125rem;
+        padding: var(--spacing-xs) var(--spacing-sm) var(--spacing-xs) 2.5rem;
+    }
+
+    .search-icon {
+        font-size: 1rem;
+        left: var(--spacing-sm);
+    }
+
     .btn-text {
         display: none;
     }
 
     .btn {
-        padding: var(--spacing-sm);
+        padding: var(--spacing-xs) var(--spacing-sm);
+        font-size: 0.8125rem;
     }
 }
 
 @media (max-width: 480px) {
+    .header-content {
+        padding: var(--spacing-xs) 0;
+    }
+
+    .brand-icon {
+        font-size: 1.25rem;
+    }
+
+    .brand-name {
+        font-size: 1rem;
+    }
+
+    .brand-credit {
+        font-size: 0.5625rem;
+    }
+
     .header-actions {
-        gap: var(--spacing-sm);
+        gap: 4px;
     }
 
     .icon-btn {
-        width: 40px;
-        height: 40px;
-        font-size: 1.125rem;
+        width: 32px;
+        height: 32px;
+        font-size: 0.875rem;
+    }
+
+    .btn {
+        padding: 6px 8px;
+        font-size: 0.75rem;
+        min-height: 32px;
+    }
+
+    .search-input {
+        font-size: 0.75rem;
+        padding: 6px var(--spacing-xs) 6px 2rem;
+    }
+
+    .search-icon {
+        font-size: 0.875rem;
+        left: 6px;
     }
 }

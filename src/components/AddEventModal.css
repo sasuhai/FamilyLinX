@@ -1,0 +1,53 @@
+/* ============================================
+   Add Event Modal - Professional Dark Theme
+   ============================================ */
+
+/* Import shared styles */
+@import './SharedModalStyles.css';
+
+/* Form Section Title */
+.form-section-title-dark {
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: rgba(255, 255, 255, 0.7);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    margin: 0 0 1rem 0;
+    padding-bottom: 0.5rem;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+/* Checkbox styling */
+.checkbox-group {
+    flex-direction: row;
+    align-items: center;
+}
+
+.checkbox-label-dark {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.75rem;
+    cursor: pointer;
+    color: #ffffff;
+    font-size: 0.9375rem;
+}
+
+.checkbox-input-dark {
+    width: 20px;
+    height: 20px;
+    accent-color: #a3e635;
+    cursor: pointer;
+}
+
+/* Color inputs */
+.form-input-dark[type="color"] {
+    height: 44px;
+    padding: 0.25rem;
+    cursor: pointer;
+}
+
+/* Date and time inputs styling for dark theme */
+.form-input-dark[type="date"],
+.form-input-dark[type="time"] {
+    color-scheme: dark;
+}

@@ -7,7 +7,7 @@
   --primary-hue: 260;
   --primary-sat: 85%;
   --primary-light: 55%;
-  
+
   --primary-50: hsl(var(--primary-hue), var(--primary-sat), 97%);
   --primary-100: hsl(var(--primary-hue), var(--primary-sat), 92%);
   --primary-200: hsl(var(--primary-hue), var(--primary-sat), 82%);
@@ -18,15 +18,17 @@
   --primary-700: hsl(var(--primary-hue), var(--primary-sat), 35%);
   --primary-800: hsl(var(--primary-hue), var(--primary-sat), 25%);
   --primary-900: hsl(var(--primary-hue), var(--primary-sat), 15%);
-  
+
   --accent-hue: 340;
   --accent-500: hsl(var(--accent-hue), 90%, 60%);
   --accent-600: hsl(var(--accent-hue), 90%, 50%);
-  
+
   --success-500: hsl(142, 76%, 45%);
   --warning-500: hsl(38, 92%, 50%);
   --error-500: hsl(0, 84%, 60%);
-  
+  --error-600: hsl(0, 84%, 50%);
+  --error-700: hsl(0, 84%, 40%);
+
   /* Neutral Colors */
   --gray-50: hsl(220, 20%, 98%);
   --gray-100: hsl(220, 18%, 95%);
@@ -38,34 +40,34 @@
   --gray-700: hsl(220, 14%, 25%);
   --gray-800: hsl(220, 16%, 15%);
   --gray-900: hsl(220, 18%, 8%);
-  
+
   /* Semantic Colors - Light Mode */
   --bg-primary: var(--gray-50);
   --bg-secondary: white;
   --bg-tertiary: var(--gray-100);
   --bg-elevated: white;
-  
+
   --text-primary: var(--gray-900);
   --text-secondary: var(--gray-600);
   --text-tertiary: var(--gray-500);
   --text-inverse: white;
-  
+
   --border-light: var(--gray-200);
   --border-medium: var(--gray-300);
   --border-dark: var(--gray-400);
-  
+
   /* Shadows */
   --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
   --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
   --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
   --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
   --shadow-2xl: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
-  
+
   /* Glassmorphism */
   --glass-bg: rgba(255, 255, 255, 0.7);
   --glass-border: rgba(255, 255, 255, 0.3);
   --glass-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.15);
-  
+
   /* Spacing */
   --spacing-xs: 0.25rem;
   --spacing-sm: 0.5rem;
@@ -74,7 +76,7 @@
   --spacing-xl: 2rem;
   --spacing-2xl: 3rem;
   --spacing-3xl: 4rem;
-  
+
   /* Border Radius */
   --radius-sm: 0.375rem;
   --radius-md: 0.5rem;
@@ -82,11 +84,11 @@
   --radius-xl: 1rem;
   --radius-2xl: 1.5rem;
   --radius-full: 9999px;
-  
+
   /* Typography */
   --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
   --font-display: 'Outfit', var(--font-sans);
-  
+
   /* Transitions */
   --transition-fast: 150ms cubic-bezier(0.4, 0, 0.2, 1);
   --transition-base: 250ms cubic-bezier(0.4, 0, 0.2, 1);
@@ -100,22 +102,24 @@
   --bg-secondary: var(--gray-800);
   --bg-tertiary: var(--gray-700);
   --bg-elevated: var(--gray-800);
-  
+
   --text-primary: var(--gray-50);
   --text-secondary: var(--gray-300);
   --text-tertiary: var(--gray-400);
-  
+
   --border-light: var(--gray-700);
   --border-medium: var(--gray-600);
   --border-dark: var(--gray-500);
-  
+
   --glass-bg: rgba(30, 30, 40, 0.7);
   --glass-border: rgba(255, 255, 255, 0.1);
   --glass-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.4);
 }
 
 /* Reset & Base Styles */
-*, *::before, *::after {
+*,
+*::before,
+*::after {
   box-sizing: border-box;
   margin: 0;
   padding: 0;
@@ -156,7 +160,12 @@ body {
 }
 
 /* Typography */
-h1, h2, h3, h4, h5, h6 {
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
   font-family: var(--font-display);
   font-weight: 700;
   line-height: 1.2;
@@ -187,6 +196,7 @@ h4 {
     opacity: 0;
     transform: translateY(10px);
   }
+
   to {
     opacity: 1;
     transform: translateY(0);
@@ -198,6 +208,7 @@ h4 {
     opacity: 1;
     transform: translateY(0);
   }
+
   to {
     opacity: 0;
     transform: translateY(-10px);
@@ -209,6 +220,7 @@ h4 {
     opacity: 0;
     transform: translateX(30px);
   }
+
   to {
     opacity: 1;
     transform: translateX(0);
@@ -220,6 +232,7 @@ h4 {
     opacity: 0;
     transform: translateX(-30px);
   }
+
   to {
     opacity: 1;
     transform: translateX(0);
@@ -231,6 +244,7 @@ h4 {
     opacity: 0;
     transform: scale(0.9);
   }
+
   to {
     opacity: 1;
     transform: scale(1);
@@ -241,15 +255,19 @@ h4 {
   0% {
     background-position: -1000px 0;
   }
+
   100% {
     background-position: 1000px 0;
   }
 }
 
 @keyframes pulse {
-  0%, 100% {
+
+  0%,
+  100% {
     opacity: 1;
   }
+
   50% {
     opacity: 0.5;
   }
@@ -288,19 +306,15 @@ h4 {
 
 /* Gradient Backgrounds */
 .gradient-bg {
-  background: linear-gradient(
-    135deg,
-    var(--primary-500) 0%,
-    var(--accent-500) 100%
-  );
+  background: linear-gradient(135deg,
+      var(--primary-500) 0%,
+      var(--accent-500) 100%);
 }
 
 .gradient-text {
-  background: linear-gradient(
-    135deg,
-    var(--primary-500) 0%,
-    var(--accent-500) 100%
-  );
+  background: linear-gradient(135deg,
+      var(--primary-500) 0%,
+      var(--accent-500) 100%);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
@@ -450,6 +464,7 @@ h4 {
 }
 
 @media (max-width: 768px) {
+
   .grid-cols-3,
   .grid-cols-4 {
     grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -457,6 +472,7 @@ h4 {
 }
 
 @media (max-width: 480px) {
+
   .grid-cols-2,
   .grid-cols-3,
   .grid-cols-4 {
@@ -519,17 +535,50 @@ h4 {
 }
 
 /* Spacing Utilities */
-.mt-sm { margin-top: var(--spacing-sm); }
-.mt-md { margin-top: var(--spacing-md); }
-.mt-lg { margin-top: var(--spacing-lg); }
-.mt-xl { margin-top: var(--spacing-xl); }
+.mt-sm {
+  margin-top: var(--spacing-sm);
+}
 
-.mb-sm { margin-bottom: var(--spacing-sm); }
-.mb-md { margin-bottom: var(--spacing-md); }
-.mb-lg { margin-bottom: var(--spacing-lg); }
-.mb-xl { margin-bottom: var(--spacing-xl); }
+.mt-md {
+  margin-top: var(--spacing-md);
+}
 
-.p-sm { padding: var(--spacing-sm); }
-.p-md { padding: var(--spacing-md); }
-.p-lg { padding: var(--spacing-lg); }
-.p-xl { padding: var(--spacing-xl); }
+.mt-lg {
+  margin-top: var(--spacing-lg);
+}
+
+.mt-xl {
+  margin-top: var(--spacing-xl);
+}
+
+.mb-sm {
+  margin-bottom: var(--spacing-sm);
+}
+
+.mb-md {
+  margin-bottom: var(--spacing-md);
+}
+
+.mb-lg {
+  margin-bottom: var(--spacing-lg);
+}
+
+.mb-xl {
+  margin-bottom: var(--spacing-xl);
+}
+
+.p-sm {
+  padding: var(--spacing-sm);
+}
+
+.p-md {
+  padding: var(--spacing-md);
+}
+
+.p-lg {
+  padding: var(--spacing-lg);
+}
+
+.p-xl {
+  padding: var(--spacing-xl);
+}

@@ -13,6 +13,8 @@ interface HeaderProps {
     onBack?: () => void;
     canGoBack?: boolean;
     onNavigateHome?: () => void;
+    isAdminMode: boolean;
+    onToggleAdminMode: () => void;
 }
 
 export const Header: React.FC<HeaderProps> = ({
@@ -26,6 +28,8 @@ export const Header: React.FC<HeaderProps> = ({
     onBack,
     canGoBack = false,
     onNavigateHome,
+    isAdminMode,
+    onToggleAdminMode,
 }) => {
     const [isMenuOpen, setIsMenuOpen] = useState(false);
     const fileInputRef = useRef<HTMLInputElement>(null);
@@ -87,16 +91,43 @@ export const Header: React.FC<HeaderProps> = ({
                                 onClick={onBack}
                                 title="Go back"
                             >
-                                <span>←</span>
                                 <span className="btn-text">Back</span>
                             </button>
                         )}
+
+                        <label
+                            className="admin-toggle"
+                            title={isAdminMode ? "Admin mode enabled - can edit" : "Admin mode disabled - view only"}
+                            style={{
+                                display: 'flex',
+                                alignItems: 'center',
+                                gap: '0.5rem',
+                                padding: '0.5rem 0.75rem',
+                                borderRadius: '0.5rem',
+                                cursor: 'pointer',
+                                backgroundColor: isAdminMode ? 'var(--primary-500)' : 'var(--gray-200)',
+                                color: isAdminMode ? 'white' : 'var(--gray-700)',
+                                fontSize: '0.875rem',
+                                fontWeight: '500',
+                                transition: 'all 0.2s ease',
+                                userSelect: 'none',
+                            }}
+                        >
+                            <input
+                                type="checkbox"
+                                checked={isAdminMode}
+                                onChange={onToggleAdminMode}
+                                style={{ display: 'none' }}
+                            />
+                            <span>{isAdminMode ? '🔓' : '🔒'}</span>
+                            <span className="btn-text">Admin</span>
+                        </label>
+
                         <button
                             className="btn btn-primary"
                             onClick={onCreateGroup}
                             title="Create new group"
                         >
-                            <span>➕</span>
                             <span className="btn-text">New Group</span>
                         </button>
 
@@ -120,14 +151,12 @@ export const Header: React.FC<HeaderProps> = ({
                             {isMenuOpen && (
                                 <div className="menu-dropdown fade-in">
                                     <button className="menu-item" onClick={onExportData}>
-                                        <span className="menu-icon">📥</span>
                                         Export Data
                                     </button>
                                     <button
                                         className="menu-item"
                                         onClick={() => fileInputRef.current?.click()}
                                     >
-                                        <span className="menu-icon">📤</span>
                                         Import Data
                                     </button>
                                 </div>

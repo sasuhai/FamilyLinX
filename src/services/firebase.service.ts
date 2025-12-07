@@ -10,14 +10,15 @@ import {
     setDoc,
     updateDoc,
     deleteDoc,
-    query,
-    where,
     serverTimestamp,
     Timestamp
 } from 'firebase/firestore';
 import { ref, uploadBytes, getDownloadURL, deleteObject } from 'firebase/storage';
 import { db, storage } from '../config/firebase';
 import type { Group, Person, Photo } from '../types';
+
+// Export db and storage for use in other components
+export { db, storage };
 
 // Collection names
 const GROUPS_COLLECTION = 'groups';
@@ -48,6 +49,53 @@ export const getFamily = async (familyId: string) => {
     }
     return null;
 };
+
+export const getFamilyByRootSlug = async (rootSlug: string): Promise<{ familyId: string; family: any } | null> => {
+    // Get all families
+    const familiesRef = collection(db, FAMILIES_COLLECTION);
+    const familiesSnap = await getDocs(familiesRef);
+
+    // Search through each family's groups to find one with matching root slug
+    for (const familyDoc of familiesSnap.docs) {
+        const familyId = familyDoc.id;
+        const groups = await getAllGroups(familyId);
+
+        // Find root group (no parent) with matching slug
+        const rootGroup = Object.values(groups).find(g => !g.parentGroupId && g.slug === rootSlug);
+
+        if (rootGroup) {
+            return {
+                familyId,
+                family: familyDoc.data()
+            };
+        }
+    }
+
+    return null;
+};
+
+export const getAllRootSlugs = async (): Promise<string[]> => {
+    const familiesRef = collection(db, FAMILIES_COLLECTION);
+    const familiesSnap = await getDocs(familiesRef);
+
+    const rootSlugs: string[] = [];
+
+    // Search through each family's groups to collect all root slugs
+    for (const familyDoc of familiesSnap.docs) {
+        const familyId = familyDoc.id;
+        const groups = await getAllGroups(familyId);
+
+        // Find all root groups (no parent) and collect their slugs
+        Object.values(groups).forEach(g => {
+            if (!g.parentGroupId && g.slug) {
+                rootSlugs.push(g.slug);
+            }
+        });
+    }
+
+    return rootSlugs;
+};
+
 
 /**
  * Group Operations
@@ -121,6 +169,30 @@ export const updateGroup = async (familyId: string, groupId: string, updates: Pa
 };
 
 export const deleteGroup = async (familyId: string, groupId: string) => {
+    // Get the group to access all members and their photos
+    const group = await getGroup(familyId, groupId);
+
+    if (group && group.members && group.members.length > 0) {
+        console.log(`Deleting photos for ${group.members.length} members in group ${group.name}`);
+
+        // Delete all photos from all members
+        for (const member of group.members) {
+            if (member.photos && member.photos.length > 0) {
+                console.log(`Deleting ${member.photos.length} photos for ${member.name}`);
+                for (const photo of member.photos) {
+                    try {
+                        await deletePhoto(photo.url);
+                        console.log(`Deleted photo: ${photo.url}`);
+                    } catch (error) {
+                        console.error(`Failed to delete photo ${photo.url}:`, error);
+                        // Continue deleting other photos even if one fails
+                    }
+                }
+            }
+        }
+    }
+
+    // Delete the group document
     const groupRef = doc(db, FAMILIES_COLLECTION, familyId, GROUPS_COLLECTION, groupId);
     await deleteDoc(groupRef);
 };
@@ -152,6 +224,24 @@ export const deletePerson = async (familyId: string, groupId: string, personId: 
     const group = await getGroup(familyId, groupId);
     if (!group) throw new Error('Group not found');
 
+    // Find the person to delete
+    const personToDelete = group.members.find(member => member.id === personId);
+
+    // Delete all photos from Firebase Storage
+    if (personToDelete && personToDelete.photos && personToDelete.photos.length > 0) {
+        console.log(`Deleting ${personToDelete.photos.length} photos for person ${personToDelete.name}`);
+        for (const photo of personToDelete.photos) {
+            try {
+                await deletePhoto(photo.url);
+                console.log(`Deleted photo: ${photo.url}`);
+            } catch (error) {
+                console.error(`Failed to delete photo ${photo.url}:`, error);
+                // Continue deleting other photos even if one fails
+            }
+        }
+    }
+
+    // Remove person from members array
     const updatedMembers = group.members.filter(member => member.id !== personId);
     await updateGroup(familyId, groupId, { members: updatedMembers });
 };
