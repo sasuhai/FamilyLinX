@@ -422,8 +422,17 @@
         height: 52px;
     }
 
-    .brand-info {
+    /* Keep brand-info visible on mobile - just hide subtitle */
+    .brand-subtitle {
         display: none;
+    }
+
+    .brand-title {
+        font-size: 0.9rem;
+    }
+
+    .brand-logo {
+        font-size: 1.25rem;
     }
 
     .modern-header-actions {
