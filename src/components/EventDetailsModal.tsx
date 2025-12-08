@@ -57,7 +57,7 @@ export const EventDetailsModal: React.FC<EventDetailsModalProps> = ({
     };
 
     const formatDate = (date: Date): string => {
-        return new Date(date).toLocaleDateString('en-US', {
+        return new Date(date).toLocaleDateString('en-GB', {
             weekday: 'long',
             year: 'numeric',
             month: 'long',

@@ -6,16 +6,27 @@ interface AddEventModalProps {
     onClose: () => void;
     onSave: (event: Omit<CalendarEvent, 'id' | 'createdAt' | 'updatedAt'>) => void;
     initialDate?: Date;
+    initialTime?: string; // Format: "HH:MM"
 }
 
-export const AddEventModal: React.FC<AddEventModalProps> = ({ onClose, onSave, initialDate }) => {
+export const AddEventModal: React.FC<AddEventModalProps> = ({ onClose, onSave, initialDate, initialTime }) => {
+    // Calculate end time (1 hour after start time)
+    const getEndTime = (startTime: string): string => {
+        const [hours, minutes] = startTime.split(':').map(Number);
+        const endHour = hours + 1;
+        return `${endHour.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}`;
+    };
+
+    const defaultStartTime = initialTime || '09:00';
+    const defaultEndTime = getEndTime(defaultStartTime);
+
     const [formData, setFormData] = useState({
         title: '',
         description: '',
         startDate: initialDate ? initialDate.toISOString().split('T')[0] : new Date().toISOString().split('T')[0],
         endDate: initialDate ? initialDate.toISOString().split('T')[0] : new Date().toISOString().split('T')[0],
-        startTime: '09:00',
-        endTime: '10:00',
+        startTime: defaultStartTime,
+        endTime: defaultEndTime,
         allDay: false,
         category: 'meeting' as CalendarEvent['category'],
         location: '',

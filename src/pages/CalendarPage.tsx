@@ -27,6 +27,7 @@ export const CalendarPage: React.FC = () => {
     const [events, setEvents] = useState<CalendarEvent[]>([]);
     const [upcomingEvents, setUpcomingEvents] = useState<CalendarEvent[]>([]);
     const [selectedDate, setSelectedDate] = useState<Date>(new Date());
+    const [selectedTime, setSelectedTime] = useState<string>('09:00');
     const [currentWeekStart, setCurrentWeekStart] = useState<Date>(getWeekStart(new Date()));
     const [miniCalendarMonth, setMiniCalendarMonth] = useState<Date>(new Date());
     const [darkMode, setDarkMode] = useState(false);
@@ -103,7 +104,7 @@ export const CalendarPage: React.FC = () => {
     }
 
     function formatDate(date: Date): string {
-        return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+        return date.toLocaleDateString('en-GB', { month: 'short', day: 'numeric', year: 'numeric' });
     }
 
     function formatTime(time: string): string {
@@ -343,11 +344,11 @@ export const CalendarPage: React.FC = () => {
                         return (
                             <div key={dayIndex} className={`day-header ${isTodayDate ? 'today' : ''}`}>
                                 <div className="day-header-date">
-                                    {day.toLocaleDateString('en-US', { weekday: 'short' })}
+                                    {day.toLocaleDateString('en-GB', { weekday: 'short' })}
                                 </div>
                                 <div className="day-header-day">{day.getDate()}</div>
                                 <div className="day-header-month">
-                                    {day.toLocaleDateString('en-US', { month: 'short' })}
+                                    {day.toLocaleDateString('en-GB', { month: 'short' })}
                                 </div>
                             </div>
                         );
@@ -369,7 +370,7 @@ export const CalendarPage: React.FC = () => {
                         {/* Day columns */}
                         {weekDays.map((day, dayIndex) => {
                             const dayEvents = getEventsForDay(day);
-                            const dayLabel = day.toLocaleDateString('en-US', { weekday: 'long', month: 'short', day: 'numeric' });
+                            const dayLabel = day.toLocaleDateString('en-GB', { weekday: 'long', month: 'short', day: 'numeric' });
 
                             return (
                                 <div key={dayIndex} className="day-column">
@@ -381,6 +382,7 @@ export const CalendarPage: React.FC = () => {
                                                 data-tooltip={`${dayLabel} • ${formatHourDisplay(hour)}`}
                                                 onClick={() => {
                                                     setSelectedDate(day);
+                                                    setSelectedTime(`${hour.toString().padStart(2, '0')}:00`);
                                                     setShowAddEvent(true);
                                                 }}
                                             />
@@ -488,7 +490,7 @@ export const CalendarPage: React.FC = () => {
                             <div className="mini-calendar">
                                 <div className="mini-calendar-header">
                                     <div className="mini-calendar-month">
-                                        {miniCalendarMonth.toLocaleDateString('en-US', { month: 'long', year: 'numeric' })}
+                                        {miniCalendarMonth.toLocaleDateString('en-GB', { month: 'long', year: 'numeric' })}
                                     </div>
                                     <div className="mini-calendar-nav">
                                         <button onClick={handlePreviousMonth}>‹</button>
@@ -557,6 +559,7 @@ export const CalendarPage: React.FC = () => {
                     onClose={() => setShowAddEvent(false)}
                     onSave={handleAddEvent}
                     initialDate={selectedDate}
+                    initialTime={selectedTime}
                 />
             )}
 
