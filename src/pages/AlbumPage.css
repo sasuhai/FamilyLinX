@@ -12,7 +12,7 @@
         radial-gradient(ellipse at 50% 50%, rgba(139, 92, 246, 0.04) 0%, transparent 60%);
     color: #fff;
     overflow-x: hidden;
-    position: relative;
+    /* Removed position: relative to allow sticky header */
 }
 
 /* Animated Background Glow */
