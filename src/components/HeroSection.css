@@ -381,7 +381,7 @@
         z-index: 100 !important;
     }
 
-    /* Force hero content to be visible */
+    /* Force hero content to be visible - DISABLE ANIMATIONS */
     .hero-content {
         display: block !important;
         visibility: visible !important;
@@ -392,9 +392,11 @@
         padding: 1rem !important;
         background: rgba(10, 10, 26, 0.7) !important;
         border-radius: 16px !important;
+        animation: none !important;
+        transform: none !important;
     }
 
-    /* Force title to be visible with strong styling */
+    /* Force title to be visible - NO ANIMATION */
     .hero-title {
         font-size: 2rem !important;
         min-height: auto !important;
@@ -407,9 +409,11 @@
         position: relative !important;
         z-index: 102 !important;
         text-shadow: 0 2px 8px rgba(0, 0, 0, 0.8) !important;
+        animation: none !important;
+        transform: none !important;
     }
 
-    /* Force description to be visible */
+    /* Force description to be visible - NO ANIMATION */
     .hero-description {
         font-size: 1rem !important;
         line-height: 1.6 !important;
@@ -421,19 +425,24 @@
         position: relative !important;
         z-index: 102 !important;
         text-shadow: 0 1px 4px rgba(0, 0, 0, 0.6) !important;
+        animation: none !important;
+        transform: none !important;
     }
 
     .hero-badge {
         padding: 0.5rem 0.875rem !important;
         margin-bottom: 1rem !important;
         display: inline-flex !important;
+        animation: none !important;
+        transform: none !important;
+        opacity: 1 !important;
     }
 
     .badge-text {
         font-size: 0.75rem !important;
     }
 
-    /* Force stats to be visible */
+    /* Force stats to be visible - NO ANIMATION */
     .hero-stats {
         gap: 0.75rem !important;
         display: flex !important;
@@ -443,6 +452,8 @@
         justify-content: center !important;
         position: relative !important;
         z-index: 102 !important;
+        animation: none !important;
+        transform: none !important;
     }
 
     .hero-stat-item {
