@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { compressImages, validateImageFile, formatFileSize } from '../utils/imageCompression';
 import type { Person } from '../types';
+import { useLanguage } from '../contexts/LanguageContext';
 import './EditMemberModal.css';
 
 interface EditMemberModalProps {
@@ -11,6 +12,7 @@ interface EditMemberModalProps {
 }
 
 export const EditMemberModal: React.FC<EditMemberModalProps> = ({ person, onClose, onUpdate, onDelete }) => {
+    const { t } = useLanguage();
     const [name, setName] = useState(person.name);
     const [relationship, setRelationship] = useState(person.relationship);
     const [gender, setGender] = useState<'male' | 'female' | ''>(person.gender || '');
@@ -22,7 +24,7 @@ export const EditMemberModal: React.FC<EditMemberModalProps> = ({ person, onClos
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [isCompressing, setIsCompressing] = useState(false);
     const [compressionProgress, setCompressionProgress] = useState({ current: 0, total: 0 });
-    const [photosToDelete, setPhotosToDelete] = useState<Set<string>>(new Set());
+    const [photosToDelete, setPhotosToDelete] = new Set(person.photos.filter(p => p.isDeleted).map(p => p.url));
     const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
 
     const handlePhotoChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -43,7 +45,7 @@ export const EditMemberModal: React.FC<EditMemberModalProps> = ({ person, onClos
             });
 
             if (invalidFiles.length > 0) {
-                alert('Some files were rejected:\n\n' + invalidFiles.join('\n'));
+                alert(t('editMember.fileRejectedAlert', { files: invalidFiles.join('\n') }));
             }
 
             if (validFiles.length === 0) {
@@ -71,7 +73,7 @@ export const EditMemberModal: React.FC<EditMemberModalProps> = ({ person, onClos
                 setPhotoYears(compressedFiles.map(() => new Date().getFullYear()));
             } catch (error) {
                 console.error('Error compressing images:', error);
-                alert('Failed to process images. Please try again.');
+                alert(t('editMember.imageProcessingError'));
             } finally {
                 setIsCompressing(false);
                 setCompressionProgress({ current: 0, total: 0 });
@@ -111,7 +113,7 @@ export const EditMemberModal: React.FC<EditMemberModalProps> = ({ person, onClos
             });
 
             if (invalidFiles.length > 0) {
-                alert('Some files were rejected:\n\n' + invalidFiles.join('\n'));
+                alert(t('editMember.fileRejectedAlert', { files: invalidFiles.join('\n') }));
             }
 
             if (validFiles.length === 0) {
@@ -140,7 +142,7 @@ export const EditMemberModal: React.FC<EditMemberModalProps> = ({ person, onClos
                 setPhotoYears([...photoYears, ...compressedFiles.map(() => new Date().getFullYear())]);
             } catch (error) {
                 console.error('Error compressing pasted images:', error);
-                alert('Failed to process pasted images. Please try again.');
+                alert(t('editMember.pastedImageProcessingError'));
             } finally {
                 setIsCompressing(false);
                 setCompressionProgress({ current: 0, total: 0 });
@@ -165,7 +167,7 @@ export const EditMemberModal: React.FC<EditMemberModalProps> = ({ person, onClos
             }
 
             if (imageFiles.length === 0) {
-                alert('No images found in clipboard. Please copy an image first.');
+                alert(t('editMember.noImagesInClipboard'));
                 return;
             }
 
@@ -183,7 +185,7 @@ export const EditMemberModal: React.FC<EditMemberModalProps> = ({ person, onClos
             });
 
             if (invalidFiles.length > 0) {
-                alert('Some files were rejected:\n\n' + invalidFiles.join('\n'));
+                alert(t('editMember.fileRejectedAlert', { files: invalidFiles.join('\n') }));
             }
 
             if (validFiles.length === 0) {
@@ -219,14 +221,14 @@ export const EditMemberModal: React.FC<EditMemberModalProps> = ({ person, onClos
                 setPhotoYears(newPhotoYears);
             } catch (error) {
                 console.error('Error compressing pasted images:', error);
-                alert('Failed to process pasted images. Please try again.');
+                alert(t('editMember.pastedImageProcessingError'));
             } finally {
                 setIsCompressing(false);
                 setCompressionProgress({ current: 0, total: 0 });
             }
         } catch (error) {
             console.error('Error reading clipboard:', error);
-            alert('Failed to read from clipboard. Please make sure you have copied an image and granted clipboard permissions.');
+            alert(t('editMember.clipboardReadError'));
         }
     };
 
@@ -259,7 +261,7 @@ export const EditMemberModal: React.FC<EditMemberModalProps> = ({ person, onClos
         e.preventDefault();
 
         if (!name || !relationship || !yearOfBirth) {
-            alert('Please fill in all required fields');
+            alert(t('editMember.requiredFieldsAlert'));
             return;
         }
 
@@ -290,7 +292,7 @@ export const EditMemberModal: React.FC<EditMemberModalProps> = ({ person, onClos
             onClose();
         } catch (error) {
             console.error('Error updating member:', error);
-            alert('Failed to update member. Please try again.');
+            alert(t('editMember.updateError'));
         } finally {
             setIsSubmitting(false);
         }
@@ -312,8 +314,8 @@ export const EditMemberModal: React.FC<EditMemberModalProps> = ({ person, onClos
                                 </svg>
                             </div>
                             <div className="modal-titles">
-                                <h2 className="modal-title-dark">Edit Member</h2>
-                                <p className="modal-subtitle-dark">Update member details and manage photos</p>
+                                <h2 className="modal-title-dark">{t('editMember.title')}</h2>
+                                <p className="modal-subtitle-dark">{t('editMember.subtitle')}</p>
                             </div>
                         </div>
                         <button className="modal-close-dark" onClick={onClose} aria-label="Close">
@@ -328,13 +330,13 @@ export const EditMemberModal: React.FC<EditMemberModalProps> = ({ person, onClos
                             <div className="stats-row-dark">
                                 <div className="stat-item-dark">
                                     <div className="stat-value-dark">{person.photos.length}</div>
-                                    <div className="stat-label-dark">Photos</div>
+                                    <div className="stat-label-dark">{t('group.photos')}</div>
                                 </div>
                                 <div className="stat-item-dark">
                                     <div className="stat-value-dark">
                                         {new Date().getFullYear() - person.yearOfBirth}
                                     </div>
-                                    <div className="stat-label-dark">Age</div>
+                                    <div className="stat-label-dark">{t('editMember.age')}</div>
                                 </div>
                             </div>
 
@@ -342,7 +344,7 @@ export const EditMemberModal: React.FC<EditMemberModalProps> = ({ person, onClos
                             <div className="form-row-dark">
                                 <div className="form-group-dark">
                                     <label htmlFor="name" className="form-label-dark">
-                                        Name <span className="form-required">*</span>
+                                        {t('editMember.name')} <span className="form-required">*</span>
                                     </label>
                                     <input
                                         type="text"
@@ -350,7 +352,7 @@ export const EditMemberModal: React.FC<EditMemberModalProps> = ({ person, onClos
                                         className="form-input-dark"
                                         value={name}
                                         onChange={(e) => setName(e.target.value)}
-                                        placeholder="Enter full name"
+                                        placeholder={t('editMember.enterFullName')}
                                         required
                                         disabled={isSubmitting}
                                     />
@@ -358,7 +360,7 @@ export const EditMemberModal: React.FC<EditMemberModalProps> = ({ person, onClos
 
                                 <div className="form-group-dark">
                                     <label htmlFor="relationship" className="form-label-dark">
-                                        Relationship <span className="form-required">*</span>
+                                        {t('editMember.relationship')} <span className="form-required">*</span>
                                     </label>
                                     <input
                                         type="text"
@@ -366,7 +368,7 @@ export const EditMemberModal: React.FC<EditMemberModalProps> = ({ person, onClos
                                         className="form-input-dark"
                                         value={relationship}
                                         onChange={(e) => setRelationship(e.target.value)}
-                                        placeholder="e.g., Father, Mother, Son"
+                                        placeholder={t('editMember.relationshipPlaceholder')}
                                         required
                                         disabled={isSubmitting}
                                     />
@@ -376,7 +378,7 @@ export const EditMemberModal: React.FC<EditMemberModalProps> = ({ person, onClos
                             <div className="form-row-dark">
                                 <div className="form-group-dark">
                                     <label htmlFor="gender" className="form-label-dark">
-                                        Gender
+                                        {t('editMember.gender')}
                                     </label>
                                     <select
                                         id="gender"
@@ -385,15 +387,15 @@ export const EditMemberModal: React.FC<EditMemberModalProps> = ({ person, onClos
                                         onChange={(e) => setGender(e.target.value as 'male' | 'female' | '')}
                                         disabled={isSubmitting}
                                     >
-                                        <option value="">Select gender</option>
-                                        <option value="male">Male</option>
-                                        <option value="female">Female</option>
+                                        <option value="">{t('editMember.selectGender')}</option>
+                                        <option value="male">{t('editMember.male')}</option>
+                                        <option value="female">{t('editMember.female')}</option>
                                     </select>
                                 </div>
 
                                 <div className="form-group-dark">
                                     <label htmlFor="yearOfBirth" className="form-label-dark">
-                                        Year of Birth <span className="form-required">*</span>
+                                        {t('editMember.yearOfBirth')} <span className="form-required">*</span>
                                     </label>
                                     <input
                                         type="number"
@@ -401,7 +403,7 @@ export const EditMemberModal: React.FC<EditMemberModalProps> = ({ person, onClos
                                         className="form-input-dark"
                                         value={yearOfBirth}
                                         onChange={(e) => setYearOfBirth(e.target.value)}
-                                        placeholder="e.g., 1990"
+                                        placeholder={t('editMember.yearOfBirthPlaceholder')}
                                         min="1900"
                                         max={new Date().getFullYear()}
                                         required
@@ -419,15 +421,15 @@ export const EditMemberModal: React.FC<EditMemberModalProps> = ({ person, onClos
                                         onChange={(e) => setIsDeceased(e.target.checked)}
                                         disabled={isSubmitting}
                                     />
-                                    <span>Mark as Deceased</span>
+                                    <span>{t('editMember.markAsDeceased')}</span>
                                 </label>
-                                <span className="form-hint-dark">Check if this person has passed away</span>
+                                <span className="form-hint-dark">{t('editMember.deceasedHint')}</span>
                             </div>
 
                             {isDeceased && (
                                 <div className="form-group-dark">
                                     <label htmlFor="yearOfDeath" className="form-label-dark">
-                                        Year of Death <span className="form-required">*</span>
+                                        {t('editMember.yearOfDeath')} <span className="form-required">*</span>
                                     </label>
                                     <input
                                         type="number"
@@ -435,7 +437,7 @@ export const EditMemberModal: React.FC<EditMemberModalProps> = ({ person, onClos
                                         className="form-input-dark"
                                         value={yearOfDeath}
                                         onChange={(e) => setYearOfDeath(e.target.value)}
-                                        placeholder="e.g., 2020"
+                                        placeholder={t('editMember.yearOfDeathPlaceholder')}
                                         min={yearOfBirth || "1900"}
                                         max={new Date().getFullYear()}
                                         required={isDeceased}
@@ -453,7 +455,7 @@ export const EditMemberModal: React.FC<EditMemberModalProps> = ({ person, onClos
                                             <circle cx="8.5" cy="8.5" r="1.5" />
                                             <polyline points="21 15 16 10 5 21" />
                                         </svg>
-                                        Current Photos
+                                        {t('editMember.currentPhotos')}
                                     </h4>
                                     <div className="photos-grid-dark">
                                         {person.photos.map((photo) => (
@@ -472,7 +474,7 @@ export const EditMemberModal: React.FC<EditMemberModalProps> = ({ person, onClos
                                                         type="button"
                                                         className={`photo-delete-btn-dark ${photosToDelete.has(photo.url) ? 'undo' : ''}`}
                                                         onClick={() => handleDeletePhoto(photo.url)}
-                                                        title={photosToDelete.has(photo.url) ? 'Undo delete' : 'Delete photo'}
+                                                        title={photosToDelete.has(photo.url) ? t('editMember.undoDelete') : t('editMember.deletePhoto')}
                                                     >
                                                         {photosToDelete.has(photo.url) ? (
                                                             <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
@@ -495,7 +497,7 @@ export const EditMemberModal: React.FC<EditMemberModalProps> = ({ person, onClos
                                                             <polyline points="3 6 5 6 21 6" />
                                                             <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" />
                                                         </svg>
-                                                        <span>Will be deleted</span>
+                                                        <span>{t('editMember.willBeDeleted')}</span>
                                                     </div>
                                                 )}
                                             </div>
@@ -508,7 +510,7 @@ export const EditMemberModal: React.FC<EditMemberModalProps> = ({ person, onClos
                                                 <line x1="12" y1="8" x2="12" y2="12" />
                                                 <line x1="12" y1="16" x2="12.01" y2="16" />
                                             </svg>
-                                            {photosToDelete.size} photo{photosToDelete.size !== 1 ? 's' : ''} will be deleted on save
+                                            {t('editMember.photosToDeleteWarning', { count: photosToDelete.size })}
                                         </div>
                                     )}
                                 </div>
@@ -517,7 +519,7 @@ export const EditMemberModal: React.FC<EditMemberModalProps> = ({ person, onClos
                             {/* Add New Photos Section */}
                             <div className="form-group-dark">
                                 <label htmlFor="photos" className="form-label-dark">
-                                    Add New Photos
+                                    {t('editMember.addNewPhotos')}
                                 </label>
                                 <div className="photo-upload-row">
                                     <input
@@ -534,13 +536,13 @@ export const EditMemberModal: React.FC<EditMemberModalProps> = ({ person, onClos
                                         className="btn-dark btn-dark-secondary"
                                         onClick={handlePasteButton}
                                         disabled={isCompressing || isSubmitting}
-                                        title="Paste image from clipboard"
+                                        title={t('editMember.pasteFromClipboard')}
                                     >
-                                        📋 Paste
+                                        📋 {t('editMember.paste')}
                                     </button>
                                 </div>
                                 <span className="form-hint-dark">
-                                    Upload photos or paste from clipboard. HEIC images supported.
+                                    {t('editMember.photoUploadHint')}
                                 </span>
 
                                 {/* Compression Progress */}
@@ -553,7 +555,7 @@ export const EditMemberModal: React.FC<EditMemberModalProps> = ({ person, onClos
                                             />
                                         </div>
                                         <span className="progress-text-dark">
-                                            Compressing... {compressionProgress.current} of {compressionProgress.total}
+                                            {t('editMember.compressingProgress', { current: compressionProgress.current, total: compressionProgress.total })}
                                         </span>
                                     </div>
                                 )}
@@ -561,7 +563,7 @@ export const EditMemberModal: React.FC<EditMemberModalProps> = ({ person, onClos
                                 {/* New Photos Preview */}
                                 {photoFiles.length > 0 && !isCompressing && (
                                     <div className="photo-preview-dark">
-                                        <p className="preview-label-dark">{photoFiles.length} photo(s) selected</p>
+                                        <p className="preview-label-dark">{t('editMember.photosSelected', { count: photoFiles.length })}</p>
                                         <div className="preview-grid-dark">
                                             {photoFiles.map((file, index) => (
                                                 <div key={index} className="preview-item-dark">
@@ -581,7 +583,7 @@ export const EditMemberModal: React.FC<EditMemberModalProps> = ({ person, onClos
                                                                 newYears[index] = parseInt(e.target.value) || new Date().getFullYear();
                                                                 setPhotoYears(newYears);
                                                             }}
-                                                            placeholder="Year"
+                                                            placeholder={t('editMember.year')}
                                                             min="1900"
                                                             max={new Date().getFullYear()}
                                                         />
@@ -589,7 +591,7 @@ export const EditMemberModal: React.FC<EditMemberModalProps> = ({ person, onClos
                                                             type="button"
                                                             className="preview-remove-btn"
                                                             onClick={() => handleRemoveNewPhoto(index)}
-                                                            title="Remove photo"
+                                                            title={t('editMember.removePhoto')}
                                                         >
                                                             ✕
                                                         </button>
@@ -603,15 +605,15 @@ export const EditMemberModal: React.FC<EditMemberModalProps> = ({ person, onClos
 
                             {/* Danger Zone */}
                             <div className="danger-section-dark">
-                                <h4>⚠️ Danger Zone</h4>
-                                <p>Permanently delete this member and all their {person.photos.length} photos.</p>
+                                <h4>⚠️ {t('editMember.dangerZone')}</h4>
+                                <p>{t('editMember.dangerDescription', { count: person.photos.length })}</p>
                                 <button
                                     type="button"
                                     className="btn-dark btn-dark-danger"
                                     onClick={() => setShowDeleteConfirm(true)}
                                     disabled={isSubmitting || isCompressing}
                                 >
-                                    Delete Member
+                                    {t('editMember.deleteMember')}
                                 </button>
                             </div>
                         </div>
@@ -624,14 +626,14 @@ export const EditMemberModal: React.FC<EditMemberModalProps> = ({ person, onClos
                                 onClick={onClose}
                                 disabled={isSubmitting}
                             >
-                                Cancel
+                                {t('common.cancel')}
                             </button>
                             <button
                                 type="submit"
                                 className="btn-dark btn-dark-primary"
                                 disabled={isSubmitting || isCompressing}
                             >
-                                {isSubmitting ? 'Saving...' : isCompressing ? 'Processing...' : 'Save Changes'}
+                                {isSubmitting ? t('common.saving') : isCompressing ? t('common.loading') : t('common.saveChanges')}
                             </button>
                         </div>
                     </form>
@@ -649,12 +651,12 @@ export const EditMemberModal: React.FC<EditMemberModalProps> = ({ person, onClos
                                 <line x1="12" y1="16" x2="12.01" y2="16" />
                             </svg>
                         </div>
-                        <h3 className="confirm-title-dark">Delete Member?</h3>
+                        <h3 className="confirm-title-dark">{t('editMember.deleteConfirm')}</h3>
                         <p className="confirm-text-dark">
-                            Are you sure you want to delete <strong>"{person.name}"</strong>?
+                            {t('editMember.deleteMessage', { name: person.name })}
                         </p>
                         <p className="confirm-text-dark" style={{ color: '#ef4444', fontSize: '0.875rem' }}>
-                            ⚠️ This will permanently delete all {person.photos.length} photo{person.photos.length !== 1 ? 's' : ''} and cannot be undone!
+                            ⚠️ {t('editMember.deleteWarning', { count: person.photos.length })}
                         </p>
                         <div className="confirm-actions-dark">
                             <button
@@ -662,7 +664,7 @@ export const EditMemberModal: React.FC<EditMemberModalProps> = ({ person, onClos
                                 className="btn-dark btn-dark-secondary"
                                 onClick={() => setShowDeleteConfirm(false)}
                             >
-                                Cancel
+                                {t('common.cancel')}
                             </button>
                             <button
                                 type="button"
@@ -672,7 +674,7 @@ export const EditMemberModal: React.FC<EditMemberModalProps> = ({ person, onClos
                                     onClose();
                                 }}
                             >
-                                Delete
+                                {t('common.delete')}
                             </button>
                         </div>
                     </div>

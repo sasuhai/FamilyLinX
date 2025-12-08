@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { generateId } from '../utils/helpers';
 import { compressImages, validateImageFile, formatFileSize } from '../utils/imageCompression';
 import type { Person } from '../types';
+import { useLanguage } from '../contexts/LanguageContext';
 import './AddMemberModal.css';
 
 interface AddMemberModalProps {
@@ -10,6 +11,7 @@ interface AddMemberModalProps {
 }
 
 export const AddMemberModal: React.FC<AddMemberModalProps> = ({ onClose, onAdd }) => {
+    const { t } = useLanguage();
     const [name, setName] = useState('');
     const [relationship, setRelationship] = useState('');
     const [gender, setGender] = useState<'male' | 'female' | ''>('');
@@ -296,8 +298,8 @@ export const AddMemberModal: React.FC<AddMemberModalProps> = ({ onClose, onAdd }
                             </svg>
                         </div>
                         <div className="modal-titles">
-                            <h2 className="modal-title-dark">Add New Member</h2>
-                            <p className="modal-subtitle-dark">Fill in the details to add a new member to this group</p>
+                            <h2 className="modal-title-dark">{t('addMember.title')}</h2>
+                            <p className="modal-subtitle-dark">{t('addMember.subtitle')}</p>
                         </div>
                     </div>
                     <button className="modal-close-dark" onClick={onClose} aria-label="Close">
@@ -311,7 +313,7 @@ export const AddMemberModal: React.FC<AddMemberModalProps> = ({ onClose, onAdd }
                         <div className="form-row-dark">
                             <div className="form-group-dark">
                                 <label htmlFor="name" className="form-label-dark">
-                                    Name <span className="form-required">*</span>
+                                    {t('addMember.name')} <span className="form-required">{t('addMember.nameRequired')}</span>
                                 </label>
                                 <input
                                     type="text"
@@ -319,14 +321,14 @@ export const AddMemberModal: React.FC<AddMemberModalProps> = ({ onClose, onAdd }
                                     className="form-input-dark"
                                     value={name}
                                     onChange={(e) => setName(e.target.value)}
-                                    placeholder="Enter full name"
+                                    placeholder={t('addMember.namePlaceholder')}
                                     required
                                 />
                             </div>
 
                             <div className="form-group-dark">
                                 <label htmlFor="relationship" className="form-label-dark">
-                                    Relationship <span className="form-required">*</span>
+                                    {t('addMember.relationship')} <span className="form-required">{t('addMember.nameRequired')}</span>
                                 </label>
                                 <input
                                     type="text"
@@ -334,7 +336,7 @@ export const AddMemberModal: React.FC<AddMemberModalProps> = ({ onClose, onAdd }
                                     className="form-input-dark"
                                     value={relationship}
                                     onChange={(e) => setRelationship(e.target.value)}
-                                    placeholder="e.g., Father, Mother, Son"
+                                    placeholder={t('addMember.relationshipPlaceholder')}
                                     required
                                 />
                             </div>
@@ -359,7 +361,7 @@ export const AddMemberModal: React.FC<AddMemberModalProps> = ({ onClose, onAdd }
 
                             <div className="form-group-dark">
                                 <label htmlFor="yearOfBirth" className="form-label-dark">
-                                    Year of Birth <span className="form-required">*</span>
+                                    {t('addMember.yearOfBirth')} <span className="form-required">{t('addMember.nameRequired')}</span>
                                 </label>
                                 <input
                                     type="number"
@@ -367,7 +369,7 @@ export const AddMemberModal: React.FC<AddMemberModalProps> = ({ onClose, onAdd }
                                     className="form-input-dark"
                                     value={yearOfBirth}
                                     onChange={(e) => setYearOfBirth(e.target.value)}
-                                    placeholder="e.g., 1990"
+                                    placeholder={t('addMember.yearPlaceholder')}
                                     min="1900"
                                     max={new Date().getFullYear()}
                                     required
@@ -410,7 +412,7 @@ export const AddMemberModal: React.FC<AddMemberModalProps> = ({ onClose, onAdd }
 
                         <div className="form-group-dark">
                             <label htmlFor="photos" className="form-label-dark">
-                                Photos (optional)
+                                {t('addMember.photos')}
                             </label>
                             <div className="photo-upload-row">
                                 <input
@@ -486,10 +488,10 @@ export const AddMemberModal: React.FC<AddMemberModalProps> = ({ onClose, onAdd }
 
                         <div className="modal-footer-dark">
                             <button type="button" className="btn-dark btn-dark-secondary" onClick={onClose}>
-                                Cancel
+                                {t('common.cancel')}
                             </button>
                             <button type="submit" className="btn-dark btn-dark-primary" disabled={isSubmitting || isCompressing}>
-                                {isSubmitting ? 'Adding...' : isCompressing ? 'Processing...' : 'Add Member'}
+                                {isSubmitting ? t('common.saving') : isCompressing ? t('common.loading') : t('group.addMember')}
                             </button>
                         </div>
                     </form>

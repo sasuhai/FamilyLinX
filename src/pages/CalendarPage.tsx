@@ -13,9 +13,11 @@ import {
 } from '../services/calendar.service';
 import { getFamilyByRootSlug } from '../services/firebase.service';
 import type { CalendarEvent } from '../types/calendar';
+import { useLanguage } from '../contexts/LanguageContext';
 import './CalendarPage.css';
 
 export const CalendarPage: React.FC = () => {
+    const { t } = useLanguage();
     const { rootSlug } = useParams<{ rootSlug: string }>();
     const navigate = useNavigate();
 
@@ -442,38 +444,36 @@ export const CalendarPage: React.FC = () => {
 
             <div className="calendar-container">
                 <div className="calendar-header">
-                    <h1 className="calendar-title">
-                        {familyName} Calendar
-                    </h1>
+                    <h1 className="calendar-title">{t('calendar.title')}</h1>
                     <p className="calendar-subtitle">
-                        Manage your team's schedule and upcoming events
+                        {t('calendar.subtitle')}
                     </p>
                 </div>
 
                 <div className="calendar-controls">
                     <div className="control-group">
-                        <label className="control-label">Filter:</label>
+                        <label className="control-label">{t('calendar.filter')}</label>
                         <select
                             value={categoryFilter}
                             onChange={(e) => setCategoryFilter(e.target.value)}
                         >
-                            <option value="all">All Events</option>
-                            <option value="meeting">Meetings</option>
-                            <option value="birthday">Birthdays</option>
-                            <option value="anniversary">Anniversaries</option>
-                            <option value="holiday">Holidays</option>
-                            <option value="reminder">Reminders</option>
-                            <option value="other">Other</option>
+                            <option value="all">{t('calendar.allEvents')}</option>
+                            <option value="meeting">{t('calendar.meetings')}</option>
+                            <option value="birthday">{t('calendar.birthdays')}</option>
+                            <option value="anniversary">{t('calendar.anniversaries')}</option>
+                            <option value="holiday">{t('calendar.holidays')}</option>
+                            <option value="reminder">{t('calendar.reminders')}</option>
+                            <option value="other">{t('calendar.other')}</option>
                         </select>
                     </div>
 
                     {isAdminMode && (
                         <>
                             <button className="btn-primary" onClick={() => setShowAddEvent(true)}>
-                                ➕ Add Event
+                                ➕ {t('calendar.addEvent')}
                             </button>
                             <button className="btn-secondary" onClick={() => setShowHolidayImport(true)}>
-                                🌍 Import Holidays
+                                🌍 {t('calendar.importHolidays')}
                             </button>
                         </>
                     )}
@@ -484,7 +484,7 @@ export const CalendarPage: React.FC = () => {
                     <div className="calendar-sidebar">
                         {/* Mini Calendar */}
                         <div className="sidebar-section">
-                            <h3 className="sidebar-section-title">Calendar</h3>
+                            <h3 className="sidebar-section-title">{t('calendar.title')}</h3>
                             <div className="mini-calendar">
                                 <div className="mini-calendar-header">
                                     <div className="mini-calendar-month">
@@ -501,11 +501,11 @@ export const CalendarPage: React.FC = () => {
 
                         {/* Upcoming Events */}
                         <div className="sidebar-section">
-                            <h3 className="sidebar-section-title">Upcoming Events</h3>
+                            <h3 className="sidebar-section-title">{t('calendar.upcomingEvents')}</h3>
                             {upcomingEvents.length === 0 ? (
                                 <div className="empty-state">
                                     <div className="empty-state-icon">📭</div>
-                                    <div className="empty-state-text">No upcoming events</div>
+                                    <div className="empty-state-text">{t('calendar.noUpcomingEvents')}</div>
                                 </div>
                             ) : (
                                 <div className="upcoming-events-list">

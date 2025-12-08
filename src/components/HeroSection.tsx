@@ -2,6 +2,7 @@ import React, { useMemo, useEffect, useRef, useState } from 'react';
 import type { Group, Person } from '../types';
 import type { CalendarEvent } from '../types/calendar';
 import { getUpcomingEvents } from '../services/calendar.service';
+import { useLanguage } from '../contexts/LanguageContext';
 import './HeroSection.css';
 
 interface HeroSectionProps {
@@ -13,6 +14,7 @@ interface HeroSectionProps {
 }
 
 export const HeroSection: React.FC<HeroSectionProps> = ({ group, allGroups, familyId, searchQuery: parentSearchQuery, onSearchChange }) => {
+    const { t } = useLanguage();
     const marqueeRef = useRef<HTMLDivElement>(null);
     const eventsMarqueeRef = useRef<HTMLDivElement>(null);
     const animationRef = useRef<number | undefined>(undefined);
@@ -129,6 +131,46 @@ export const HeroSection: React.FC<HeroSectionProps> = ({ group, allGroups, fami
         return photos.slice(0, Math.max(photos.length, minPhotos));
     }, [filteredPhotos]);
 
+    // Calculate average age for current group members
+    const averageAge = useMemo(() => {
+        const currentYear = new Date().getFullYear();
+        const members = allGroups[group.id]?.members || [];
+
+        if (members.length === 0) return 0;
+
+        const totalAge = members.reduce((sum, member) => {
+            const age = currentYear - member.yearOfBirth;
+            return sum + age;
+        }, 0);
+
+        return Math.round(totalAge / members.length);
+    }, [group.id, allGroups]);
+
+    // Calculate average age including nested groups
+    const averageAgeNested = useMemo(() => {
+        const currentYear = new Date().getFullYear();
+        let totalAge = 0;
+        let memberCount = 0;
+
+        const calculateNestedAge = (groupId: string) => {
+            const grp = allGroups[groupId];
+            if (!grp) return;
+
+            grp.members.forEach((member: Person) => {
+                const age = currentYear - member.yearOfBirth;
+                totalAge += age;
+                memberCount++;
+
+                if (member.subGroupId) {
+                    calculateNestedAge(member.subGroupId);
+                }
+            });
+        };
+
+        calculateNestedAge(group.id);
+        return memberCount > 0 ? Math.round(totalAge / memberCount) : 0;
+    }, [group.id, allGroups]);
+
     // Calculate total members recursively
     const totalMembers = useMemo(() => {
         let count = 0;
@@ -223,12 +265,22 @@ export const HeroSection: React.FC<HeroSectionProps> = ({ group, allGroups, fami
                     <div className="hero-stats fade-in">
                         <div className="hero-stat-item">
                             <span className="hero-stat-value">{totalMembers}</span>
-                            <span className="hero-stat-label">Family Members</span>
+                            <span className="hero-stat-label">{t('hero.familyMembers')}</span>
                         </div>
                         <div className="hero-stat-divider"></div>
                         <div className="hero-stat-item">
                             <span className="hero-stat-value">{allPhotos.length}</span>
-                            <span className="hero-stat-label">Memories</span>
+                            <span className="hero-stat-label">{t('hero.memories')}</span>
+                        </div>
+                        <div className="hero-stat-divider"></div>
+                        <div className="hero-stat-item">
+                            <span className="hero-stat-value">{averageAge}</span>
+                            <span className="hero-stat-label">{t('hero.averageAge')}</span>
+                        </div>
+                        <div className="hero-stat-divider"></div>
+                        <div className="hero-stat-item">
+                            <span className="hero-stat-value">{averageAgeNested}</span>
+                            <span className="hero-stat-label">{t('hero.avgAgeAll')}</span>
                         </div>
                     </div>
                 </div>

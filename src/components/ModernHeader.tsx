@@ -1,5 +1,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useLanguage } from '../contexts/LanguageContext';
+import type { Language } from '../contexts/LanguageContext';
 import './ModernHeader.css';
 
 interface ModernHeaderProps {
@@ -24,6 +26,7 @@ export const ModernHeader: React.FC<ModernHeaderProps> = ({
     onManageAlbums,
 }) => {
     const navigate = useNavigate();
+    const { language, setLanguage, t } = useLanguage();
     const [isSettingsOpen, setIsSettingsOpen] = useState(false);
     const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
     const settingsRef = useRef<HTMLDivElement>(null);
@@ -77,10 +80,10 @@ export const ModernHeader: React.FC<ModernHeaderProps> = ({
                 {/* Desktop Navigation */}
                 <nav className="modern-header-nav">
                     <button className="nav-item" onClick={handleCalendarClick}>
-                        Calendar
+                        {t('header.calendar')}
                     </button>
                     <button className="nav-item" onClick={handleAlbumsClick}>
-                        Video & Photo Albums
+                        {t('header.albums')}
                     </button>
 
                     {/* Settings Dropdown */}
@@ -89,20 +92,20 @@ export const ModernHeader: React.FC<ModernHeaderProps> = ({
                             className="nav-item"
                             onClick={() => setIsSettingsOpen(!isSettingsOpen)}
                         >
-                            Settings
+                            {t('header.settings')}
                             <span className={`dropdown-arrow ${isSettingsOpen ? 'open' : ''}`}>▼</span>
                         </button>
 
                         {isSettingsOpen && (
                             <div className="dropdown-menu fade-in">
                                 <button className="dropdown-item" onClick={onCreateNewPage}>
-                                    Create New Page
+                                    {t('header.createNewPage')}
                                 </button>
                                 <button className="dropdown-item" onClick={handleAdminClick}>
-                                    Admin Dashboard
+                                    {t('header.adminDashboard')}
                                 </button>
                                 <button className="dropdown-item" onClick={onManageAlbums}>
-                                    Edit Video/Photo Albums
+                                    {t('header.editAlbums')}
                                 </button>
                             </div>
                         )}
@@ -111,6 +114,25 @@ export const ModernHeader: React.FC<ModernHeaderProps> = ({
 
                 {/* Right Actions */}
                 <div className="modern-header-actions">
+                    {/* Language Selector */}
+                    <div className="language-selector">
+                        <button
+                            className={`lang-btn ${language === 'en' ? 'active' : ''}`}
+                            onClick={() => setLanguage('en' as Language)}
+                            title="English"
+                        >
+                            EN
+                        </button>
+                        <span className="lang-divider">|</span>
+                        <button
+                            className={`lang-btn ${language === 'ms' ? 'active' : ''}`}
+                            onClick={() => setLanguage('ms' as Language)}
+                            title="Bahasa Malaysia"
+                        >
+                            BM
+                        </button>
+                    </div>
+
                     {/* Group Title */}
                     {familyName && (
                         <div className="group-title-badge">
@@ -125,7 +147,7 @@ export const ModernHeader: React.FC<ModernHeaderProps> = ({
                         title={isAdminMode ? 'Admin mode enabled' : 'Admin mode disabled'}
                     >
                         <span className="toggle-icon">{isAdminMode ? '🔓' : '🔒'}</span>
-                        <span className="toggle-text">Admin</span>
+                        <span className="toggle-text">{t('header.admin')}</span>
                     </button>
 
                     {/* Dark Mode Toggle */}
@@ -153,20 +175,20 @@ export const ModernHeader: React.FC<ModernHeaderProps> = ({
             {isMobileMenuOpen && (
                 <div className="mobile-menu fade-in">
                     <button className="mobile-menu-item" onClick={handleCalendarClick}>
-                        Calendar
+                        {t('header.calendar')}
                     </button>
                     <button className="mobile-menu-item" onClick={handleAlbumsClick}>
-                        Video & Photo Albums
+                        {t('header.albums')}
                     </button>
                     <div className="mobile-menu-divider"></div>
                     <button className="mobile-menu-item" onClick={onCreateNewPage}>
-                        Create New Page
+                        {t('header.createNewPage')}
                     </button>
                     <button className="mobile-menu-item" onClick={handleAdminClick}>
-                        Admin Dashboard
+                        {t('header.adminDashboard')}
                     </button>
                     <button className="mobile-menu-item" onClick={onManageAlbums}>
-                        Edit Video/Photo Albums
+                        {t('header.editAlbums')}
                     </button>
                 </div>
             )}

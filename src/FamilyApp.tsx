@@ -26,9 +26,11 @@ import {
     deleteAlbum as deleteAlbumInFirebase
 } from './services/album.service';
 import './App.css';
+import { useLanguage } from './contexts/LanguageContext';
 
-export function FamilyApp() {
-    const { rootSlug, groupSlug } = useParams<{ rootSlug: string; groupSlug?: string }>();
+export const FamilyApp: React.FC = () => { // Modified function signature
+    const { t } = useLanguage(); // Added
+    const { rootSlug = 'otai', groupSlug } = useParams<{ rootSlug: string; groupSlug?: string }>(); // Modified useParams line
     const navigate = useNavigate();
     const [groups, setGroups] = useState<Record<string, Group>>({});
     const [currentGroupId, setCurrentGroupId] = useState<string | null>(null);
@@ -1105,7 +1107,7 @@ export function FamilyApp() {
 
             <footer className="app-footer">
                 <div className="container">
-                    <p>FamilyLinX © Idiahus 2025 - {familyName}</p>
+                    <p>{t('footer.copyright')} {familyName}</p>
                 </div>
             </footer>
 

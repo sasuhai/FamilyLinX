@@ -12,9 +12,11 @@ import {
     getPlatformPlaceholder
 } from '../services/album.service';
 import { getFamilyByRootSlug } from '../services/firebase.service';
+import { useLanguage } from '../contexts/LanguageContext';
 import './AlbumPage.css';
 
 export const AlbumPage: React.FC = () => {
+    const { t } = useLanguage();
     const { rootSlug } = useParams<{ rootSlug: string }>();
     const navigate = useNavigate();
 
@@ -200,8 +202,8 @@ export const AlbumPage: React.FC = () => {
             return (
                 <div className="empty-state">
                     <div className="empty-icon">🎥</div>
-                    <h3>No Videos Yet</h3>
-                    <p>Add your first video album to get started</p>
+                    <h3>{t('albums.noVideos')}</h3>
+                    <p>{t('albums.noVideosDesc')}</p>
                 </div>
             );
         }
@@ -239,7 +241,7 @@ export const AlbumPage: React.FC = () => {
                             <div className="card-content">
                                 <div className="type-badge">
                                     <span className="badge-icon">🎥</span>
-                                    <span>Video</span>
+                                    <span>{t('albums.video')}</span>
                                 </div>
                                 <h4 className="card-title">{album.title}</h4>
                                 {album.albumDate && (
@@ -259,8 +261,8 @@ export const AlbumPage: React.FC = () => {
             return (
                 <div className="empty-state">
                     <div className="empty-icon">📸</div>
-                    <h3>No Photo Albums Yet</h3>
-                    <p>Add your first photo album to get started</p>
+                    <h3>{t('albums.noPhotos')}</h3>
+                    <p>{t('albums.noPhotosDesc')}</p>
                 </div>
             );
         }
@@ -292,7 +294,7 @@ export const AlbumPage: React.FC = () => {
                             <div className="card-content">
                                 <div className="type-badge">
                                     <span className="badge-icon">📸</span>
-                                    <span>Photo Album</span>
+                                    <span>{t('albums.photoAlbum')}</span>
                                 </div>
                                 <h4 className="card-title">{album.title}</h4>
                                 {album.albumDate && (
@@ -311,7 +313,7 @@ export const AlbumPage: React.FC = () => {
             <div className="album-page">
                 <div className="album-loading">
                     <div className="loading-spinner" />
-                    <p>Loading albums...</p>
+                    <p>{t('albums.loadingAlbums')}</p>
                 </div>
             </div>
         );
@@ -334,9 +336,9 @@ export const AlbumPage: React.FC = () => {
                 <div className="grid-corners-bottom" />
 
                 <div className="album-header">
-                    <h1 className="album-title">{familyName} Albums</h1>
+                    <h1 className="album-title">{familyName} {t('albums.title')}</h1>
                     <p className="album-subtitle">
-                        Browse through memorable videos and photo collections
+                        {t('albums.subtitle')}
                     </p>
                 </div>
 
@@ -346,21 +348,21 @@ export const AlbumPage: React.FC = () => {
                         className={`album-tab ${activeTab === 'all' ? 'active' : ''}`}
                         onClick={() => setActiveTab('all')}
                     >
-                        📁 All
+                        📁 {t('albums.all')}
                         <span className="tab-count">{filteredAlbums.length}</span>
                     </button>
                     <button
                         className={`album-tab ${activeTab === 'video' ? 'active' : ''}`}
                         onClick={() => setActiveTab('video')}
                     >
-                        🎥 Videos
+                        🎥 {t('albums.videos')}
                         <span className="tab-count">{videoAlbums.length}</span>
                     </button>
                     <button
                         className={`album-tab ${activeTab === 'photo' ? 'active' : ''}`}
                         onClick={() => setActiveTab('photo')}
                     >
-                        📸 Photos
+                        📸 {t('albums.photos')}
                         <span className="tab-count">{photoAlbums.length}</span>
                     </button>
                 </div>
@@ -375,7 +377,7 @@ export const AlbumPage: React.FC = () => {
                             </svg>
                             <input
                                 type="text"
-                                placeholder="Search albums by title, description, or year..."
+                                placeholder={t('albums.searchPlaceholder')}
                                 value={searchQuery}
                                 onChange={(e) => setSearchQuery(e.target.value)}
                                 className="album-search-input"
@@ -402,7 +404,7 @@ export const AlbumPage: React.FC = () => {
                                 onChange={(e) => setYearFilter(e.target.value)}
                                 className="album-filter-select"
                             >
-                                <option value="">All Years</option>
+                                <option value="">{t('albums.allYears')}</option>
                                 {availableYears.map(year => (
                                     <option key={year} value={year}>{year}</option>
                                 ))}
@@ -414,14 +416,14 @@ export const AlbumPage: React.FC = () => {
                                 className="album-clear-all-btn"
                                 onClick={clearFilters}
                             >
-                                Clear Filters
+                                {t('albums.clearFilters')}
                             </button>
                         )}
                     </div>
 
                     {hasActiveFilters && (
                         <div className="album-filter-results">
-                            Showing {filteredAlbums.length} of {albums.length} albums
+                            {t('albums.showing')} {filteredAlbums.length} {t('albums.of')} {albums.length} {t('albums.albums')}
                         </div>
                     )}
                 </div>
@@ -435,9 +437,9 @@ export const AlbumPage: React.FC = () => {
                                     <polygon points="23 7 16 12 23 17 23 7" />
                                     <rect x="1" y="5" width="15" height="14" rx="2" ry="2" />
                                 </svg>
-                                Videos
+                                {t('albums.videos')}
                             </span>
-                            <h2 className="section-title">Video Collection</h2>
+                            <h2 className="section-title">{t('albums.videoCollection')}</h2>
                         </div>
                         {renderVideoCarousel()}
                     </section>
@@ -453,9 +455,9 @@ export const AlbumPage: React.FC = () => {
                                     <circle cx="8.5" cy="8.5" r="1.5" />
                                     <polyline points="21 15 16 10 5 21" />
                                 </svg>
-                                Photos
+                                {t('albums.photos')}
                             </span>
-                            <h2 className="section-title">Photo Albums</h2>
+                            <h2 className="section-title">{t('albums.photoAlbums')}</h2>
                         </div>
                         {renderPhotoCarousel()}
                     </section>
@@ -468,7 +470,7 @@ export const AlbumPage: React.FC = () => {
                     className="add-album-floating-btn"
                     onClick={() => setShowAlbumManagement(true)}
                 >
-                    ➕ Manage Albums
+                    ➕ {t('albums.manageAlbums')}
                 </button>
             )}
 

@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import type { Group } from '../types';
 import { generateSlug } from '../utils/helpers';
+import { useLanguage } from '../contexts/LanguageContext';
 import './EditGroupModal.css';
 
 interface EditGroupModalProps {
@@ -12,6 +13,7 @@ interface EditGroupModalProps {
 }
 
 export const EditGroupModal: React.FC<EditGroupModalProps> = ({ group, onClose, onSave, onDelete, existingGroups }) => {
+    const { t } = useLanguage();
     const [name, setName] = useState(group.name);
     const [description, setDescription] = useState(group.description || '');
     const [slug, setSlug] = useState(group.slug || generateSlug(group.name));
@@ -94,13 +96,13 @@ export const EditGroupModal: React.FC<EditGroupModalProps> = ({ group, onClose, 
                             <div className="stats-row-dark">
                                 <div className="stat-item-dark">
                                     <div className="stat-value-dark">{group.members.length}</div>
-                                    <div className="stat-label-dark">Members</div>
+                                    <div className="stat-label-dark">{t('group.members')}</div>
                                 </div>
                             </div>
 
                             <div className="form-group-dark">
                                 <label htmlFor="group-name" className="form-label-dark">
-                                    Group Name <span className="form-required">*</span>
+                                    {t('editGroup.groupName')} <span className="form-required">*</span>
                                 </label>
                                 <input
                                     type="text"
@@ -116,7 +118,7 @@ export const EditGroupModal: React.FC<EditGroupModalProps> = ({ group, onClose, 
 
                             <div className="form-group-dark">
                                 <label htmlFor="group-description" className="form-label-dark">
-                                    Description (Optional)
+                                    {t('editGroup.description')}
                                 </label>
                                 <textarea
                                     id="group-description"
@@ -128,13 +130,13 @@ export const EditGroupModal: React.FC<EditGroupModalProps> = ({ group, onClose, 
                                     disabled={isSubmitting}
                                 />
                                 <span className="form-hint-dark">
-                                    Add details about this group, such as location or special notes.
+                                    {t('editGroup.descriptionHint')}
                                 </span>
                             </div>
 
                             <div className="form-group-dark">
                                 <label htmlFor="group-slug" className="form-label-dark">
-                                    Short Group Name
+                                    {t('editGroup.shortGroupName')}
                                 </label>
                                 <input
                                     type="text"
@@ -151,11 +153,11 @@ export const EditGroupModal: React.FC<EditGroupModalProps> = ({ group, onClose, 
                                     title="Only lowercase letters, numbers, and hyphens"
                                 />
                                 <span className="form-hint-dark">
-                                    URL-friendly name. Only lowercase letters, numbers, and hyphens allowed.
+                                    {t('editGroup.shortNameHint')}
                                 </span>
                                 {slug && (
                                     <div className="url-preview-dark">
-                                        <span>URL Path:</span>
+                                        <span>{t('editGroup.urlPath')}</span>
                                         <code>/{slug}</code>
                                     </div>
                                 )}
@@ -163,15 +165,15 @@ export const EditGroupModal: React.FC<EditGroupModalProps> = ({ group, onClose, 
 
                             {/* Danger Zone */}
                             <div className="danger-section-dark">
-                                <h4>⚠️ Danger Zone</h4>
-                                <p>Permanently delete this group and all its {group.members.length} members.</p>
+                                <h4>⚠️ {t('editGroup.dangerZone')}</h4>
+                                <p>{t('editGroup.dangerDescription')} {group.members.length} {t('editGroup.members_count')}.</p>
                                 <button
                                     type="button"
                                     className="btn-dark btn-dark-danger"
                                     onClick={() => setShowDeleteConfirm(true)}
                                     disabled={isSubmitting}
                                 >
-                                    Delete Group
+                                    {t('editGroup.deleteGroup')}
                                 </button>
                             </div>
                         </div>
@@ -184,14 +186,14 @@ export const EditGroupModal: React.FC<EditGroupModalProps> = ({ group, onClose, 
                                 onClick={onClose}
                                 disabled={isSubmitting}
                             >
-                                Cancel
+                                {t('common.cancel')}
                             </button>
                             <button
                                 type="submit"
                                 className="btn-dark btn-dark-primary"
                                 disabled={isSubmitting}
                             >
-                                {isSubmitting ? 'Saving...' : 'Save Changes'}
+                                {isSubmitting ? t('common.saving') : t('common.saveChanges')}
                             </button>
                         </div>
                     </form>
@@ -209,12 +211,12 @@ export const EditGroupModal: React.FC<EditGroupModalProps> = ({ group, onClose, 
                                 <line x1="12" y1="16" x2="12.01" y2="16" />
                             </svg>
                         </div>
-                        <h3 className="confirm-title-dark">Delete Group?</h3>
+                        <h3 className="confirm-title-dark">{t('editGroup.deleteConfirm')}</h3>
                         <p className="confirm-text-dark">
-                            Are you sure you want to delete <strong>"{group.name}"</strong>?
+                            {t('editGroup.deleteMessage')} <strong>"{group.name}"</strong>?
                         </p>
                         <p className="confirm-text-dark" style={{ color: '#ef4444', fontSize: '0.875rem' }}>
-                            ⚠️ This will permanently delete all {group.members.length} member{group.members.length !== 1 ? 's' : ''} and their photos!
+                            ⚠️ {t('editGroup.deleteWarning')} {group.members.length} {group.members.length !== 1 ? t('editGroup.members_count') : t('editGroup.member')}{t('editGroup.andPhotos')}
                         </p>
                         <div className="confirm-actions-dark">
                             <button
@@ -222,7 +224,7 @@ export const EditGroupModal: React.FC<EditGroupModalProps> = ({ group, onClose, 
                                 className="btn-dark btn-dark-secondary"
                                 onClick={() => setShowDeleteConfirm(false)}
                             >
-                                Cancel
+                                {t('common.cancel')}
                             </button>
                             <button
                                 type="button"
@@ -232,7 +234,7 @@ export const EditGroupModal: React.FC<EditGroupModalProps> = ({ group, onClose, 
                                     onClose();
                                 }}
                             >
-                                Delete
+                                {t('common.delete')}
                             </button>
                         </div>
                     </div>
@@ -244,7 +246,7 @@ export const EditGroupModal: React.FC<EditGroupModalProps> = ({ group, onClose, 
                 <div className="confirm-backdrop-dark" onClick={() => setErrorMessage(null)}>
                     <div className="confirm-modal-dark" onClick={(e) => e.stopPropagation()}>
                         <div className="confirm-icon-dark warning">⚠️</div>
-                        <h3 className="confirm-title-dark">Validation Error</h3>
+                        <h3 className="confirm-title-dark">{t('editGroup.validationError')}</h3>
                         <p className="confirm-text-dark" style={{ whiteSpace: 'pre-line' }}>
                             {errorMessage}
                         </p>
@@ -254,7 +256,7 @@ export const EditGroupModal: React.FC<EditGroupModalProps> = ({ group, onClose, 
                                 className="btn-dark btn-dark-primary"
                                 onClick={() => setErrorMessage(null)}
                             >
-                                Got it
+                                {t('common.gotIt')}
                             </button>
                         </div>
                     </div>

@@ -1,0 +1,359 @@
+import React, { createContext, useContext, useState } from 'react';
+import type { ReactNode } from 'react';
+
+export type Language = 'en' | 'ms'; // English | Malay (Bahasa Malaysia)
+
+interface LanguageContextType {
+    language: Language;
+    setLanguage: (lang: Language) => void;
+    t: (key: string) => string;
+}
+
+const translations: Record<Language, Record<string, string>> = {
+    en: {
+        // Header
+        'header.calendar': 'Calendar',
+        'header.albums': 'Video & Photo Albums',
+        'header.settings': 'Settings',
+        'header.createNewPage': 'Create New Page',
+        'header.adminDashboard': 'Admin Dashboard',
+        'header.editAlbums': 'Edit Video/Photo Albums',
+        'header.admin': 'Admin',
+
+        // Hero Section
+        'hero.familyMembers': 'Family Members',
+        'hero.memories': 'Memories',
+        'hero.averageAge': 'Average Age',
+        'hero.avgAgeAll': 'Avg Age (All)',
+        'hero.searchFilter': 'Search & Filter Photos',
+        'hero.photosFound': 'of',
+        'hero.photos': 'photos',
+        'hero.searchPlaceholder': 'Search by name, year, or age...',
+        'hero.allYears': 'All Years',
+        'hero.clearAll': 'Clear All',
+        'hero.noMatches': 'No photos match your filters',
+
+        // Group View
+        'group.members': 'Members',
+        'group.photos': 'Photos',
+        'group.addMember': 'Add Member',
+        'group.editGroup': 'Edit Group',
+        'group.openPage': 'Open Page',
+        'group.back': 'Back',
+        'group.found': 'Found',
+        'group.member': 'member',
+        'group.members_plural': 'members',
+        'group.noMembersFound': 'No members found',
+        'group.tryAdjustingSearch': 'Try adjusting your search query',
+        'group.addMembersToStart': 'Add members to get started',
+        'group.subGroup': 'Sub-Group',
+
+        // Calendar
+        'calendar.title': 'Calendar',
+        'calendar.subtitle': 'Manage your team\'s schedule and upcoming events',
+        'calendar.filter': 'Filter:',
+        'calendar.allEvents': 'All Events',
+        'calendar.meetings': 'Meetings',
+        'calendar.birthdays': 'Birthdays',
+        'calendar.anniversaries': 'Anniversaries',
+        'calendar.holidays': 'Holidays',
+        'calendar.reminders': 'Reminders',
+        'calendar.other': 'Other',
+        'calendar.addEvent': 'Add Event',
+        'calendar.importHolidays': 'Import Holidays',
+        'calendar.upcomingEvents': 'Upcoming Events',
+        'calendar.noUpcomingEvents': 'No upcoming events',
+        'calendar.weekOf': 'Week of',
+        'calendar.previous': 'Previous',
+        'calendar.next': 'Next',
+        'calendar.today': 'Today',
+
+        // Common
+        'common.cancel': 'Cancel',
+        'common.save': 'Save',
+        'common.delete': 'Delete',
+        'common.edit': 'Edit',
+        'common.close': 'Close',
+        'common.confirm': 'Confirm',
+        'common.yes': 'Yes',
+        'common.no': 'No',
+        'common.loading': 'Loading',
+        'common.saving': 'Saving...',
+        'common.saveChanges': 'Save Changes',
+        'common.gotIt': 'Got it',
+
+        // Modals - Add Member
+        'addMember.title': 'Add New Member',
+        'addMember.subtitle': 'Add a new member to the group',
+        'addMember.name': 'Full Name',
+        'addMember.namePlaceholder': 'Enter full name',
+        'addMember.nameRequired': '*',
+        'addMember.relationship': 'Relationship',
+        'addMember.relationshipPlaceholder': 'e.g., Father, Mother, Son',
+        'addMember.yearOfBirth': 'Year of Birth',
+        'addMember.yearPlaceholder': 'YYYY',
+        'addMember.photos': 'Photos',
+        'addMember.addPhoto': 'Add Photo',
+        'addMember.uploadPhoto': 'Upload Photo',
+        'addMember.photoYear': 'Year Taken',
+        'addMember.removePhoto': 'Remove',
+
+        // Modals - Edit Member
+        'editMember.title': 'Edit Member',
+        'editMember.subtitle': 'Update member information',
+        'editMember.deleteConfirm': 'Delete Member?',
+        'editMember.deleteMessage': 'Are you sure you want to delete',
+        'editMember.deleteWarning': 'This will permanently delete this member and all their photos!',
+        'editMember.dangerZone': 'Danger Zone',
+        'editMember.dangerDescription': 'Permanently delete this member and all their',
+        'editMember.photos_count': 'photos',
+        'editMember.deleteMember': 'Delete Member',
+
+        // Modals - Edit Group
+        'editGroup.title': 'Edit Group',
+        'editGroup.subtitle': 'Modify group details or delete the group',
+        'editGroup.groupName': 'Group Name',
+        'editGroup.groupNamePlaceholder': 'Enter group name',
+        'editGroup.description': 'Description (Optional)',
+        'editGroup.descriptionPlaceholder': 'Enter a description for this group',
+        'editGroup.descriptionHint': 'Add details about this group, such as location or special notes.',
+        'editGroup.shortGroupName': 'Short Group Name',
+        'editGroup.shortNamePlaceholder': 'url-friendly-name',
+        'editGroup.shortNameHint': 'URL-friendly name. Only lowercase letters, numbers, and hyphens allowed.',
+        'editGroup.urlPath': 'URL Path:',
+        'editGroup.dangerZone': 'Danger Zone',
+        'editGroup.dangerDescription': 'Permanently delete this group and all its',
+        'editGroup.members_count': 'members',
+        'editGroup.deleteGroup': 'Delete Group',
+        'editGroup.deleteConfirm': 'Delete Group?',
+        'editGroup.deleteMessage': 'Are you sure you want to delete',
+        'editGroup.deleteWarning': 'This will permanently delete all',
+        'editGroup.member': 'member',
+        'editGroup.andPhotos': 'and their photos!',
+        'editGroup.validationError': 'Validation Error',
+
+        // Modals - Holiday Import
+        'holiday.title': 'Import Holidays',
+        'holiday.subtitle': 'Add public holidays to your calendar',
+        'holiday.selectCountry': 'Select Country',
+        'holiday.selectHolidays': 'Select Holidays',
+        'holiday.selected': 'selected',
+        'holiday.of': 'of',
+        'holiday.selectAll': 'Select All',
+        'holiday.deselectAll': 'Deselect All',
+        'holiday.import': 'Import',
+        'holiday.holiday': 'Holiday',
+        'holiday.holidays': 'Holidays',
+
+        // Albums
+        'albums.title': 'Albums',
+        'albums.subtitle': 'Browse through memorable videos and photo collections',
+        'albums.all': 'All',
+        'albums.videos': 'Videos',
+        'albums.photos': 'Photos',
+        'albums.searchPlaceholder': 'Search albums by title, description, or year...',
+        'albums.allYears': 'All Years',
+        'albums.clearFilters': 'Clear Filters',
+        'albums.showing': 'Showing',
+        'albums.of': 'of',
+        'albums.albums': 'albums',
+        'albums.videoCollection': 'Video Collection',
+        'albums.photoAlbums': 'Photo Albums',
+        'albums.noVideos': 'No Videos Yet',
+        'albums.noVideosDesc': 'Add your first video album to get started',
+        'albums.noPhotos': 'No Photo Albums Yet',
+        'albums.noPhotosDesc': 'Add your first photo album to get started',
+        'albums.manageAlbums': 'Manage Albums',
+        'albums.loadingAlbums': 'Loading albums...',
+        'albums.video': 'Video',
+        'albums.photoAlbum': 'Photo Album',
+
+        // Footer
+        'footer.copyright': 'FamilyLinX © Idiahus 2025 -',
+    },
+    ms: {
+        // Header
+        'header.calendar': 'Kalendar',
+        'header.albums': 'Album Video & Foto',
+        'header.settings': 'Tetapan',
+        'header.createNewPage': 'Cipta Halaman Baharu',
+        'header.adminDashboard': 'Papan Pemuka Pentadbir',
+        'header.editAlbums': 'Edit Album Video/Foto',
+        'header.admin': 'Pentadbir',
+
+        // Hero Section
+        'hero.familyMembers': 'Ahli Keluarga',
+        'hero.memories': 'Kenangan',
+        'hero.averageAge': 'Purata Umur',
+        'hero.avgAgeAll': 'Purata Umur (Semua)',
+        'hero.searchFilter': 'Cari & Tapis Foto',
+        'hero.photosFound': 'daripada',
+        'hero.photos': 'foto',
+        'hero.searchPlaceholder': 'Cari dengan nama, tahun, atau umur...',
+        'hero.allYears': 'Semua Tahun',
+        'hero.clearAll': 'Kosongkan Semua',
+        'hero.noMatches': 'Tiada foto yang sepadan dengan penapis anda',
+
+        // Group View
+        'group.members': 'Ahli',
+        'group.photos': 'Foto',
+        'group.addMember': 'Tambah Ahli',
+        'group.editGroup': 'Edit Kumpulan',
+        'group.openPage': 'Buka Halaman',
+        'group.back': 'Kembali',
+        'group.found': 'Dijumpai',
+        'group.member': 'ahli',
+        'group.members_plural': 'ahli',
+        'group.noMembersFound': 'Tiada ahli dijumpai',
+        'group.tryAdjustingSearch': 'Cuba laraskan carian anda',
+        'group.addMembersToStart': 'Tambah ahli untuk bermula',
+        'group.subGroup': 'Sub-Kumpulan',
+
+        // Calendar
+        'calendar.title': 'Kalendar',
+        'calendar.subtitle': 'Urus jadual dan acara pasukan anda',
+        'calendar.filter': 'Tapis:',
+        'calendar.allEvents': 'Semua Acara',
+        'calendar.meetings': 'Mesyuarat',
+        'calendar.birthdays': 'Hari Lahir',
+        'calendar.anniversaries': 'Ulang Tahun',
+        'calendar.holidays': 'Cuti Umum',
+        'calendar.reminders': 'Peringatan',
+        'calendar.other': 'Lain-lain',
+        'calendar.addEvent': 'Tambah Acara',
+        'calendar.importHolidays': 'Import Cuti Umum',
+        'calendar.upcomingEvents': 'Acara Akan Datang',
+        'calendar.noUpcomingEvents': 'Tiada acara akan datang',
+        'calendar.weekOf': 'Minggu',
+        'calendar.previous': 'Sebelum',
+        'calendar.next': 'Seterusnya',
+        'calendar.today': 'Hari Ini',
+
+        // Common
+        'common.cancel': 'Batal',
+        'common.save': 'Simpan',
+        'common.delete': 'Padam',
+        'common.edit': 'Edit',
+        'common.close': 'Tutup',
+        'common.confirm': 'Sahkan',
+        'common.yes': 'Ya',
+        'common.no': 'Tidak',
+        'common.loading': 'Memuatkan',
+        'common.saving': 'Menyimpan...',
+        'common.saveChanges': 'Simpan Perubahan',
+        'common.gotIt': 'Faham',
+
+        // Modals - Add Member
+        'addMember.title': 'Tambah Ahli Baharu',
+        'addMember.subtitle': 'Tambah ahli baharu ke kumpulan',
+        'addMember.name': 'Nama Penuh',
+        'addMember.namePlaceholder': 'Masukkan nama penuh',
+        'addMember.nameRequired': '*',
+        'addMember.relationship': 'Hubungan',
+        'addMember.relationshipPlaceholder': 'cth: Bapa, Ibu, Anak',
+        'addMember.yearOfBirth': 'Tahun Lahir',
+        'addMember.yearPlaceholder': 'TTTT',
+        'addMember.photos': 'Foto',
+        'addMember.addPhoto': 'Tambah Foto',
+        'addMember.uploadPhoto': 'Muat Naik Foto',
+        'addMember.photoYear': 'Tahun Diambil',
+        'addMember.removePhoto': 'Buang',
+
+        // Modals - Edit Member
+        'editMember.title': 'Edit Ahli',
+        'editMember.subtitle': 'Kemas kini maklumat ahli',
+        'editMember.deleteConfirm': 'Padam Ahli?',
+        'editMember.deleteMessage': 'Adakah anda pasti mahu memadam',
+        'editMember.deleteWarning': 'Ini akan memadam ahli ini dan semua foto mereka secara kekal!',
+        'editMember.dangerZone': 'Zon Bahaya',
+        'editMember.dangerDescription': 'Padam ahli ini secara kekal dan semua',
+        'editMember.photos_count': 'foto',
+        'editMember.deleteMember': 'Padam Ahli',
+
+        // Modals - Edit Group
+        'editGroup.title': 'Edit Kumpulan',
+        'editGroup.subtitle': 'Ubah butiran kumpulan atau padam kumpulan',
+        'editGroup.groupName': 'Nama Kumpulan',
+        'editGroup.groupNamePlaceholder': 'Masukkan nama kumpulan',
+        'editGroup.description': 'Penerangan (Pilihan)',
+        'editGroup.descriptionPlaceholder': 'Masukkan penerangan untuk kumpulan ini',
+        'editGroup.descriptionHint': 'Tambah butiran tentang kumpulan ini, seperti lokasi atau nota khas.',
+        'editGroup.shortGroupName': 'Nama Pendek Kumpulan',
+        'editGroup.shortNamePlaceholder': 'nama-mesra-url',
+        'editGroup.shortNameHint': 'Nama mesra URL. Hanya huruf kecil, nombor, dan tanda sempang dibenarkan.',
+        'editGroup.urlPath': 'Laluan URL:',
+        'editGroup.dangerZone': 'Zon Bahaya',
+        'editGroup.dangerDescription': 'Padam kumpulan ini secara kekal dan semua',
+        'editGroup.members_count': 'ahli',
+        'editGroup.deleteGroup': 'Padam Kumpulan',
+        'editGroup.deleteConfirm': 'Padam Kumpulan?',
+        'editGroup.deleteMessage': 'Adakah anda pasti mahu memadam',
+        'editGroup.deleteWarning': 'Ini akan memadam semua',
+        'editGroup.member': 'ahli',
+        'editGroup.andPhotos': 'dan foto mereka secara kekal!',
+        'editGroup.validationError': 'Ralat Pengesahan',
+
+        // Modals - Holiday Import
+        'holiday.title': 'Import Cuti Umum',
+        'holiday.subtitle': 'Tambah cuti umum ke kalendar anda',
+        'holiday.selectCountry': 'Pilih Negara',
+        'holiday.selectHolidays': 'Pilih Cuti Umum',
+        'holiday.selected': 'dipilih',
+        'holiday.of': 'daripada',
+        'holiday.selectAll': 'Pilih Semua',
+        'holiday.deselectAll': 'Nyahpilih Semua',
+        'holiday.import': 'Import',
+        'holiday.holiday': 'Cuti',
+        'holiday.holidays': 'Cuti',
+
+        // Albums
+        'albums.title': 'Album',
+        'albums.subtitle': 'Layari koleksi video dan foto yang berkesan',
+        'albums.all': 'Semua',
+        'albums.videos': 'Video',
+        'albums.photos': 'Foto',
+        'albums.searchPlaceholder': 'Cari album mengikut tajuk, penerangan, atau tahun...',
+        'albums.allYears': 'Semua Tahun',
+        'albums.clearFilters': 'Kosongkan Penapis',
+        'albums.showing': 'Menunjukkan',
+        'albums.of': 'daripada',
+        'albums.albums': 'album',
+        'albums.videoCollection': 'Koleksi Video',
+        'albums.photoAlbums': 'Album Foto',
+        'albums.noVideos': 'Tiada Video Lagi',
+        'albums.noVideosDesc': 'Tambah album video pertama anda untuk bermula',
+        'albums.noPhotos': 'Tiada Album Foto Lagi',
+        'albums.noPhotosDesc': 'Tambah album foto pertama anda untuk bermula',
+        'albums.manageAlbums': 'Urus Album',
+        'albums.loadingAlbums': 'Memuatkan album...',
+        'albums.video': 'Video',
+        'albums.photoAlbum': 'Album Foto',
+
+        // Footer
+        'footer.copyright': 'FamilyLinX © Idiahus 2025 -',
+    }
+};
+
+const LanguageContext = createContext<LanguageContextType | undefined>(undefined);
+
+export const LanguageProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
+    const [language, setLanguage] = useState<Language>('en');
+
+    const t = (key: string): string => {
+        return translations[language][key] || key;
+    };
+
+    return (
+        <LanguageContext.Provider value={{ language, setLanguage, t }}>
+            {children}
+        </LanguageContext.Provider>
+    );
+};
+
+export const useLanguage = (): LanguageContextType => {
+    const context = useContext(LanguageContext);
+    if (!context) {
+        throw new Error('useLanguage must be used within a LanguageProvider');
+    }
+    return context;
+};

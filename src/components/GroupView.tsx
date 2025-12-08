@@ -5,6 +5,7 @@ import { PersonModal } from './PersonModal';
 import { EditMemberModal } from './EditMemberModal';
 import { AddMemberModal } from './AddMemberModal';
 import { EditGroupModal } from './EditGroupModal';
+import { useLanguage } from '../contexts/LanguageContext';
 import './GroupView.css';
 
 interface GroupViewProps {
@@ -42,6 +43,7 @@ export const GroupView: React.FC<GroupViewProps> = ({
     depth,
     isAdminMode,
 }) => {
+    const { t } = useLanguage();
     const [selectedPerson, setSelectedPerson] = useState<Person | null>(null);
     const [editingPerson, setEditingPerson] = useState<Person | null>(null);
     const [isAddingMember, setIsAddingMember] = useState(false);
@@ -128,7 +130,7 @@ export const GroupView: React.FC<GroupViewProps> = ({
                             title="Go back to parent group"
                         >
                             <span className="back-icon">←</span>
-                            <span className="back-text">Back</span>
+                            <span className="back-text">{t('group.back')}</span>
                         </button>
                     )}
 
@@ -153,27 +155,27 @@ export const GroupView: React.FC<GroupViewProps> = ({
                             {depth > 0 && (
                                 <div className="sub-group-indicator">
                                     <span className="indicator-icon">↳</span>
-                                    <span className="indicator-label">Sub-Group</span>
+                                    <span className="indicator-label">{t('group.subGroup')}</span>
                                 </div>
                             )}
                             <h1 className="group-title">
                                 {group.name}
                             </h1>
                             {group.description && (
-                                <p className="group-description">{group.description}</p>
+                                <p className="group-description" style={{ whiteSpace: 'pre-wrap' }}>{group.description}</p>
                             )}
                         </div>
                     )}
                     <div className="group-stats">
                         <div className="stat-item">
                             <span className="stat-value">{group.members.length}</span>
-                            <span className="stat-label">Members</span>
+                            <span className="stat-label">{t('group.members')}</span>
                         </div>
                         <div className="stat-item">
                             <span className="stat-value">
                                 {group.members.reduce((sum, m) => sum + m.photos.length, 0)}
                             </span>
-                            <span className="stat-label">Photos</span>
+                            <span className="stat-label">{t('group.photos')}</span>
                         </div>
                     </div>
                     <div className="group-actions">
@@ -181,12 +183,12 @@ export const GroupView: React.FC<GroupViewProps> = ({
                             <>
                                 {onAddMember && (
                                     <button className="btn btn-primary" onClick={() => setIsAddingMember(true)}>
-                                        Add Member
+                                        {t('group.addMember')}
                                     </button>
                                 )}
                                 {onEditGroup && (
                                     <button className="btn btn-secondary" onClick={() => setIsEditingGroup(true)}>
-                                        Edit Group
+                                        {t('group.editGroup')}
                                     </button>
                                 )}
                             </>
@@ -201,7 +203,7 @@ export const GroupView: React.FC<GroupViewProps> = ({
                                 }}
                                 title="Open this group in a new page"
                             >
-                                <span className="btn-text">Open Page</span>
+                                <span className="btn-text">{t('group.openPage')}</span>
                             </button>
                         )}
                     </div>
@@ -209,18 +211,18 @@ export const GroupView: React.FC<GroupViewProps> = ({
 
                 {searchQuery && (
                     <div className="search-results-info">
-                        Found {filteredMembers.length} {filteredMembers.length === 1 ? 'member' : 'members'}
+                        {t('group.found')} {filteredMembers.length} {filteredMembers.length === 1 ? t('group.member') : t('group.members_plural')}
                     </div>
                 )}
 
                 {filteredMembers.length === 0 ? (
                     <div className="empty-state">
                         <div className="empty-icon">🔍</div>
-                        <h3>No members found</h3>
+                        <h3>{t('group.noMembersFound')}</h3>
                         <p>
                             {searchQuery
-                                ? 'Try adjusting your search query'
-                                : 'Add members to get started'}
+                                ? t('group.tryAdjustingSearch')
+                                : t('group.addMembersToStart')}
                         </p>
                     </div>
                 ) : (
