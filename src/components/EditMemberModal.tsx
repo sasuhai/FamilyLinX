@@ -24,7 +24,7 @@ export const EditMemberModal: React.FC<EditMemberModalProps> = ({ person, onClos
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [isCompressing, setIsCompressing] = useState(false);
     const [compressionProgress, setCompressionProgress] = useState({ current: 0, total: 0 });
-    const [photosToDelete, setPhotosToDelete] = new Set(person.photos.filter(p => p.isDeleted).map(p => p.url));
+    const [photosToDelete, setPhotosToDelete] = useState<Set<string>>(new Set());
     const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
 
     const handlePhotoChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -45,7 +45,7 @@ export const EditMemberModal: React.FC<EditMemberModalProps> = ({ person, onClos
             });
 
             if (invalidFiles.length > 0) {
-                alert(t('editMember.fileRejectedAlert', { files: invalidFiles.join('\n') }));
+                alert('Some files were rejected:\n\n' + invalidFiles.join('\n'));
             }
 
             if (validFiles.length === 0) {
@@ -113,7 +113,7 @@ export const EditMemberModal: React.FC<EditMemberModalProps> = ({ person, onClos
             });
 
             if (invalidFiles.length > 0) {
-                alert(t('editMember.fileRejectedAlert', { files: invalidFiles.join('\n') }));
+                alert('Some files were rejected:\n\n' + invalidFiles.join('\n'));
             }
 
             if (validFiles.length === 0) {
@@ -167,7 +167,7 @@ export const EditMemberModal: React.FC<EditMemberModalProps> = ({ person, onClos
             }
 
             if (imageFiles.length === 0) {
-                alert(t('editMember.noImagesInClipboard'));
+                alert('No images found in clipboard. Please copy an image first.');
                 return;
             }
 
@@ -185,7 +185,7 @@ export const EditMemberModal: React.FC<EditMemberModalProps> = ({ person, onClos
             });
 
             if (invalidFiles.length > 0) {
-                alert(t('editMember.fileRejectedAlert', { files: invalidFiles.join('\n') }));
+                alert('Some files were rejected:\n\n' + invalidFiles.join('\n'));
             }
 
             if (validFiles.length === 0) {
@@ -228,7 +228,7 @@ export const EditMemberModal: React.FC<EditMemberModalProps> = ({ person, onClos
             }
         } catch (error) {
             console.error('Error reading clipboard:', error);
-            alert(t('editMember.clipboardReadError'));
+            alert('Failed to read from clipboard. Please make sure you have copied an image and granted clipboard permissions.');
         }
     };
 
@@ -261,7 +261,7 @@ export const EditMemberModal: React.FC<EditMemberModalProps> = ({ person, onClos
         e.preventDefault();
 
         if (!name || !relationship || !yearOfBirth) {
-            alert(t('editMember.requiredFieldsAlert'));
+            alert('Please fill in all required fields');
             return;
         }
 
@@ -292,7 +292,7 @@ export const EditMemberModal: React.FC<EditMemberModalProps> = ({ person, onClos
             onClose();
         } catch (error) {
             console.error('Error updating member:', error);
-            alert(t('editMember.updateError'));
+            alert('Failed to update member. Please try again.');
         } finally {
             setIsSubmitting(false);
         }
@@ -510,7 +510,7 @@ export const EditMemberModal: React.FC<EditMemberModalProps> = ({ person, onClos
                                                 <line x1="12" y1="8" x2="12" y2="12" />
                                                 <line x1="12" y1="16" x2="12.01" y2="16" />
                                             </svg>
-                                            {t('editMember.photosToDeleteWarning', { count: photosToDelete.size })}
+                                            {photosToDelete.size} photo{photosToDelete.size !== 1 ? 's' : ''} will be deleted on save
                                         </div>
                                     )}
                                 </div>
@@ -555,7 +555,7 @@ export const EditMemberModal: React.FC<EditMemberModalProps> = ({ person, onClos
                                             />
                                         </div>
                                         <span className="progress-text-dark">
-                                            {t('editMember.compressingProgress', { current: compressionProgress.current, total: compressionProgress.total })}
+                                            Compressing... {compressionProgress.current} of {compressionProgress.total}
                                         </span>
                                     </div>
                                 )}
@@ -563,7 +563,7 @@ export const EditMemberModal: React.FC<EditMemberModalProps> = ({ person, onClos
                                 {/* New Photos Preview */}
                                 {photoFiles.length > 0 && !isCompressing && (
                                     <div className="photo-preview-dark">
-                                        <p className="preview-label-dark">{t('editMember.photosSelected', { count: photoFiles.length })}</p>
+                                        <p className="preview-label-dark">{photoFiles.length} photo(s) selected</p>
                                         <div className="preview-grid-dark">
                                             {photoFiles.map((file, index) => (
                                                 <div key={index} className="preview-item-dark">
@@ -606,7 +606,7 @@ export const EditMemberModal: React.FC<EditMemberModalProps> = ({ person, onClos
                             {/* Danger Zone */}
                             <div className="danger-section-dark">
                                 <h4>⚠️ {t('editMember.dangerZone')}</h4>
-                                <p>{t('editMember.dangerDescription', { count: person.photos.length })}</p>
+                                <p>Permanently delete this member and all their {person.photos.length} photos.</p>
                                 <button
                                     type="button"
                                     className="btn-dark btn-dark-danger"
@@ -653,10 +653,10 @@ export const EditMemberModal: React.FC<EditMemberModalProps> = ({ person, onClos
                         </div>
                         <h3 className="confirm-title-dark">{t('editMember.deleteConfirm')}</h3>
                         <p className="confirm-text-dark">
-                            {t('editMember.deleteMessage', { name: person.name })}
+                            Are you sure you want to delete <strong>"{person.name}"</strong>?
                         </p>
                         <p className="confirm-text-dark" style={{ color: '#ef4444', fontSize: '0.875rem' }}>
-                            ⚠️ {t('editMember.deleteWarning', { count: person.photos.length })}
+                            ⚠️ This will permanently delete all {person.photos.length} photo{person.photos.length !== 1 ? 's' : ''} and cannot be undone!
                         </p>
                         <div className="confirm-actions-dark">
                             <button
