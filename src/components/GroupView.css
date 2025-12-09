@@ -255,11 +255,125 @@
     transform: translateY(-2px);
 }
 
+/* Zoom Controls */
+.zoom-controls {
+    display: flex;
+    gap: 2px;
+    background: var(--bg-tertiary);
+    border: 1px solid var(--border-light);
+    border-radius: var(--radius-full);
+    padding: 2px;
+    align-items: center;
+}
+
+.zoom-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: var(--spacing-xs) var(--spacing-sm);
+    background: transparent;
+    border: none;
+    border-radius: var(--radius-full);
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: var(--text-primary);
+    cursor: pointer;
+    transition: all var(--transition-base);
+    min-width: 36px;
+    height: 32px;
+}
+
+.zoom-btn:hover:not(:disabled) {
+    background: var(--primary-500);
+    color: white;
+    transform: scale(1.05);
+}
+
+.zoom-btn:disabled {
+    opacity: 0.3;
+    cursor: not-allowed;
+}
+
+.zoom-btn.zoom-reset {
+    min-width: 60px;
+    background: var(--bg-secondary);
+    border: 1px solid var(--border-light);
+}
+
+.zoom-btn.zoom-reset:hover {
+    background: var(--primary-100);
+    border-color: var(--primary-300);
+    color: var(--primary-700);
+}
+
+[data-theme="dark"] .zoom-btn.zoom-reset:hover {
+    background: var(--primary-900);
+    color: var(--primary-300);
+}
+
+.zoom-icon {
+    font-size: 1rem;
+    line-height: 1;
+}
+
+.zoom-level {
+    font-size: 0.75rem;
+    font-weight: 700;
+    font-family: var(--font-mono, monospace);
+}
+
+/* Members Grid Wrapper for Zoom */
+.members-grid-wrapper {
+    transition: transform 0.3s ease-out;
+    width: 100%;
+}
+
+/* Toggle Headers Button */
+.toggle-headers-btn {
+    white-space: nowrap;
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-xs);
+}
+
+.toggle-headers-btn .toggle-icon {
+    font-size: 1rem;
+}
+
+.toggle-headers-btn .btn-text {
+    font-size: 0.875rem;
+}
+
 /* Responsive: Stack buttons on small screens */
 @media (max-width: 768px) {
     .group-actions {
         width: 100%;
         justify-content: stretch;
+        flex-wrap: wrap;
+    }
+
+    .zoom-controls {
+        order: -1;
+        /* Show zoom controls first on mobile */
+        margin-bottom: var(--spacing-xs);
+    }
+
+    .zoom-btn {
+        min-width: 32px;
+        height: 28px;
+        padding: var(--spacing-xs);
+    }
+
+    .zoom-btn.zoom-reset {
+        min-width: 50px;
+    }
+
+    .zoom-icon {
+        font-size: 0.875rem;
+    }
+
+    .zoom-level {
+        font-size: 0.6875rem;
     }
 
     .group-actions .btn {

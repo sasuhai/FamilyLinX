@@ -329,6 +329,28 @@ export const CalendarPage: React.FC = () => {
         return `${hour - 12}:00 PM`;
     };
 
+    // Check if event is active on a specific day
+    const isActiveOnDay = (event: CalendarEvent, date: Date): boolean => {
+        const start = new Date(event.startDate);
+        const end = new Date(event.endDate);
+        const check = new Date(date);
+
+        // Reset times to compare dates only
+        start.setHours(0, 0, 0, 0);
+        end.setHours(0, 0, 0, 0);
+        check.setHours(0, 0, 0, 0);
+
+        return check.getTime() >= start.getTime() && check.getTime() <= end.getTime();
+    };
+
+    // Get events active on a specific day (for all-day events)
+    const getEventsActiveOnDay = (date: Date): CalendarEvent[] => {
+        return events.filter(event => isActiveOnDay(event, date)).filter(event => {
+            if (categoryFilter === 'all') return true;
+            return event.category === categoryFilter;
+        });
+    };
+
     // Render weekly calendar
     const renderWeeklyCalendar = () => {
         const weekDays = getWeekDays(currentWeekStart);
@@ -355,6 +377,33 @@ export const CalendarPage: React.FC = () => {
                     })}
                 </div>
 
+                {/* All Day Events Row */}
+                <div className="all-day-row">
+                    <div className="time-column-header all-day-label">All Day</div>
+                    {weekDays.map((day, dayIndex) => {
+                        // Use getEventsActiveOnDay for all-day spanning
+                        const dayActiveEvents = getEventsActiveOnDay(day);
+                        const allDayEvents = dayActiveEvents.filter(e => e.allDay);
+
+                        return (
+                            <div key={dayIndex} className="all-day-cell">
+                                {allDayEvents.map(event => (
+                                    <div
+                                        key={event.id}
+                                        className={`calendar-event all-day-event event-${event.category}`}
+                                        onClick={(e) => {
+                                            e.stopPropagation();
+                                            handleEventClick(event);
+                                        }}
+                                    >
+                                        <div className="calendar-event-title">{event.title}</div>
+                                    </div>
+                                ))}
+                            </div>
+                        );
+                    })}
+                </div>
+
                 {/* Scrollable Grid Body */}
                 <div className="weekly-grid-body">
                     <div className="weekly-grid">
@@ -369,7 +418,10 @@ export const CalendarPage: React.FC = () => {
 
                         {/* Day columns */}
                         {weekDays.map((day, dayIndex) => {
+                            // Using standard getEventsForDay (starts on day) for helper timed events
                             const dayEvents = getEventsForDay(day);
+                            // Only show non-all-day events in the time grid
+                            const timedEvents = dayEvents.filter(e => !e.allDay);
                             const dayLabel = day.toLocaleDateString('en-GB', { weekday: 'long', month: 'short', day: 'numeric' });
 
                             return (
@@ -387,8 +439,8 @@ export const CalendarPage: React.FC = () => {
                                                 }}
                                             />
                                         ))}
-                                        {/* Render events */}
-                                        {dayEvents.map(event => {
+                                        {/* Render timed events */}
+                                        {timedEvents.map(event => {
                                             const startTime = event.startTime || '09:00';
                                             const endTime = event.endTime || '10:00';
                                             const [startHour, startMinute] = startTime.split(':').map(Number);

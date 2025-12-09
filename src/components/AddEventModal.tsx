@@ -41,11 +41,15 @@ export const AddEventModal: React.FC<AddEventModalProps> = ({ onClose, onSave, i
             return;
         }
 
+        // Create dates in local timezone to avoid UTC conversion issues
+        const startDate = new Date(formData.startDate + 'T00:00:00');
+        const endDate = new Date(formData.endDate + 'T00:00:00');
+
         const event: Omit<CalendarEvent, 'id' | 'createdAt' | 'updatedAt'> = {
             title: formData.title,
             description: formData.description,
-            startDate: new Date(formData.startDate),
-            endDate: new Date(formData.endDate),
+            startDate,
+            endDate,
             startTime: formData.allDay ? undefined : formData.startTime,
             endTime: formData.allDay ? undefined : formData.endTime,
             allDay: formData.allDay,

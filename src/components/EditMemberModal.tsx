@@ -60,7 +60,7 @@ export const EditMemberModal: React.FC<EditMemberModalProps> = ({ person, onClos
                 const compressedFiles = await compressImages(
                     validFiles,
                     {
-                        maxSizeMB: 1,
+                        maxSizeMB: 0.2,
                         maxWidthOrHeight: 1920,
                         quality: 0.8
                     },
@@ -128,7 +128,7 @@ export const EditMemberModal: React.FC<EditMemberModalProps> = ({ person, onClos
                 const compressedFiles = await compressImages(
                     validFiles,
                     {
-                        maxSizeMB: 1,
+                        maxSizeMB: 0.2,
                         maxWidthOrHeight: 1920,
                         quality: 0.8
                     },
@@ -200,7 +200,7 @@ export const EditMemberModal: React.FC<EditMemberModalProps> = ({ person, onClos
                 const compressedFiles = await compressImages(
                     validFiles,
                     {
-                        maxSizeMB: 1,
+                        maxSizeMB: 0.2,
                         maxWidthOrHeight: 1920,
                         quality: 0.8
                     },
@@ -262,6 +262,14 @@ export const EditMemberModal: React.FC<EditMemberModalProps> = ({ person, onClos
 
         if (!name || !relationship || !yearOfBirth) {
             alert('Please fill in all required fields');
+            return;
+        }
+
+        // Final safety check for file sizes
+        const MAX_SIZE_BYTES = 0.25 * 1024 * 1024; // 0.25MB safety buffer
+        const largeFiles = photoFiles.filter(f => f.size > MAX_SIZE_BYTES);
+        if (largeFiles.length > 0) {
+            alert(`Error: The following photos are still too large (${largeFiles.map(f => (f.size / 1024 / 1024).toFixed(2) + 'MB').join(', ')}). Please try resizing them manually or using a different image.`);
             return;
         }
 

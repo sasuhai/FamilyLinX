@@ -13,7 +13,7 @@ import {
     serverTimestamp,
     Timestamp
 } from 'firebase/firestore';
-import { ref, uploadBytes, getDownloadURL, deleteObject } from 'firebase/storage';
+import { ref, uploadBytes, getDownloadURL, deleteObject, getMetadata } from 'firebase/storage';
 import { db, storage } from '../config/firebase';
 import type { Group, Person, Photo } from '../types';
 
@@ -284,6 +284,20 @@ export const deletePhoto = async (photoUrl: string) => {
         console.error('Error deleting photo:', error);
     }
 };
+
+export const getPhotoSize = async (photoUrl: string): Promise<number> => {
+    try {
+        const photoRef = ref(storage, photoUrl);
+        const metadata = await getMetadata(photoRef);
+        return metadata.size; // Returns size in bytes
+    } catch (error) {
+        console.error('Error getting photo size:', error);
+        // Return estimated average size (500KB) if we can't get the actual size
+        return 500 * 1024; // 500KB in bytes
+    }
+};
+
+
 
 export const addPhotoToPerson = async (
     familyId: string,

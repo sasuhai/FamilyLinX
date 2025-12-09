@@ -24,6 +24,7 @@ interface GroupViewProps {
     searchQuery: string;
     depth: number;
     isAdminMode: boolean;
+    showSubGroupHeaders?: boolean; // For nested groups, controlled by parent
 }
 
 export const GroupView: React.FC<GroupViewProps> = ({
@@ -42,12 +43,31 @@ export const GroupView: React.FC<GroupViewProps> = ({
     searchQuery,
     depth,
     isAdminMode,
+    showSubGroupHeaders: propShowSubGroupHeaders,
 }) => {
     const { t } = useLanguage();
     const [selectedPerson, setSelectedPerson] = useState<Person | null>(null);
     const [editingPerson, setEditingPerson] = useState<Person | null>(null);
     const [isAddingMember, setIsAddingMember] = useState(false);
     const [isEditingGroup, setIsEditingGroup] = useState(false);
+    const [zoomLevel, setZoomLevel] = useState(1); // 1 = normal, 0.1 = 10x zoomed out
+    const [localShowSubGroupHeaders, setLocalShowSubGroupHeaders] = useState(true); // Toggle for sub-group headers
+
+    // Use prop if provided (from parent), otherwise use local state (for main group)
+    const showSubGroupHeaders = propShowSubGroupHeaders !== undefined ? propShowSubGroupHeaders : localShowSubGroupHeaders;
+
+    // Zoom functions
+    const handleZoomOut = () => {
+        setZoomLevel(prev => Math.max(0.1, prev - 0.1));
+    };
+
+    const handleZoomIn = () => {
+        setZoomLevel(prev => Math.min(1, prev + 0.1));
+    };
+
+    const handleResetZoom = () => {
+        setZoomLevel(1);
+    };
 
     // Find the parent person (person who has this group as their subGroupId)
     // This works whether the sub-group is nested or viewed as main page
@@ -121,93 +141,135 @@ export const GroupView: React.FC<GroupViewProps> = ({
     return (
         <div className={`group-view-container ${indentClass}`}>
             <div className={`group-view ${depth > 0 ? 'sub-group' : ''}`}>
-                <div className="group-header fade-in">
-                    {/* Back button for sub-groups on new page */}
-                    {depth === 0 && group.parentGroupId && onNavigateToBreadcrumb && (
-                        <button
-                            className="back-button"
-                            onClick={() => onNavigateToBreadcrumb(group.parentGroupId!)}
-                            title="Go back to parent group"
-                        >
-                            <span className="back-icon">←</span>
-                            <span className="back-text">{t('group.back')}</span>
-                        </button>
-                    )}
-
-                    {/* Show parent photo only on new page (depth 0) for sub-groups */}
-                    {depth === 0 && parentPerson && parentPerson.photos.length > 0 && (() => {
-                        // Get the latest photo based on yearTaken
-                        const latestPhoto = [...parentPerson.photos].sort((a, b) => b.yearTaken - a.yearTaken)[0];
-                        return (
-                            <div className="parent-photo-container">
-                                <img
-                                    src={latestPhoto.url}
-                                    alt={parentPerson.name}
-                                    className="parent-photo-img"
-                                />
-                            </div>
-                        );
-                    })()}
-
-                    {/* Show group header content for sub-groups (depth > 0) OR when on new page with parent (depth 0 with parentGroupId) */}
-                    {(depth > 0 || (depth === 0 && group.parentGroupId)) && (
-                        <div className="group-header-content">
-                            {depth > 0 && (
-                                <div className="sub-group-indicator">
-                                    <span className="indicator-icon">↳</span>
-                                    <span className="indicator-label">{t('group.subGroup')}</span>
-                                </div>
-                            )}
-                            <h1 className="group-title">
-                                {group.name}
-                            </h1>
-                            {group.description && (
-                                <p className="group-description" style={{ whiteSpace: 'pre-wrap' }}>{group.description}</p>
-                            )}
-                        </div>
-                    )}
-                    <div className="group-stats">
-                        <div className="stat-item">
-                            <span className="stat-value">{group.members.length}</span>
-                            <span className="stat-label">{t('group.members')}</span>
-                        </div>
-                        <div className="stat-item">
-                            <span className="stat-value">
-                                {group.members.reduce((sum, m) => sum + m.photos.length, 0)}
-                            </span>
-                            <span className="stat-label">{t('group.photos')}</span>
-                        </div>
-                    </div>
-                    <div className="group-actions">
-                        {isAdminMode && (
-                            <>
-                                {onAddMember && (
-                                    <button className="btn btn-primary" onClick={() => setIsAddingMember(true)}>
-                                        {t('group.addMember')}
-                                    </button>
-                                )}
-                                {onEditGroup && (
-                                    <button className="btn btn-secondary" onClick={() => setIsEditingGroup(true)}>
-                                        {t('group.editGroup')}
-                                    </button>
-                                )}
-                            </>
-                        )}
-                        {depth > 0 && (
+                {/* Show header for main group (depth 0) OR for sub-groups when showSubGroupHeaders is true */}
+                {(depth === 0 || showSubGroupHeaders) && (
+                    <div className="group-header fade-in">
+                        {/* Back button for sub-groups on new page */}
+                        {depth === 0 && group.parentGroupId && onNavigateToBreadcrumb && (
                             <button
-                                className="btn btn-secondary open-page-btn"
-                                onClick={(e) => {
-                                    e.preventDefault();
-                                    console.log('Open Page clicked for group:', group.id);
-                                    onNavigateToBreadcrumb(group.id);
-                                }}
-                                title="Open this group in a new page"
+                                className="back-button"
+                                onClick={() => onNavigateToBreadcrumb(group.parentGroupId!)}
+                                title="Go back to parent group"
                             >
-                                <span className="btn-text">{t('group.openPage')}</span>
+                                <span className="back-icon">←</span>
+                                <span className="back-text">{t('group.back')}</span>
                             </button>
                         )}
+
+                        {/* Show parent photo only on new page (depth 0) for sub-groups */}
+                        {depth === 0 && parentPerson && parentPerson.photos.length > 0 && (() => {
+                            // Get the latest photo based on yearTaken
+                            const latestPhoto = [...parentPerson.photos].sort((a, b) => b.yearTaken - a.yearTaken)[0];
+                            return (
+                                <div className="parent-photo-container">
+                                    <img
+                                        src={latestPhoto.url}
+                                        alt={parentPerson.name}
+                                        className="parent-photo-img"
+                                    />
+                                </div>
+                            );
+                        })()}
+
+                        {/* Show group header content for sub-groups (depth > 0) OR when on new page with parent (depth 0 with parentGroupId) */}
+                        {(depth > 0 || (depth === 0 && group.parentGroupId)) && (
+                            <div className="group-header-content">
+                                {depth > 0 && (
+                                    <div className="sub-group-indicator">
+                                        <span className="indicator-icon">↳</span>
+                                        <span className="indicator-label">{t('group.subGroup')}</span>
+                                    </div>
+                                )}
+                                <h1 className="group-title">
+                                    {group.name}
+                                </h1>
+                                {group.description && (
+                                    <p className="group-description" style={{ whiteSpace: 'pre-wrap' }}>{group.description}</p>
+                                )}
+                            </div>
+                        )}
+                        <div className="group-stats">
+                            <div className="stat-item">
+                                <span className="stat-value">{group.members.length}</span>
+                                <span className="stat-label">{t('group.members')}</span>
+                            </div>
+                            <div className="stat-item">
+                                <span className="stat-value">
+                                    {group.members.reduce((sum, m) => sum + m.photos.length, 0)}
+                                </span>
+                                <span className="stat-label">{t('group.photos')}</span>
+                            </div>
+                        </div>
+                        <div className="group-actions">
+                            {/* Zoom Controls */}
+                            <div className="zoom-controls">
+                                <button
+                                    className="zoom-btn"
+                                    onClick={handleZoomOut}
+                                    disabled={zoomLevel <= 0.1}
+                                    title="Zoom out (see more members)"
+                                >
+                                    <span className="zoom-icon">🔍−</span>
+                                </button>
+                                <button
+                                    className="zoom-btn zoom-reset"
+                                    onClick={handleResetZoom}
+                                    title={`Reset zoom (currently ${Math.round(zoomLevel * 100)}%)`}
+                                >
+                                    <span className="zoom-level">{Math.round(zoomLevel * 100)}%</span>
+                                </button>
+                                <button
+                                    className="zoom-btn"
+                                    onClick={handleZoomIn}
+                                    disabled={zoomLevel >= 1}
+                                    title="Zoom in (see larger)"
+                                >
+                                    <span className="zoom-icon">🔍+</span>
+                                </button>
+                            </div>
+
+                            {/* Sub-group Headers Toggle - Only show on main group (depth 0) */}
+                            {depth === 0 && (
+                                <button
+                                    className="btn btn-outline toggle-headers-btn"
+                                    onClick={() => setLocalShowSubGroupHeaders(!localShowSubGroupHeaders)}
+                                    title={localShowSubGroupHeaders ? "Hide sub-group headers" : "Show sub-group headers"}
+                                >
+                                    <span className="toggle-icon">{localShowSubGroupHeaders ? '📋' : '📋'}</span>
+                                    <span className="btn-text">{localShowSubGroupHeaders ? 'Hide Headers' : 'Show Headers'}</span>
+                                </button>
+                            )}
+
+                            {isAdminMode && (
+                                <>
+                                    {onAddMember && (
+                                        <button className="btn btn-primary" onClick={() => setIsAddingMember(true)}>
+                                            {t('group.addMember')}
+                                        </button>
+                                    )}
+                                    {onEditGroup && (
+                                        <button className="btn btn-secondary" onClick={() => setIsEditingGroup(true)}>
+                                            {t('group.editGroup')}
+                                        </button>
+                                    )}
+                                </>
+                            )}
+                            {depth > 0 && (
+                                <button
+                                    className="btn btn-secondary open-page-btn"
+                                    onClick={(e) => {
+                                        e.preventDefault();
+                                        console.log('Open Page clicked for group:', group.id);
+                                        onNavigateToBreadcrumb(group.id);
+                                    }}
+                                    title="Open this group in a new page"
+                                >
+                                    <span className="btn-text">{t('group.openPage')}</span>
+                                </button>
+                            )}
+                        </div>
                     </div>
-                </div>
+                )}
 
                 {searchQuery && (
                     <div className="search-results-info">
@@ -226,41 +288,51 @@ export const GroupView: React.FC<GroupViewProps> = ({
                         </p>
                     </div>
                 ) : (
-                    <div className="members-grid">
-                        {filteredMembers.map((member) => (
-                            <div key={member.id} className="member-with-subgroup">
-                                <PersonCard
-                                    person={member}
-                                    onClick={() => setSelectedPerson(member)}
-                                    onToggleSubGroup={member.subGroupId ? () => onToggleSubGroup(member.subGroupId!) : undefined}
-                                    isSubGroupExpanded={member.subGroupId ? expandedGroups.has(member.subGroupId) : false}
-                                    allGroups={allGroups}
-                                />
+                    <div
+                        className="members-grid-wrapper"
+                        style={{
+                            transform: `scale(${zoomLevel})`,
+                            transformOrigin: 'top left',
+                            width: `${100 / zoomLevel}%`
+                        }}
+                    >
+                        <div className="members-grid">
+                            {filteredMembers.map((member) => (
+                                <div key={member.id} className="member-with-subgroup">
+                                    <PersonCard
+                                        person={member}
+                                        onClick={() => setSelectedPerson(member)}
+                                        onToggleSubGroup={member.subGroupId ? () => onToggleSubGroup(member.subGroupId!) : undefined}
+                                        isSubGroupExpanded={member.subGroupId ? expandedGroups.has(member.subGroupId) : false}
+                                        allGroups={allGroups}
+                                    />
 
-                                {/* Render sub-group inline if expanded */}
-                                {member.subGroupId && expandedGroups.has(member.subGroupId) && allGroups[member.subGroupId] && (
-                                    <div className="sub-group-container slide-in-right">
-                                        <GroupView
-                                            group={allGroups[member.subGroupId]}
-                                            allGroups={allGroups}
-                                            expandedGroups={expandedGroups}
-                                            breadcrumbs={breadcrumbs}
-                                            onNavigateToBreadcrumb={onNavigateToBreadcrumb}
-                                            onCreateSubGroup={onCreateSubGroup}
-                                            onToggleSubGroup={onToggleSubGroup}
-                                            onUpdateMember={onUpdateMember}
-                                            onDeleteMember={onDeleteMember}
-                                            onEditGroup={onEditGroup}
-                                            onDeleteGroup={onDeleteGroup}
-                                            onAddMember={onAddMember}
-                                            searchQuery={searchQuery}
-                                            depth={depth + 1}
-                                            isAdminMode={isAdminMode}
-                                        />
-                                    </div>
-                                )}
-                            </div>
-                        ))}
+                                    {/* Render sub-group inline if expanded */}
+                                    {member.subGroupId && expandedGroups.has(member.subGroupId) && allGroups[member.subGroupId] && (
+                                        <div className="sub-group-container slide-in-right">
+                                            <GroupView
+                                                group={allGroups[member.subGroupId]}
+                                                allGroups={allGroups}
+                                                expandedGroups={expandedGroups}
+                                                breadcrumbs={breadcrumbs}
+                                                onNavigateToBreadcrumb={onNavigateToBreadcrumb}
+                                                onCreateSubGroup={onCreateSubGroup}
+                                                onToggleSubGroup={onToggleSubGroup}
+                                                onUpdateMember={onUpdateMember}
+                                                onDeleteMember={onDeleteMember}
+                                                onEditGroup={onEditGroup}
+                                                onDeleteGroup={onDeleteGroup}
+                                                onAddMember={onAddMember}
+                                                searchQuery={searchQuery}
+                                                depth={depth + 1}
+                                                isAdminMode={isAdminMode}
+                                                showSubGroupHeaders={showSubGroupHeaders}
+                                            />
+                                        </div>
+                                    )}
+                                </div>
+                            ))}
+                        </div>
                     </div>
                 )}
 

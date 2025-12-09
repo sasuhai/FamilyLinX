@@ -26,7 +26,7 @@ export const PersonModal: React.FC<PersonModalProps> = ({
     const [viewMode, setViewMode] = useState<'grid' | 'timeline'>('grid');
 
     const sortedPhotos = sortPhotosByYear(person.photos);
-    const age = calculateAge(person.yearOfBirth);
+    const age = calculateAge(person.yearOfBirth, person.yearOfDeath);
 
     // Check if sub-group actually exists
     const subGroupExists = person.subGroupId && allGroups && allGroups[person.subGroupId];

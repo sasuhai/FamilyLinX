@@ -112,7 +112,7 @@ export const createCalendarEvent = async (
     const eventId = `event_${Date.now()}`;
     const eventRef = doc(db, FAMILIES_COLLECTION, familyId, CALENDAR_COLLECTION, eventId);
 
-    const eventData = {
+    const eventData: any = {
         ...event,
         id: eventId,
         startDate: dateToTimestamp(event.startDate),
@@ -121,9 +121,17 @@ export const createCalendarEvent = async (
         updatedAt: serverTimestamp()
     };
 
+    // Remove undefined fields (like startTime/endTime for all-day events)
+    Object.keys(eventData).forEach(key => {
+        if (eventData[key] === undefined) {
+            delete eventData[key];
+        }
+    });
+
     await setDoc(eventRef, eventData);
     return eventId;
 };
+
 
 /**
  * Update a calendar event
@@ -136,17 +144,20 @@ export const updateCalendarEvent = async (
     const eventRef = doc(db, FAMILIES_COLLECTION, familyId, CALENDAR_COLLECTION, eventId);
 
     const dataToUpdate: any = {
-        ...updates,
         updatedAt: serverTimestamp()
     };
 
-    // Convert Date objects to Timestamps
-    if (updates.startDate) {
-        dataToUpdate.startDate = dateToTimestamp(updates.startDate);
-    }
-    if (updates.endDate) {
-        dataToUpdate.endDate = dateToTimestamp(updates.endDate);
-    }
+    // Only include defined fields in the update
+    Object.keys(updates).forEach(key => {
+        const value = (updates as any)[key];
+        if (value !== undefined) {
+            if (key === 'startDate' || key === 'endDate') {
+                dataToUpdate[key] = dateToTimestamp(value);
+            } else {
+                dataToUpdate[key] = value;
+            }
+        }
+    });
 
     await updateDoc(eventRef, dataToUpdate);
 };

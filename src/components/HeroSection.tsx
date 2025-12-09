@@ -3,6 +3,7 @@ import type { Group, Person } from '../types';
 import type { CalendarEvent } from '../types/calendar';
 import { getUpcomingEvents } from '../services/calendar.service';
 import { useLanguage } from '../contexts/LanguageContext';
+import { calculateAge } from '../utils/helpers';
 import './HeroSection.css';
 
 interface HeroSectionProps {
@@ -133,14 +134,12 @@ export const HeroSection: React.FC<HeroSectionProps> = ({ group, allGroups, fami
 
     // Calculate average age for current group members
     const averageAge = useMemo(() => {
-        const currentYear = new Date().getFullYear();
         const members = allGroups[group.id]?.members || [];
 
         if (members.length === 0) return 0;
 
         const totalAge = members.reduce((sum, member) => {
-            const age = currentYear - member.yearOfBirth;
-            return sum + age;
+            return sum + calculateAge(member.yearOfBirth, member.isDeceased ? member.yearOfDeath : undefined);
         }, 0);
 
         return Math.round(totalAge / members.length);
@@ -148,7 +147,6 @@ export const HeroSection: React.FC<HeroSectionProps> = ({ group, allGroups, fami
 
     // Calculate average age including nested groups
     const averageAgeNested = useMemo(() => {
-        const currentYear = new Date().getFullYear();
         let totalAge = 0;
         let memberCount = 0;
 
@@ -157,8 +155,7 @@ export const HeroSection: React.FC<HeroSectionProps> = ({ group, allGroups, fami
             if (!grp) return;
 
             grp.members.forEach((member: Person) => {
-                const age = currentYear - member.yearOfBirth;
-                totalAge += age;
+                totalAge += calculateAge(member.yearOfBirth, member.isDeceased ? member.yearOfDeath : undefined);
                 memberCount++;
 
                 if (member.subGroupId) {
@@ -190,6 +187,34 @@ export const HeroSection: React.FC<HeroSectionProps> = ({ group, allGroups, fami
 
         countMembers(group.id);
         return count;
+    }, [group.id, allGroups]);
+
+    // Calculate members by level
+    const membersByLevel = useMemo(() => {
+        const levelCounts: Record<number, number> = {};
+
+        const countByLevel = (groupId: string, level: number) => {
+            const grp = allGroups[groupId];
+            if (!grp) return;
+
+            // Initialize level count if not exists
+            if (!levelCounts[level]) {
+                levelCounts[level] = 0;
+            }
+
+            // Add members at this level
+            levelCounts[level] += grp.members.length;
+
+            // Recursively count members in sub-groups
+            grp.members.forEach((member: Person) => {
+                if (member.subGroupId) {
+                    countByLevel(member.subGroupId, level + 1);
+                }
+            });
+        };
+
+        countByLevel(group.id, 1);
+        return levelCounts;
     }, [group.id, allGroups]);
 
     // Smooth infinite scroll animation
@@ -282,6 +307,40 @@ export const HeroSection: React.FC<HeroSectionProps> = ({ group, allGroups, fami
                             <span className="hero-stat-value">{averageAgeNested}</span>
                             <span className="hero-stat-label">{t('hero.avgAgeAll')}</span>
                         </div>
+
+                        {/* Compact Level Distribution Chart */}
+                        {Object.keys(membersByLevel).length > 0 && (
+                            <>
+                                <div className="hero-stat-divider"></div>
+                                <div className="hero-stat-item level-chart-widget">
+                                    <div className="mini-chart">
+                                        {Object.entries(membersByLevel)
+                                            .sort(([a], [b]) => Number(a) - Number(b))
+                                            .map(([level, count]) => {
+                                                const maxCount = Math.max(...Object.values(membersByLevel));
+                                                const percentage = (count / maxCount) * 100;
+
+                                                return (
+                                                    <div key={level} className="mini-bar-group">
+                                                        <div className="mini-bar-container">
+                                                            <div
+                                                                className="mini-bar"
+                                                                style={{ height: `${percentage}%` }}
+                                                                title={`${t('hero.level')} ${level}: ${count} ${t('hero.members')}`}
+                                                            >
+                                                                <span className="mini-bar-count">{count}</span>
+                                                            </div>
+                                                        </div>
+                                                        <div className="mini-bar-label">L{level}</div>
+                                                    </div>
+                                                );
+                                            })
+                                        }
+                                    </div>
+                                    <span className="hero-stat-label">{t('hero.memberDistribution')}</span>
+                                </div>
+                            </>
+                        )}
                     </div>
                 </div>
 
