@@ -46,12 +46,10 @@ export const PersonCard: React.FC<PersonCardProps> = ({
 
                 <div className="person-details">
                     <div className="detail-item">
-                        <span className="detail-icon">👤</span>
                         <span className="detail-text">{person.relationship}</span>
                     </div>
 
                     <div className="detail-item">
-                        <span className="detail-icon">🎂</span>
                         <span className="detail-text">{ageDisplay}</span>
                     </div>
                 </div>

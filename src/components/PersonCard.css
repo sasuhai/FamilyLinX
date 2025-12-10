@@ -47,7 +47,7 @@
 
 
 .person-card-content {
-    padding: var(--spacing-sm);
+    padding: 6px;
 }
 
 .person-name {
@@ -61,8 +61,11 @@
 
 .person-details {
     display: flex;
-    flex-direction: column;
-    gap: var(--spacing-xs);
+    flex-direction: row;
+    gap: 6px;
+    align-items: center;
+    margin-bottom: 4px;
+    justify-content: flex-start;
 }
 
 .detail-row {
@@ -71,21 +74,43 @@
 }
 
 .detail-item {
-    display: flex;
-    align-items: center;
-    gap: var(--spacing-xs);
-    font-size: 0.6875rem;
+    display: inline-flex !important;
+    align-items: center !important;
+    gap: 4px !important;
+    font-size: 0.75rem !important;
+    color: var(--text-secondary) !important;
+    font-weight: 500 !important;
+    line-height: 1.2 !important;
+    padding: 0 !important;
+    white-space: nowrap !important;
+    background: none !important;
+    border-radius: 0 !important;
+    border: none !important;
+    opacity: 1 !important;
+    visibility: visible !important;
+}
+
+/* Add bullet separator after first detail-item */
+.detail-item:first-child::after {
+    content: '•';
+    margin-left: 6px;
     color: var(--text-secondary);
+    opacity: 0.5;
 }
 
 .detail-icon {
-    font-size: 0.75rem;
-    width: 14px;
+    font-size: 0.625rem;
+    width: 12px;
     text-align: center;
 }
 
 .detail-text {
-    flex: 1;
+    line-height: 1.2 !important;
+    font-size: 0.75rem !important;
+    color: var(--text-secondary) !important;
+    font-weight: 500 !important;
+    opacity: 1 !important;
+    display: inline !important;
 }
 
 /* Updated: 2025-12-06 01:02 - Enhanced toggle button */

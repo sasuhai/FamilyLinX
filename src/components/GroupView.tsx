@@ -52,9 +52,54 @@ export const GroupView: React.FC<GroupViewProps> = ({
     const [isEditingGroup, setIsEditingGroup] = useState(false);
     const [zoomLevel, setZoomLevel] = useState(1); // 1 = normal, 0.1 = 10x zoomed out
     const [localShowSubGroupHeaders, setLocalShowSubGroupHeaders] = useState(true); // Toggle for sub-group headers
+    const [gridColumns, setGridColumns] = useState(6); // Track number of columns in grid
+    const gridRef = React.useRef<HTMLDivElement>(null);
 
     // Use prop if provided (from parent), otherwise use local state (for main group)
     const showSubGroupHeaders = propShowSubGroupHeaders !== undefined ? propShowSubGroupHeaders : localShowSubGroupHeaders;
+
+    // Calculate grid columns based on actual rendered layout
+    React.useEffect(() => {
+        const calculateColumns = () => {
+            if (gridRef.current) {
+                // Get all member cards (direct children with class member-with-subgroup)
+                const cards = Array.from(gridRef.current.querySelectorAll('.member-with-subgroup'));
+
+                if (cards.length > 0) {
+                    // Get the computed style to read actual grid columns
+                    const computedStyle = window.getComputedStyle(gridRef.current);
+                    const gridTemplateColumns = computedStyle.gridTemplateColumns;
+
+                    // Count columns from the computed style
+                    const columnCount = gridTemplateColumns !== 'none'
+                        ? gridTemplateColumns.split(' ').length
+                        : 1;
+
+                    console.log('Grid columns calculated:', columnCount, 'Template:', gridTemplateColumns);
+                    setGridColumns(columnCount);
+                }
+            }
+        };
+
+        // Initial calculation with delay to ensure grid is rendered
+        const timer = setTimeout(calculateColumns, 100);
+
+        // Use ResizeObserver to detect grid size changes (including browser zoom)
+        let resizeObserver: ResizeObserver | null = null;
+        if (gridRef.current) {
+            resizeObserver = new ResizeObserver(() => {
+                calculateColumns();
+            });
+            resizeObserver.observe(gridRef.current);
+        }
+
+        return () => {
+            clearTimeout(timer);
+            if (resizeObserver) {
+                resizeObserver.disconnect();
+            }
+        };
+    }, []);
 
     // Zoom functions
     const handleZoomOut = () => {
@@ -296,9 +341,9 @@ export const GroupView: React.FC<GroupViewProps> = ({
                             width: `${100 / zoomLevel}%`
                         }}
                     >
-                        <div className="members-grid">
-                            {filteredMembers.map((member) => (
-                                <div key={member.id} className="member-with-subgroup">
+                        <div className="members-grid" ref={gridRef}>
+                            {filteredMembers.map((member, index) => (
+                                <div key={member.id} className="member-with-subgroup" data-member-index={index}>
                                     <PersonCard
                                         person={member}
                                         onClick={() => setSelectedPerson(member)}
@@ -306,31 +351,42 @@ export const GroupView: React.FC<GroupViewProps> = ({
                                         isSubGroupExpanded={member.subGroupId ? expandedGroups.has(member.subGroupId) : false}
                                         allGroups={allGroups}
                                     />
-
-                                    {/* Render sub-group inline if expanded */}
-                                    {member.subGroupId && expandedGroups.has(member.subGroupId) && allGroups[member.subGroupId] && (
-                                        <div className="sub-group-container slide-in-right">
-                                            <GroupView
-                                                group={allGroups[member.subGroupId]}
-                                                allGroups={allGroups}
-                                                expandedGroups={expandedGroups}
-                                                breadcrumbs={breadcrumbs}
-                                                onNavigateToBreadcrumb={onNavigateToBreadcrumb}
-                                                onCreateSubGroup={onCreateSubGroup}
-                                                onToggleSubGroup={onToggleSubGroup}
-                                                onUpdateMember={onUpdateMember}
-                                                onDeleteMember={onDeleteMember}
-                                                onEditGroup={onEditGroup}
-                                                onDeleteGroup={onDeleteGroup}
-                                                onAddMember={onAddMember}
-                                                searchQuery={searchQuery}
-                                                depth={depth + 1}
-                                                isAdminMode={isAdminMode}
-                                                showSubGroupHeaders={showSubGroupHeaders}
-                                            />
-                                        </div>
-                                    )}
                                 </div>
+                            ))}
+
+                            {/* Render all expanded sub-groups as overlays */}
+                            {filteredMembers.map((member, index) => (
+                                member.subGroupId && expandedGroups.has(member.subGroupId) && allGroups[member.subGroupId] && (
+                                    <div
+                                        key={`subgroup-${member.id}`}
+                                        className="sub-group-overlay slide-in-right"
+                                        data-parent-index={index}
+                                        style={{
+                                            gridColumnStart: 1,
+                                            gridColumnEnd: -1,
+                                            gridRowStart: Math.floor(index / gridColumns) + 2
+                                        }}
+                                    >
+                                        <GroupView
+                                            group={allGroups[member.subGroupId]}
+                                            allGroups={allGroups}
+                                            expandedGroups={expandedGroups}
+                                            breadcrumbs={breadcrumbs}
+                                            onNavigateToBreadcrumb={onNavigateToBreadcrumb}
+                                            onCreateSubGroup={onCreateSubGroup}
+                                            onToggleSubGroup={onToggleSubGroup}
+                                            onUpdateMember={onUpdateMember}
+                                            onDeleteMember={onDeleteMember}
+                                            onEditGroup={onEditGroup}
+                                            onDeleteGroup={onDeleteGroup}
+                                            onAddMember={onAddMember}
+                                            searchQuery={searchQuery}
+                                            depth={depth + 1}
+                                            isAdminMode={isAdminMode}
+                                            showSubGroupHeaders={showSubGroupHeaders}
+                                        />
+                                    </div>
+                                )
                             ))}
                         </div>
                     </div>

@@ -401,6 +401,8 @@
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
     gap: var(--spacing-md);
+    position: relative;
+    /* Enable absolute positioning for sub-groups */
 }
 
 .sub-group .members-grid {
@@ -409,13 +411,23 @@
 }
 
 .member-with-subgroup {
-    display: contents;
-    /* Remove from layout flow */
+    position: relative;
+    /* Each member container maintains its grid position */
 }
 
-/* Only the sub-group container spans full width */
-.member-with-subgroup>.sub-group-container {
-    grid-column: 1 / -1;
+/* Sub-group overlay uses grid positioning to span full width */
+.sub-group-overlay {
+    /* Grid positioning set via inline styles in component */
+    margin-top: var(--spacing-md);
+    z-index: 10;
+    /* Layer above other cards */
+    position: relative;
+    /* Ensure proper stacking context */
+}
+
+/* Original sub-group-container styling for backwards compatibility */
+.member-with-subgroup>.sub-group-container,
+.sub-group-overlay>.sub-group-container {
     margin-top: 0;
 }
 
