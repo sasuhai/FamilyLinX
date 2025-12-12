@@ -18,7 +18,7 @@ function App() {
           <Route path="/:rootSlug/albums" element={<AlbumPage />} />
           <Route path="/:rootSlug/:groupSlug" element={<FamilyApp />} />
           <Route path="/:rootSlug" element={<FamilyApp />} />
-          <Route path="/" element={<Navigate to="/otai" replace />} />
+          <Route path="/" element={<Navigate to="/about" replace />} />
         </Routes>
       </BrowserRouter>
     </LanguageProvider>

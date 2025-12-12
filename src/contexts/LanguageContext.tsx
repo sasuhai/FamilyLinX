@@ -14,6 +14,7 @@ const translations: Record<Language, Record<string, string>> = {
         // Header
         'header.calendar': 'Calendar',
         'header.albums': 'Video & Photo Albums',
+        'header.about': 'About',
         'header.settings': 'Settings',
         'header.createNewPage': 'Create New Page',
         'header.adminDashboard': 'Admin Dashboard',
@@ -139,6 +140,19 @@ const translations: Record<Language, Record<string, string>> = {
         'editMember.pastedImageProcessingError': 'Failed to process pasted images. Please try again.',
         'editMember.age': 'Age',
 
+        // Relationship Options
+        'relationship.spouse': 'Spouse',
+        'relationship.father': 'Father',
+        'relationship.mother': 'Mother',
+        'relationship.son': 'Son',
+        'relationship.daughter': 'Daughter',
+        'relationship.friend': 'Friend',
+        'relationship.colleague': 'Colleague',
+
+        // Age Display
+        'age.years': 'years',
+        'age.yearsOld': 'years old',
+
         // Modals - Edit Group
         'editGroup.title': 'Edit Group',
         'editGroup.subtitle': 'Modify group details or delete the group',
@@ -198,6 +212,34 @@ const translations: Record<Language, Record<string, string>> = {
         'albums.video': 'Video',
         'albums.photoAlbum': 'Photo Album',
 
+        // About Page
+        'about.hero.title': 'Preserve Your Family Legacy',
+        'about.hero.subtitle': 'Create beautiful, interactive family trees with photos, stories, and memories that last forever',
+        'about.hero.watchDemo': 'Watch Demo',
+        'about.hero.startJourney': 'Start Your Journey',
+        'about.features.title': 'Why Choose FamilyLinX?',
+        'about.features.visualTitle': 'Visual Family Trees',
+        'about.features.visualDesc': 'Create stunning, interactive family trees with photos and stories',
+        'about.features.memoriesTitle': 'Preserve Memories',
+        'about.features.memoriesDesc': 'Upload unlimited photos and videos to capture your family history',
+        'about.features.collaborateTitle': 'Collaborate Together',
+        'about.features.collaborateDesc': 'Invite family members to contribute and share memories',
+        'about.features.secureTitle': 'Secure & Private',
+        'about.features.secureDesc': 'Your family data is encrypted and stored securely in the cloud',
+        'about.cta.title': 'Ready to Start Your Family Story?',
+        'about.cta.description': 'Join thousands of families preserving their heritage',
+        'about.cta.button': 'Get Started Free',
+        'about.modal.title': 'Start Your Journey',
+        'about.modal.subtitle': 'Enter your family group name to begin',
+        'about.modal.placeholder': 'all lower case, no space',
+        'about.modal.hint': 'This will be your unique group identifier',
+        'about.modal.cancel': 'Cancel',
+        'about.modal.continue': 'Continue',
+        'about.error.title': 'Page Not Found',
+        'about.error.subtitle': 'The group you entered does not exist',
+        'about.error.hint': 'Enter a correct group name',
+        'about.error.tryAgain': 'Try Again',
+
         // Footer
         'footer.copyright': 'FamilyLinX © Idiahus 2025 -',
     },
@@ -205,6 +247,7 @@ const translations: Record<Language, Record<string, string>> = {
         // Header
         'header.calendar': 'Kalendar',
         'header.albums': 'Album Video & Foto',
+        'header.about': 'Tentang',
         'header.settings': 'Tetapan',
         'header.createNewPage': 'Cipta Halaman Baharu',
         'header.adminDashboard': 'Papan Pemuka Pentadbir',
@@ -330,6 +373,19 @@ const translations: Record<Language, Record<string, string>> = {
         'editMember.pastedImageProcessingError': 'Gagal memproses imej yang ditampal. Sila cuba lagi.',
         'editMember.age': 'Umur',
 
+        // Relationship Options
+        'relationship.spouse': 'Pasangan',
+        'relationship.father': 'Bapa',
+        'relationship.mother': 'Ibu',
+        'relationship.son': 'Anak Lelaki',
+        'relationship.daughter': 'Anak Perempuan',
+        'relationship.friend': 'Kawan',
+        'relationship.colleague': 'Rakan Sekerja',
+
+        // Age Display
+        'age.years': 'tahun',
+        'age.yearsOld': 'tahun',
+
         // Modals - Edit Group
         'editGroup.title': 'Edit Kumpulan',
         'editGroup.subtitle': 'Ubah butiran kumpulan atau padam kumpulan',
@@ -388,6 +444,34 @@ const translations: Record<Language, Record<string, string>> = {
         'albums.loadingAlbums': 'Memuatkan album...',
         'albums.video': 'Video',
         'albums.photoAlbum': 'Album Foto',
+
+        // About Page
+        'about.hero.title': 'Kekalkan Warisan Keluarga Anda',
+        'about.hero.subtitle': 'Cipta pokok keluarga interaktif yang indah dengan foto, cerita, dan kenangan yang kekal selamanya',
+        'about.hero.watchDemo': 'Tonton Demo',
+        'about.hero.startJourney': 'Mulakan Perjalanan',
+        'about.features.title': 'Mengapa Pilih FamilyLinX?',
+        'about.features.visualTitle': 'Pokok Keluarga Visual',
+        'about.features.visualDesc': 'Cipta pokok keluarga interaktif yang menakjubkan dengan foto dan cerita',
+        'about.features.memoriesTitle': 'Kekalkan Kenangan',
+        'about.features.memoriesDesc': 'Muat naik foto dan video tanpa had untuk merakam sejarah keluarga anda',
+        'about.features.collaborateTitle': 'Bekerjasama Bersama',
+        'about.features.collaborateDesc': 'Jemput ahli keluarga untuk menyumbang dan berkongsi kenangan',
+        'about.features.secureTitle': 'Selamat & Peribadi',
+        'about.features.secureDesc': 'Data keluarga anda disulitkan dan disimpan dengan selamat di awan',
+        'about.cta.title': 'Bersedia Untuk Mulakan Cerita Keluarga Anda?',
+        'about.cta.description': 'Sertai beribu-ribu keluarga yang mengekalkan warisan mereka',
+        'about.cta.button': 'Mulakan Percuma',
+        'about.modal.title': 'Mulakan Perjalanan',
+        'about.modal.subtitle': 'Masukkan nama kumpulan keluarga anda untuk bermula',
+        'about.modal.placeholder': 'semua huruf kecil, tiada ruang',
+        'about.modal.hint': 'Ini akan menjadi pengecam kumpulan unik anda',
+        'about.modal.cancel': 'Batal',
+        'about.modal.continue': 'Teruskan',
+        'about.error.title': 'Halaman Tidak Dijumpai',
+        'about.error.subtitle': 'Kumpulan yang anda masukkan tidak wujud',
+        'about.error.hint': 'Masukkan nama kumpulan yang betul',
+        'about.error.tryAgain': 'Cuba Lagi',
 
         // Footer
         'footer.copyright': 'FamilyLinX © Idiahus 2025 -',

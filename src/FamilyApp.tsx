@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
+import { useParams, useNavigate, useLocation } from 'react-router-dom';
 import type { Group, Person, BreadcrumbItem } from './types';
 import { ModernHeader } from './components/ModernHeader';
 import { HeroSection } from './components/HeroSection';
@@ -32,6 +32,7 @@ export const FamilyApp: React.FC = () => { // Modified function signature
     const { t } = useLanguage(); // Added
     const { rootSlug = 'otai', groupSlug } = useParams<{ rootSlug: string; groupSlug?: string }>(); // Modified useParams line
     const navigate = useNavigate();
+    const location = useLocation();
     const [groups, setGroups] = useState<Record<string, Group>>({});
     const [currentGroupId, setCurrentGroupId] = useState<string | null>(null);
     const [navigationHistory, setNavigationHistory] = useState<string[]>([]);
@@ -48,9 +49,20 @@ export const FamilyApp: React.FC = () => { // Modified function signature
     const [errorMessage, setErrorMessage] = useState<string | null>(null);
     const [showCreatePage, setShowCreatePage] = useState(false);
     const [showAlbumManagement, setShowAlbumManagement] = useState(false);
-    const [albums, setAlbums] = useState<Album[]>([]);
-    const [existingRootSlugs, setExistingRootSlugs] = useState<string[]>([]);
     const [successMessage, setSuccessMessage] = useState<{ title: string; message: string; url: string } | null>(null);
+    const [existingRootSlugs, setExistingRootSlugs] = useState<string[]>([]);
+    const [albums, setAlbums] = useState<Album[]>([]);
+
+    // Check for adminMode state from navigation
+    useEffect(() => {
+        const state = location.state as { adminMode?: boolean } | null;
+        if (state && typeof state.adminMode === 'boolean') {
+            setIsAdminMode(state.adminMode);
+            // Clear the state after using it
+            window.history.replaceState({}, document.title);
+        }
+    }, [location]);
+
 
 
 

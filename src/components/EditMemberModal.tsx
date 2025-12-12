@@ -370,16 +370,23 @@ export const EditMemberModal: React.FC<EditMemberModalProps> = ({ person, onClos
                                     <label htmlFor="relationship" className="form-label-dark">
                                         {t('editMember.relationship')} <span className="form-required">*</span>
                                     </label>
-                                    <input
-                                        type="text"
+                                    <select
                                         id="relationship"
-                                        className="form-input-dark"
+                                        className="form-select-dark"
                                         value={relationship}
                                         onChange={(e) => setRelationship(e.target.value)}
-                                        placeholder={t('editMember.relationshipPlaceholder')}
                                         required
                                         disabled={isSubmitting}
-                                    />
+                                    >
+                                        <option value="">{t('editMember.relationshipPlaceholder')}</option>
+                                        <option value="Spouse">{t('relationship.spouse')}</option>
+                                        <option value="Father">{t('relationship.father')}</option>
+                                        <option value="Mother">{t('relationship.mother')}</option>
+                                        <option value="Son">{t('relationship.son')}</option>
+                                        <option value="Daughter">{t('relationship.daughter')}</option>
+                                        <option value="Friend">{t('relationship.friend')}</option>
+                                        <option value="Colleague">{t('relationship.colleague')}</option>
+                                    </select>
                                 </div>
                             </div>
 

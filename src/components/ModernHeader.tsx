@@ -85,6 +85,9 @@ export const ModernHeader: React.FC<ModernHeaderProps> = ({
                     <button className="nav-item" onClick={handleAlbumsClick}>
                         {t('header.albums')}
                     </button>
+                    <button className="nav-item" onClick={() => { navigate('/about'); setIsMobileMenuOpen(false); }}>
+                        {t('header.about')}
+                    </button>
 
                     {/* Settings Dropdown */}
                     <div className="nav-dropdown" ref={settingsRef}>
@@ -179,6 +182,9 @@ export const ModernHeader: React.FC<ModernHeaderProps> = ({
                     </button>
                     <button className="mobile-menu-item" onClick={handleAlbumsClick}>
                         {t('header.albums')}
+                    </button>
+                    <button className="mobile-menu-item" onClick={() => { navigate('/about'); setIsMobileMenuOpen(false); }}>
+                        {t('header.about')}
                     </button>
                     <div className="mobile-menu-divider"></div>
                     <button className="mobile-menu-item" onClick={onCreateNewPage}>

@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import type { Person, Group, Photo } from '../types';
 import { PhotoRotator } from './PhotoRotator';
 import { getAgeDisplay } from '../utils/helpers';
+import { useLanguage } from '../contexts/LanguageContext';
 import './PersonCard.css';
 
 interface PersonCardProps {
@@ -19,11 +20,32 @@ export const PersonCard: React.FC<PersonCardProps> = ({
     isSubGroupExpanded = false,
     allGroups
 }) => {
+    const { t } = useLanguage();
     const [currentPhoto, setCurrentPhoto] = useState<Photo | null>(
         person.photos.length > 0 ? person.photos[0] : null
     );
 
     const ageDisplay = getAgeDisplay(person.yearOfBirth, person.isDeceased, person.yearOfDeath);
+
+    // Translate relationship
+    const getTranslatedRelationship = (relationship: string): string => {
+        const relationshipMap: Record<string, string> = {
+            'Spouse': t('relationship.spouse'),
+            'Father': t('relationship.father'),
+            'Mother': t('relationship.mother'),
+            'Son': t('relationship.son'),
+            'Daughter': t('relationship.daughter'),
+            'Friend': t('relationship.friend'),
+            'Colleague': t('relationship.colleague'),
+        };
+        return relationshipMap[relationship] || relationship;
+    };
+
+    // Translate age display
+    const getTranslatedAge = (ageText: string): string => {
+        // Replace "years" with translated version
+        return ageText.replace(/years/g, t('age.years'));
+    };
 
     // Check if sub-group actually exists
     // If allGroups is not provided, assume sub-group exists (backward compatibility)
@@ -46,11 +68,11 @@ export const PersonCard: React.FC<PersonCardProps> = ({
 
                 <div className="person-details">
                     <div className="detail-item">
-                        <span className="detail-text">{person.relationship}</span>
+                        <span className="detail-text">{getTranslatedRelationship(person.relationship)}</span>
                     </div>
 
                     <div className="detail-item">
-                        <span className="detail-text">{ageDisplay}</span>
+                        <span className="detail-text">{getTranslatedAge(ageDisplay)}</span>
                     </div>
                 </div>
 
