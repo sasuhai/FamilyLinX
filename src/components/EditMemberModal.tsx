@@ -11,14 +11,26 @@ interface EditMemberModalProps {
     onDelete: (personId: string) => void;
 }
 
+// Helper function to auto-determine gender from relationship
+const getGenderFromRelationship = (relationship: string): 'male' | 'female' | '' => {
+    const lowerRelationship = relationship.toLowerCase();
+    if (lowerRelationship === 'father' || lowerRelationship === 'son') {
+        return 'male';
+    }
+    if (lowerRelationship === 'mother' || lowerRelationship === 'daughter') {
+        return 'female';
+    }
+    return '';
+};
+
 export const EditMemberModal: React.FC<EditMemberModalProps> = ({ person, onClose, onUpdate, onDelete }) => {
     const { t } = useLanguage();
     const [name, setName] = useState(person.name);
     const [relationship, setRelationship] = useState(person.relationship);
     const [gender, setGender] = useState<'male' | 'female' | ''>(person.gender || '');
-    const [yearOfBirth, setYearOfBirth] = useState(person.yearOfBirth.toString());
+    const [yearOfBirth, setYearOfBirth] = useState(person.yearOfBirth === 0 ? '0' : person.yearOfBirth.toString());
     const [isDeceased, setIsDeceased] = useState(person.isDeceased || false);
-    const [yearOfDeath, setYearOfDeath] = useState(person.yearOfDeath?.toString() || '');
+    const [yearOfDeath, setYearOfDeath] = useState(person.yearOfDeath === 0 ? '0' : person.yearOfDeath?.toString() || '0');
     const [photoFiles, setPhotoFiles] = useState<File[]>([]);
     const [photoYears, setPhotoYears] = useState<number[]>([]);
     const [isSubmitting, setIsSubmitting] = useState(false);
@@ -26,6 +38,15 @@ export const EditMemberModal: React.FC<EditMemberModalProps> = ({ person, onClos
     const [compressionProgress, setCompressionProgress] = useState({ current: 0, total: 0 });
     const [photosToDelete, setPhotosToDelete] = useState<Set<string>>(new Set());
     const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+
+    // Handler for relationship change with auto gender detection
+    const handleRelationshipChange = (newRelationship: string) => {
+        setRelationship(newRelationship);
+        const autoGender = getGenderFromRelationship(newRelationship);
+        if (autoGender) {
+            setGender(autoGender);
+        }
+    };
 
     const handlePhotoChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
         if (e.target.files) {
@@ -260,7 +281,7 @@ export const EditMemberModal: React.FC<EditMemberModalProps> = ({ person, onClos
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
 
-        if (!name || !relationship || !yearOfBirth) {
+        if (!name || !relationship || yearOfBirth === '') {
             alert('Please fill in all required fields');
             return;
         }
@@ -340,12 +361,14 @@ export const EditMemberModal: React.FC<EditMemberModalProps> = ({ person, onClos
                                     <div className="stat-value-dark">{person.photos.length}</div>
                                     <div className="stat-label-dark">{t('group.photos')}</div>
                                 </div>
-                                <div className="stat-item-dark">
-                                    <div className="stat-value-dark">
-                                        {new Date().getFullYear() - person.yearOfBirth}
+                                {person.yearOfBirth !== 0 && (
+                                    <div className="stat-item-dark">
+                                        <div className="stat-value-dark">
+                                            {new Date().getFullYear() - person.yearOfBirth}
+                                        </div>
+                                        <div className="stat-label-dark">{t('editMember.age')}</div>
                                     </div>
-                                    <div className="stat-label-dark">{t('editMember.age')}</div>
-                                </div>
+                                )}
                             </div>
 
                             {/* Form Grid */}
@@ -374,7 +397,7 @@ export const EditMemberModal: React.FC<EditMemberModalProps> = ({ person, onClos
                                         id="relationship"
                                         className="form-select-dark"
                                         value={relationship}
-                                        onChange={(e) => setRelationship(e.target.value)}
+                                        onChange={(e) => handleRelationshipChange(e.target.value)}
                                         required
                                         disabled={isSubmitting}
                                     >
@@ -419,7 +442,7 @@ export const EditMemberModal: React.FC<EditMemberModalProps> = ({ person, onClos
                                         value={yearOfBirth}
                                         onChange={(e) => setYearOfBirth(e.target.value)}
                                         placeholder={t('editMember.yearOfBirthPlaceholder')}
-                                        min="1900"
+                                        min="0"
                                         max={new Date().getFullYear()}
                                         required
                                         disabled={isSubmitting}
@@ -453,7 +476,7 @@ export const EditMemberModal: React.FC<EditMemberModalProps> = ({ person, onClos
                                         value={yearOfDeath}
                                         onChange={(e) => setYearOfDeath(e.target.value)}
                                         placeholder={t('editMember.yearOfDeathPlaceholder')}
-                                        min={yearOfBirth || "1900"}
+                                        min="0"
                                         max={new Date().getFullYear()}
                                         required={isDeceased}
                                         disabled={isSubmitting}

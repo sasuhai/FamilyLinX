@@ -10,19 +10,40 @@ interface AddMemberModalProps {
     onAdd: (person: Person, photoFiles?: File[], photoYears?: number[]) => void;
 }
 
+// Helper function to auto-determine gender from relationship
+const getGenderFromRelationship = (relationship: string): 'male' | 'female' | '' => {
+    const lowerRelationship = relationship.toLowerCase();
+    if (lowerRelationship === 'father' || lowerRelationship === 'son') {
+        return 'male';
+    }
+    if (lowerRelationship === 'mother' || lowerRelationship === 'daughter') {
+        return 'female';
+    }
+    return '';
+};
+
 export const AddMemberModal: React.FC<AddMemberModalProps> = ({ onClose, onAdd }) => {
     const { t } = useLanguage();
     const [name, setName] = useState('');
     const [relationship, setRelationship] = useState('');
     const [gender, setGender] = useState<'male' | 'female' | ''>('');
-    const [yearOfBirth, setYearOfBirth] = useState('');
+    const [yearOfBirth, setYearOfBirth] = useState('0');
     const [isDeceased, setIsDeceased] = useState(false);
-    const [yearOfDeath, setYearOfDeath] = useState('');
+    const [yearOfDeath, setYearOfDeath] = useState('0');
     const [photoFiles, setPhotoFiles] = useState<File[]>([]);
     const [photoYears, setPhotoYears] = useState<number[]>([]);
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [isCompressing, setIsCompressing] = useState(false);
     const [compressionProgress, setCompressionProgress] = useState({ current: 0, total: 0 });
+
+    // Handler for relationship change with auto gender detection
+    const handleRelationshipChange = (newRelationship: string) => {
+        setRelationship(newRelationship);
+        const autoGender = getGenderFromRelationship(newRelationship);
+        if (autoGender) {
+            setGender(autoGender);
+        }
+    };
 
     const handlePhotoChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
         if (e.target.files) {
@@ -247,7 +268,7 @@ export const AddMemberModal: React.FC<AddMemberModalProps> = ({ onClose, onAdd }
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
 
-        if (!name || !relationship || !yearOfBirth) {
+        if (!name || !relationship || yearOfBirth === '') {
             alert('Please fill in all required fields');
             return;
         }
@@ -338,15 +359,22 @@ export const AddMemberModal: React.FC<AddMemberModalProps> = ({ onClose, onAdd }
                                 <label htmlFor="relationship" className="form-label-dark">
                                     {t('addMember.relationship')} <span className="form-required">{t('addMember.nameRequired')}</span>
                                 </label>
-                                <input
-                                    type="text"
+                                <select
                                     id="relationship"
-                                    className="form-input-dark"
+                                    className="form-select-dark"
                                     value={relationship}
-                                    onChange={(e) => setRelationship(e.target.value)}
-                                    placeholder={t('addMember.relationshipPlaceholder')}
+                                    onChange={(e) => handleRelationshipChange(e.target.value)}
                                     required
-                                />
+                                >
+                                    <option value="">{t('addMember.relationshipPlaceholder')}</option>
+                                    <option value="Spouse">{t('relationship.spouse')}</option>
+                                    <option value="Father">{t('relationship.father')}</option>
+                                    <option value="Mother">{t('relationship.mother')}</option>
+                                    <option value="Son">{t('relationship.son')}</option>
+                                    <option value="Daughter">{t('relationship.daughter')}</option>
+                                    <option value="Friend">{t('relationship.friend')}</option>
+                                    <option value="Colleague">{t('relationship.colleague')}</option>
+                                </select>
                             </div>
                         </div>
 
@@ -378,7 +406,7 @@ export const AddMemberModal: React.FC<AddMemberModalProps> = ({ onClose, onAdd }
                                     value={yearOfBirth}
                                     onChange={(e) => setYearOfBirth(e.target.value)}
                                     placeholder={t('addMember.yearPlaceholder')}
-                                    min="1900"
+                                    min="0"
                                     max={new Date().getFullYear()}
                                     required
                                 />
@@ -411,7 +439,7 @@ export const AddMemberModal: React.FC<AddMemberModalProps> = ({ onClose, onAdd }
                                     value={yearOfDeath}
                                     onChange={(e) => setYearOfDeath(e.target.value)}
                                     placeholder="e.g., 2020"
-                                    min={yearOfBirth || "1900"}
+                                    min="0"
                                     max={new Date().getFullYear()}
                                     required={isDeceased}
                                 />

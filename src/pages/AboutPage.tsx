@@ -100,7 +100,7 @@ export const AboutPage: React.FC = () => {
             <section className="hero-section">
                 <div className="container">
                     <div className="hero-content slide-in-left">
-                        <div className="badge">New Release v2.0</div>
+                        <div className="badge">FamilyLinx @ designed by Idiahus</div>
                         <h1 className="hero-title">
                             {t('about.hero.title').split(' ').slice(0, 2).join(' ')} <br />
                             <span className="gradient-text">{t('about.hero.title').split(' ').slice(2).join(' ')}</span>
@@ -108,7 +108,7 @@ export const AboutPage: React.FC = () => {
                         <p className="hero-subtitle">
                             {t('about.hero.subtitle')}
                         </p>
-                        <div className="hero-actions">
+                        <div className="hero-actions" style={{ justifyContent: 'center' }}>
                             <button onClick={handleStartJourney} className="btn btn-primary btn-lg">
                                 {t('about.hero.startJourney')}
                             </button>
@@ -234,7 +234,7 @@ export const AboutPage: React.FC = () => {
 
             <footer className="about-footer">
                 <div className="container text-center">
-                    <p>© 2025 FamilyLinX. Preserving Memories.</p>
+                    <p>Idiahus © 2025 FamilyLinX. Preserving Memories.</p>
                 </div>
             </footer>
 

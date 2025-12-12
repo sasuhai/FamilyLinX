@@ -16,6 +16,11 @@ export const calculateAge = (yearOfBirth: number, yearOfDeath?: number): number 
 };
 
 export const getAgeDisplay = (yearOfBirth: number, isDeceased?: boolean, yearOfDeath?: number): string => {
+    // Return empty string if birth year is 0 (unknown)
+    if (yearOfBirth === 0) {
+        return '';
+    }
+
     const age = calculateAge(yearOfBirth, yearOfDeath);
     if (isDeceased && yearOfDeath) {
         return `${age} years (${yearOfBirth} - ${yearOfDeath})`;

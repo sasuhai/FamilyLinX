@@ -48,9 +48,11 @@ export const PersonModal: React.FC<PersonModalProps> = ({
                             <span className="person-badge-dark badge-relationship">
                                 {person.relationship}
                             </span>
-                            <span className="person-badge-dark badge-birth">
-                                {person.yearOfBirth} ({age} yrs)
-                            </span>
+                            {person.yearOfBirth !== 0 && (
+                                <span className="person-badge-dark badge-birth">
+                                    {person.yearOfBirth} ({age} yrs)
+                                </span>
+                            )}
                             <span className="person-badge-dark badge-photos">
                                 {person.photos.length}
                             </span>

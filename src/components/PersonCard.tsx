@@ -71,9 +71,11 @@ export const PersonCard: React.FC<PersonCardProps> = ({
                         <span className="detail-text">{getTranslatedRelationship(person.relationship)}</span>
                     </div>
 
-                    <div className="detail-item">
-                        <span className="detail-text">{getTranslatedAge(ageDisplay)}</span>
-                    </div>
+                    {ageDisplay && (
+                        <div className="detail-item">
+                            <span className="detail-text">{getTranslatedAge(ageDisplay)}</span>
+                        </div>
+                    )}
                 </div>
 
                 {subGroupExists && onToggleSubGroup && (

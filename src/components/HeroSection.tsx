@@ -135,14 +135,16 @@ export const HeroSection: React.FC<HeroSectionProps> = ({ group, allGroups, fami
     // Calculate average age for current group members
     const averageAge = useMemo(() => {
         const members = allGroups[group.id]?.members || [];
+        // Filter out members with birth year = 0
+        const validMembers = members.filter(member => member.yearOfBirth !== 0);
 
-        if (members.length === 0) return 0;
+        if (validMembers.length === 0) return 0;
 
-        const totalAge = members.reduce((sum, member) => {
+        const totalAge = validMembers.reduce((sum, member) => {
             return sum + calculateAge(member.yearOfBirth, member.isDeceased ? member.yearOfDeath : undefined);
         }, 0);
 
-        return Math.round(totalAge / members.length);
+        return Math.round(totalAge / validMembers.length);
     }, [group.id, allGroups]);
 
     // Calculate average age including nested groups
@@ -155,8 +157,11 @@ export const HeroSection: React.FC<HeroSectionProps> = ({ group, allGroups, fami
             if (!grp) return;
 
             grp.members.forEach((member: Person) => {
-                totalAge += calculateAge(member.yearOfBirth, member.isDeceased ? member.yearOfDeath : undefined);
-                memberCount++;
+                // Only include members with valid birth year (not 0)
+                if (member.yearOfBirth !== 0) {
+                    totalAge += calculateAge(member.yearOfBirth, member.isDeceased ? member.yearOfDeath : undefined);
+                    memberCount++;
+                }
 
                 if (member.subGroupId) {
                     calculateNestedAge(member.subGroupId);
