@@ -11,8 +11,10 @@ import {
     getPhotoThumbnailUrl,
     getPlatformPlaceholder
 } from '../services/album.service';
-import { getFamilyByRootSlug } from '../services/firebase.service';
+import { getFamilyByRootSlug, getAllGroups } from '../services/firebase.service';
 import { useLanguage } from '../contexts/LanguageContext';
+import { PersonTimelineSection } from '../components/PersonTimelineSection';
+import type { Group } from '../types';
 import './AlbumPage.css';
 
 export const AlbumPage: React.FC = () => {
@@ -33,6 +35,7 @@ export const AlbumPage: React.FC = () => {
     // Search and filter state
     const [searchQuery, setSearchQuery] = useState('');
     const [yearFilter, setYearFilter] = useState<string>('');
+    const [groups, setGroups] = useState<Record<string, Group>>({});
 
     // Load family data
     useEffect(() => {
@@ -55,6 +58,22 @@ export const AlbumPage: React.FC = () => {
 
         loadFamilyData();
     }, [rootSlug]);
+
+    // Load groups for timeline
+    useEffect(() => {
+        const loadGroups = async () => {
+            if (!familyId) return;
+
+            try {
+                const allGroups = await getAllGroups(familyId);
+                setGroups(allGroups);
+            } catch (error) {
+                console.error('Error loading groups:', error);
+            }
+        };
+
+        loadGroups();
+    }, [familyId]);
 
     // Load albums
     useEffect(() => {
@@ -461,6 +480,11 @@ export const AlbumPage: React.FC = () => {
                         </div>
                         {renderPhotoCarousel()}
                     </section>
+                )}
+
+                {/* Person Timeline Section - Show only when viewing all or photos */}
+                {(activeTab === 'all' || activeTab === 'photo') && Object.keys(groups).length > 0 && (
+                    <PersonTimelineSection groups={groups} />
                 )}
             </div>
 

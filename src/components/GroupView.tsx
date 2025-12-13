@@ -139,6 +139,24 @@ export const GroupView: React.FC<GroupViewProps> = ({
         );
     };
 
+    // Helper function to calculate total members including nested sub-groups
+    const getTotalMembersCount = (groupId: string): number => {
+        const grp = allGroups[groupId];
+        if (!grp) return 0;
+
+        // Count direct members
+        let total = grp.members.length;
+
+        // Recursively count members in sub-groups
+        grp.members.forEach(member => {
+            if (member.subGroupId && allGroups[member.subGroupId]) {
+                total += getTotalMembersCount(member.subGroupId);
+            }
+        });
+
+        return total;
+    };
+
     const filteredMembers = group.members
         .filter((member) => {
             // Include if member matches search
@@ -238,6 +256,13 @@ export const GroupView: React.FC<GroupViewProps> = ({
                                 <span className="stat-value">{group.members.length}</span>
                                 <span className="stat-label">{t('group.members')}</span>
                             </div>
+                            {/* Show total members count only if there are sub-groups */}
+                            {group.members.some(m => m.subGroupId) && (
+                                <div className="stat-item">
+                                    <span className="stat-value">{getTotalMembersCount(group.id)}</span>
+                                    <span className="stat-label">{t('group.totalMembers')}</span>
+                                </div>
+                            )}
                             <div className="stat-item">
                                 <span className="stat-value">
                                     {group.members.reduce((sum, m) => sum + m.photos.length, 0)}

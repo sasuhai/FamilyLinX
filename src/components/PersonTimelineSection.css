@@ -1,0 +1,406 @@
+/* ============================================
+   Person Timeline Section
+   Vertical timelines with horizontal scrolling
+   ============================================ */
+
+.timeline-section {
+    margin-bottom: 4rem;
+}
+
+/* Container wrapper for navigation and scroll area */
+.timeline-container {
+    position: relative;
+    width: 100%;
+}
+
+/* Navigation Arrows - Hidden (not needed with wrapping layout) */
+.timeline-nav-btn {
+    display: none;
+}
+
+.timeline-nav-btn svg {
+    width: 4rem;
+    /* Larger icon to match button size */
+    height: 4rem;
+}
+
+.timeline-nav-btn:hover:not(:disabled) {
+    background: linear-gradient(135deg, rgba(163, 230, 53, 0.3) 0%, rgba(132, 204, 22, 0.3) 100%);
+    border-color: rgba(163, 230, 53, 0.8);
+    box-shadow: 0 0 30px rgba(163, 230, 53, 0.5), 0 8px 30px rgba(163, 230, 53, 0.3);
+    transform: translateY(-50%) scale(1.05);
+}
+
+.timeline-nav-btn:disabled {
+    opacity: 0.2;
+    cursor: not-allowed;
+    border-color: rgba(255, 255, 255, 0.1);
+    color: rgba(255, 255, 255, 0.3);
+    box-shadow: none;
+}
+
+.timeline-nav-left {
+    left: -5.5rem;
+    /* Adjusted for larger button */
+}
+
+.timeline-nav-right {
+    right: -5.5rem;
+    /* Adjusted for larger button */
+}
+
+.timeline-scroll-container {
+    width: 100%;
+    padding: 2rem 0;
+    /* No overflow - allows sticky to work */
+}
+
+.timeline-scroll-container::-webkit-scrollbar {
+    height: 8px;
+}
+
+.timeline-scroll-container::-webkit-scrollbar-track {
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 4px;
+}
+
+.timeline-scroll-container::-webkit-scrollbar-thumb {
+    background: rgba(163, 230, 53, 0.3);
+    border-radius: 4px;
+}
+
+.timeline-scroll-container::-webkit-scrollbar-thumb:hover {
+    background: rgba(163, 230, 53, 0.5);
+}
+
+.timeline-grid {
+    display: flex;
+    flex-wrap: wrap;
+    /* Wrap to new rows instead of horizontal scroll */
+    gap: 2rem;
+    padding: 0 1rem;
+    justify-content: flex-start;
+    /* Show all timelines in rows - no horizontal scrolling needed */
+}
+
+/* Individual Person Timeline - No height constraint, show all photos */
+.person-timeline {
+    display: flex;
+    flex-direction: column;
+    width: 220px;
+    flex-shrink: 0;
+}
+
+/* Timeline Header - Sticky positioning (like calendar) */
+.timeline-header {
+    position: sticky;
+    top: 80px;
+    /* Stick below main header */
+    z-index: 10;
+    margin-bottom: 1.5rem;
+    text-align: center;
+    padding: 1rem;
+    background: var(--bg-secondary);
+    backdrop-filter: blur(12px);
+    border-radius: 0.75rem;
+    border: 1px solid var(--border-light);
+    box-shadow: var(--shadow-lg);
+}
+
+[data-theme="light"] .timeline-header {
+    background: rgba(255, 255, 255, 0.95);
+    border-color: rgba(163, 230, 53, 0.3);
+}
+
+.timeline-person-name {
+    font-size: 1.125rem;
+    font-weight: 700;
+    color: var(--text-primary);
+    margin-bottom: 0.5rem;
+    letter-spacing: -0.01em;
+    background: linear-gradient(135deg, #a3e635 0%, #84cc16 100%);
+    background-clip: text;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+
+.timeline-photo-count {
+    display: inline-block;
+    font-size: 0.75rem;
+    color: var(--text-secondary);
+    padding: 0.25rem 0.75rem;
+    background: rgba(163, 230, 53, 0.1);
+    border-radius: 9999px;
+    border: 1px solid rgba(163, 230, 53, 0.2);
+}
+
+[data-theme="light"] .timeline-photo-count {
+    background: rgba(163, 230, 53, 0.15);
+    border-color: rgba(163, 230, 53, 0.4);
+}
+
+/* Timeline Track - Vertical */
+.timeline-track {
+    display: flex;
+    flex-direction: column;
+    position: relative;
+}
+
+/* Timeline Item */
+.timeline-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    position: relative;
+}
+
+/* Photo Wrapper */
+.timeline-photo-wrapper {
+    width: 100%;
+    aspect-ratio: 1;
+    border-radius: 0.75rem;
+    overflow: hidden;
+    position: relative;
+    border: 2px solid var(--border-light);
+    transition: all 0.3s ease;
+    background: var(--bg-tertiary);
+}
+
+[data-theme="light"] .timeline-photo-wrapper {
+    border-color: rgba(163, 230, 53, 0.2);
+    background: #f5f5f5;
+}
+
+.timeline-photo-wrapper:hover {
+    border-color: rgba(163, 230, 53, 0.4);
+    box-shadow: 0 10px 30px rgba(163, 230, 53, 0.2);
+    transform: scale(1.05);
+    z-index: 10;
+}
+
+/* Photo */
+.timeline-photo {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.3s ease;
+}
+
+.timeline-photo-wrapper:hover .timeline-photo {
+    transform: scale(1.1);
+}
+
+/* Photo Overlay */
+.timeline-photo-overlay {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(to top,
+            rgba(0, 0, 0, 0.8) 0%,
+            rgba(0, 0, 0, 0.3) 40%,
+            transparent 70%);
+    display: flex;
+    align-items: flex-end;
+    justify-content: center;
+    padding: 0.75rem;
+    opacity: 1;
+    transition: opacity 0.3s ease;
+}
+
+.timeline-photo-wrapper:hover .timeline-photo-overlay {
+    opacity: 1;
+}
+
+/* Year Badge */
+.timeline-year {
+    font-size: 0.875rem;
+    font-weight: 700;
+    color: #0a0a0a;
+    background: rgba(163, 230, 53, 0.9);
+    padding: 0.375rem 0.875rem;
+    border-radius: 9999px;
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(163, 230, 53, 1);
+    font-family: var(--font-mono, monospace);
+}
+
+/* Connector Line */
+.timeline-connector {
+    width: 2px;
+    height: 2rem;
+    background: linear-gradient(to bottom,
+            rgba(163, 230, 53, 0.5),
+            rgba(163, 230, 53, 0.2));
+    margin: 0.5rem auto;
+    position: relative;
+}
+
+.timeline-connector::before,
+.timeline-connector::after {
+    content: '';
+    position: absolute;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: rgba(163, 230, 53, 0.6);
+}
+
+.timeline-connector::before {
+    top: -3px;
+}
+
+.timeline-connector::after {
+    bottom: -3px;
+}
+
+/* Responsive Adjustments */
+@media (max-width: 768px) {
+    .person-timeline {
+        width: 180px;
+        /* No max-height - show all photos */
+    }
+
+    .timeline-header {
+        top: 70px;
+        /* Adjust for smaller header on tablets */
+    }
+
+    .timeline-person-name {
+        font-size: 1rem;
+    }
+
+    .timeline-photo-count {
+        font-size: 0.6875rem;
+        padding: 0.2rem 0.6rem;
+    }
+
+    .timeline-year {
+        font-size: 0.75rem;
+        padding: 0.3rem 0.6rem;
+    }
+
+    .timeline-connector {
+        height: 1.5rem;
+    }
+
+    .timeline-grid {
+        gap: 1.5rem;
+    }
+
+    /* Proportionally smaller navigation arrows on tablet */
+    .timeline-nav-btn {
+        width: 9rem;
+        height: 9rem;
+    }
+
+    .timeline-nav-btn svg {
+        width: 3.5rem;
+        height: 3.5rem;
+    }
+
+    .timeline-nav-left {
+        left: -4.5rem;
+    }
+
+    .timeline-nav-right {
+        right: -4.5rem;
+    }
+}
+
+@media (max-width: 480px) {
+    .person-timeline {
+        width: 160px;
+        /* No max-height - show all photos */
+    }
+
+    .timeline-header {
+        padding: 0.75rem;
+        margin-bottom: 1rem;
+        top: 60px;
+        /* Adjust for smaller header on mobile */
+    }
+
+    .timeline-person-name {
+        font-size: 0.9375rem;
+    }
+
+    .timeline-photo-count {
+        font-size: 0.625rem;
+    }
+
+    .timeline-year {
+        font-size: 0.6875rem;
+        padding: 0.25rem 0.5rem;
+    }
+
+    .timeline-connector {
+        height: 1rem;
+    }
+
+    .timeline-grid {
+        gap: 1rem;
+    }
+
+    /* Smaller but still prominent navigation arrows on mobile */
+    .timeline-nav-btn {
+        width: 7.5rem;
+        height: 7.5rem;
+    }
+
+    .timeline-nav-btn svg {
+        width: 3rem;
+        height: 3rem;
+    }
+
+    .timeline-nav-left {
+        left: -1rem;
+        /* Bring closer since they're still large */
+    }
+
+    .timeline-nav-right {
+        right: -1rem;
+        /* Bring closer since they're still large */
+    }
+}
+
+/* Animation for initial load */
+.person-timeline {
+    animation: slideInUp 0.5s ease-out backwards;
+}
+
+.person-timeline:nth-child(1) {
+    animation-delay: 0.1s;
+}
+
+.person-timeline:nth-child(2) {
+    animation-delay: 0.15s;
+}
+
+.person-timeline:nth-child(3) {
+    animation-delay: 0.2s;
+}
+
+.person-timeline:nth-child(4) {
+    animation-delay: 0.25s;
+}
+
+.person-timeline:nth-child(5) {
+    animation-delay: 0.3s;
+}
+
+.person-timeline:nth-child(6) {
+    animation-delay: 0.35s;
+}
+
+@keyframes slideInUp {
+    from {
+        opacity: 0;
+        transform: translateY(30px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}

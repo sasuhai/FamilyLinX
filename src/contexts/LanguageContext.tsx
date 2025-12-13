@@ -39,6 +39,7 @@ const translations: Record<Language, Record<string, string>> = {
 
         // Group View
         'group.members': 'Members',
+        'group.totalMembers': 'Total Members',
         'group.photos': 'Photos',
         'group.addMember': 'Add Member',
         'group.editGroup': 'Edit Group',
@@ -212,6 +213,11 @@ const translations: Record<Language, Record<string, string>> = {
         'albums.video': 'Video',
         'albums.photoAlbum': 'Photo Album',
 
+        // Timeline
+        'timeline.badge': 'Timelines',
+        'timeline.title': 'Photo Journeys',
+        'timeline.photos': 'photos',
+
         // About Page
         'about.hero.title': 'Preserve Your Family Legacy',
         'about.hero.subtitle': 'Create beautiful, interactive family trees with photos, stories, and memories that last forever',
@@ -272,6 +278,7 @@ const translations: Record<Language, Record<string, string>> = {
 
         // Group View
         'group.members': 'Ahli',
+        'group.totalMembers': 'Jumlah Ahli',
         'group.photos': 'Foto',
         'group.addMember': 'Tambah Ahli',
         'group.editGroup': 'Edit Kumpulan',
@@ -444,6 +451,11 @@ const translations: Record<Language, Record<string, string>> = {
         'albums.loadingAlbums': 'Memuatkan album...',
         'albums.video': 'Video',
         'albums.photoAlbum': 'Album Foto',
+
+        // Timeline
+        'timeline.badge': 'Garis Masa',
+        'timeline.title': 'Perjalanan Foto',
+        'timeline.photos': 'foto',
 
         // About Page
         'about.hero.title': 'Kekalkan Warisan Keluarga Anda',
