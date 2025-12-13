@@ -133,7 +133,7 @@
 .photo-card-dark {
     position: relative;
     border-radius: 12px;
-    overflow: hidden;
+    overflow: visible;
     background: rgba(0, 0, 0, 0.3);
     border: 2px solid transparent;
     transition: all 0.2s ease;
