@@ -182,6 +182,30 @@
     font-weight: 600;
 }
 
+.photo-year-edit-dark {
+    width: 60px;
+    padding: 0.25rem 0.5rem;
+    background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    border-radius: 6px;
+    color: #ffffff;
+    font-size: 0.75rem;
+    font-weight: 600;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.photo-year-edit-dark:hover {
+    border-color: rgba(255, 255, 255, 0.5);
+}
+
+.photo-year-edit-dark:focus {
+    outline: none;
+    border-color: #a3e635;
+    box-shadow: 0 0 0 2px rgba(163, 230, 53, 0.2);
+}
+
 .photo-year-input-dark {
     width: 55px;
     padding: 0.25rem 0.5rem;

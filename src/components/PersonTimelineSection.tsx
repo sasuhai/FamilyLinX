@@ -5,9 +5,10 @@ import './PersonTimelineSection.css';
 
 interface PersonTimelineSectionProps {
     groups: Record<string, Group>;
+    searchQuery?: string;
 }
 
-export const PersonTimelineSection: React.FC<PersonTimelineSectionProps> = ({ groups }) => {
+export const PersonTimelineSection: React.FC<PersonTimelineSectionProps> = ({ groups, searchQuery = '' }) => {
     const { t } = useLanguage();
     const scrollContainerRef = useRef<HTMLDivElement>(null);
     const [canScrollLeft, setCanScrollLeft] = useState(false);
@@ -43,13 +44,21 @@ export const PersonTimelineSection: React.FC<PersonTimelineSectionProps> = ({ gr
             }
         });
 
-        // Filter people with more than 2 photos and sort their photos
-        const filteredPeople = allPeople
+        // Filter people with more than 2 photos
+        let filteredPeople = allPeople
             .filter(person => person.photos.length > 2)
             .map(person => ({
                 ...person,
                 photos: [...person.photos].sort((a, b) => a.yearTaken - b.yearTaken) // Ascending order
             }));
+
+        // Apply search filter if search query exists
+        if (searchQuery.trim()) {
+            const query = searchQuery.toLowerCase();
+            filteredPeople = filteredPeople.filter(person =>
+                person.name.toLowerCase().includes(query)
+            );
+        }
 
         // Shuffle the array for random order
         const shuffled = [...filteredPeople];
@@ -59,7 +68,7 @@ export const PersonTimelineSection: React.FC<PersonTimelineSectionProps> = ({ gr
         }
 
         return shuffled;
-    }, [groups]);
+    }, [groups, searchQuery]);
 
     // Check scroll position to enable/disable arrows
     const checkScrollPosition = () => {

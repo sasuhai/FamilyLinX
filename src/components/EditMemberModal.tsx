@@ -38,6 +38,8 @@ export const EditMemberModal: React.FC<EditMemberModalProps> = ({ person, onClos
     const [compressionProgress, setCompressionProgress] = useState({ current: 0, total: 0 });
     const [photosToDelete, setPhotosToDelete] = useState<Set<string>>(new Set());
     const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+    // Track year changes for existing photos
+    const [changedPhotoYears, setChangedPhotoYears] = useState<Map<string, number>>(new Map());
 
     // Handler for relationship change with auto gender detection
     const handleRelationshipChange = (newRelationship: string) => {
@@ -306,9 +308,18 @@ export const EditMemberModal: React.FC<EditMemberModalProps> = ({ person, onClos
                 yearOfDeath: isDeceased && yearOfDeath ? parseInt(yearOfDeath) : undefined
             };
 
-            // If photos are marked for deletion, filter them out
-            if (photosToDelete.size > 0) {
-                updates.photos = person.photos.filter(photo => !photosToDelete.has(photo.url));
+            // Handle photo deletions and year changes
+            if (photosToDelete.size > 0 || changedPhotoYears.size > 0) {
+                updates.photos = person.photos
+                    .filter(photo => !photosToDelete.has(photo.url))
+                    .map(photo => {
+                        // Apply year change if exists
+                        const changedYear = changedPhotoYears.get(photo.url);
+                        if (changedYear !== undefined && changedYear !== photo.yearTaken) {
+                            return { ...photo, yearTaken: changedYear };
+                        }
+                        return photo;
+                    });
             }
 
             // Pass updates and new photos to parent
@@ -507,7 +518,20 @@ export const EditMemberModal: React.FC<EditMemberModalProps> = ({ person, onClos
                                                     className="photo-image-dark"
                                                 />
                                                 <div className="photo-overlay-dark">
-                                                    <span className="photo-year-dark">{photo.yearTaken}</span>
+                                                    <input
+                                                        type="number"
+                                                        className="photo-year-edit-dark"
+                                                        value={changedPhotoYears.get(photo.url) ?? photo.yearTaken}
+                                                        onChange={(e) => {
+                                                            const newYear = parseInt(e.target.value) || photo.yearTaken;
+                                                            const newMap = new Map(changedPhotoYears);
+                                                            newMap.set(photo.url, newYear);
+                                                            setChangedPhotoYears(newMap);
+                                                        }}
+                                                        min="1900"
+                                                        max={new Date().getFullYear()}
+                                                        onClick={(e) => e.stopPropagation()}
+                                                    />
                                                     <button
                                                         type="button"
                                                         className={`photo-delete-btn-dark ${photosToDelete.has(photo.url) ? 'undo' : ''}`}

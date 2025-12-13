@@ -447,8 +447,8 @@ export const AlbumPage: React.FC = () => {
                     )}
                 </div>
 
-                {/* Video Section */}
-                {(activeTab === 'all' || activeTab === 'video') && (
+                {/* Video Section - Only show if there are video albums */}
+                {(activeTab === 'all' || activeTab === 'video') && videoAlbums.length > 0 && (
                     <section className="album-section">
                         <div className="section-header">
                             <span className="section-badge">
@@ -464,8 +464,8 @@ export const AlbumPage: React.FC = () => {
                     </section>
                 )}
 
-                {/* Photo Section */}
-                {(activeTab === 'all' || activeTab === 'photo') && (
+                {/* Photo Section - Only show if there are photo albums */}
+                {(activeTab === 'all' || activeTab === 'photo') && photoAlbums.length > 0 && (
                     <section className="album-section">
                         <div className="section-header">
                             <span className="section-badge">
@@ -484,7 +484,7 @@ export const AlbumPage: React.FC = () => {
 
                 {/* Person Timeline Section - Show only when viewing all or photos */}
                 {(activeTab === 'all' || activeTab === 'photo') && Object.keys(groups).length > 0 && (
-                    <PersonTimelineSection groups={groups} />
+                    <PersonTimelineSection groups={groups} searchQuery={searchQuery} />
                 )}
             </div>
 
