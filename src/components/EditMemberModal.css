@@ -133,7 +133,7 @@
 .photo-card-dark {
     position: relative;
     border-radius: 12px;
-    overflow: visible;
+    overflow: hidden;
     background: rgba(0, 0, 0, 0.3);
     border: 2px solid transparent;
     transition: all 0.2s ease;
@@ -211,7 +211,7 @@
 .photo-year-edit-dark:focus {
     outline: none;
     border-color: #a3e635;
-    box-shadow: 0 0 0 2px rgba(163, 230, 53, 0.2);
+    background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
 }
 
 .photo-year-input-dark {
