@@ -579,7 +579,7 @@ export const EditMemberModal: React.FC<EditMemberModalProps> = ({ person, onClos
                             )}
 
                             {/* Add New Photos Section */}
-                            <div className="form-group-dark">
+                            <div className="add-photos-section-dark">
                                 <label htmlFor="photos" className="form-label-dark">
                                     {t('editMember.addNewPhotos')}
                                 </label>
